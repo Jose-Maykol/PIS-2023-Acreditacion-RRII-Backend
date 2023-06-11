@@ -1,7 +1,7 @@
 stages:
   - build
 
-build-code:
+build-code-test:
   stage: build
   only:
     - testing
@@ -10,7 +10,8 @@ build-code:
   script:
     - echo "Start"
     - cd /var/www/acreditacion-rrii-backend
-    - sudo git pull https://$GLAB_USER:$GLAB_PASS@gitlab.com/4rian903/acreditacion-rrii-backend.git
+    - sudo git pull origin testing https://$GLAB_USER:$GLAB_PASS@gitlab.com/4rian903/acreditacion-rrii-backend.git
+    - sudo composer install
+    - sudo php artisan migrate
     - echo "End"
-
 

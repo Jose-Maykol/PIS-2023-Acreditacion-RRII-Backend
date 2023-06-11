@@ -1,0 +1,16 @@
+stages:
+  - build
+
+build-code:
+  stage: build
+  only:
+    - testing
+  tags:
+    - testing
+  script:
+    - echo "Start"
+    - cd /var/www/acreditacion-rrii-backend
+    - sudo git pull https://$GLAB_USER:$GLAB_PASS@gitlab.com/4rian903/acreditacion-rrii-backend.git
+    - echo "End"
+
+

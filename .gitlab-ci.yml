@@ -10,7 +10,8 @@ build-code-test:
   script:
     - echo "Start"
     - cd /var/www/acreditacion-rrii-backend
-    - sudo git pull origin testing https://$GLAB_USER:$GLAB_PASS@gitlab.com/4rian903/acreditacion-rrii-backend.git
+    - sudo git checkout testing
+    - sudo git pull https://$GLAB_USER:$GLAB_PASS@gitlab.com/4rian903/acreditacion-rrii-backend.git
     - sudo composer install
     - sudo php artisan migrate
     - echo "End"

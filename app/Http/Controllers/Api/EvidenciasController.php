@@ -163,4 +163,46 @@ class EvidenciasController extends Controller
             ], 404);
         }
     }
+
+    public function view($id)
+    {
+        if (Evidencias::where("id", $id)->exists()) {
+            $evidencia = Evidencias::find($id);
+            $path = storage_path('app/' . $evidencia->adjunto);
+    
+            // Obtener la extensión del archivo para establecer el tipo de contenido adecuado
+            $extension = pathinfo($path, PATHINFO_EXTENSION);
+            $contentType = $this->getContentType($extension);
+    
+            // Leer el contenido del archivo
+            $fileContents = file_get_contents($path);
+    
+            return response($fileContents)->header('Content-Type', $contentType);
+        } else {
+            return response([
+                "status" => 0,
+                "msg" => "!No se encontró la evidencia",
+            ], 404);
+        }
+    }
+    
+    // Función auxiliar para obtener el tipo de contenido según la extensión del archivo
+    private function getContentType($extension)
+    {
+        $contentTypes = [
+            'pdf' => 'application/pdf',
+            'jpg' => 'image/jpeg',
+            'png' => 'image/png',
+            // Añade aquí más tipos de contenido según tus necesidades
+        ];
+    
+        // Verificar si existe un tipo de contenido definido para la extensión
+        if (isset($contentTypes[$extension])) {
+            return $contentTypes[$extension];
+        }
+    
+        // Si no se encuentra un tipo de contenido definido, devolver un tipo de contenido genérico
+        return 'application/octet-stream';
+    }
+    
 }

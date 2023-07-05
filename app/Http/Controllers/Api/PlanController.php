@@ -478,6 +478,25 @@ class PlanController extends Controller
         }
     }
 
+    public function showPlanEvidence($id)
+    {
+
+        if (plan::where("id", $id)->exists()) {
+            $plan = plan::find($id);
+            $plan->evidencias = Evidencias::where("id_plan", $id)->get();
+            return response([
+                "status" => 1,
+                "message" => "!Plan de mejora encontrado",
+                "data" => $plan,
+            ]);
+        } else {
+            return response([
+                "status" => 0,
+                "message" => "!No se encontro el plan de mejora",
+            ], 404);
+        }
+    }
+
     public function listPlanUser()
     {
         $id_user = auth()->user()->id;

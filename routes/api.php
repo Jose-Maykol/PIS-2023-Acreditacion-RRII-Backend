@@ -60,6 +60,7 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::post('plan', [PlanController::class, 'createPlan']);
     Route::get('plan', [PlanController::class, 'listPlan']);
     Route::get('plan/{id}', [PlanController::class, 'showPlan'])->where('id', '[0-9]+');
+    Route::get('plan/{id}/evidencia', [PlanController::class, 'showPlanEvidence'])->where('id', '[0-9]+');
     Route::delete('plan/{id}', [PlanController::class, 'deletePlan'])->where('id', '[0-9]+');
     Route::put('plan/{id}', [PlanController::class, 'update'])->where('id', '[0-9]+');
     Route::get('plans/user', [PlanController::class, 'listPlanUser']);
@@ -112,6 +113,7 @@ Route::middleware("auth:sanctum")->group(function () {
     //ruta evidencias
     Route::post('evidencia', [EvidenciasController::class, 'create']);
     Route::get('evidencia/download/{id}', [EvidenciasController::class, 'download'])->where('id', '[0-9]+');
+    Route::get('evidencia/view/{id}', [EvidenciasController::class, 'view'])->where('id', '[0-9]+');
     Route::get('evidencia/{id}', [EvidenciasController::class, 'show'])->where('id', '[0-9]+');
     Route::put('evidencia', [EvidenciasController::class, 'update']);
     Route::delete('evidencia/{id}', [EvidenciasController::class, 'delete'])->where('id', '[0-9]+');

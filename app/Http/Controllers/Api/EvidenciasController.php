@@ -60,6 +60,8 @@ class EvidenciasController extends Controller
         }
     }
 
+        
+
     public function show($id)
     {
         if (Evidencias::where("id", $id)->exists()) {
@@ -80,8 +82,59 @@ class EvidenciasController extends Controller
         }
     }
 
-
-
+    public function createMany(Request $request)
+    {
+        $request->validate([
+            "id_plan" => "required|integer",
+            "id_tipo" => "required|integer", // Tipo de evidencia
+            "codigo" => "required",
+            "denominacion" => "required",
+            "adjunto" => "required|array",
+            "adjunto.*" => "file", // Validación individual de cada archivo
+        ]);
+    
+        // Validar la cabecera de la solicitud
+        if (!$request->headers->get('Content-Type') === 'multipart/form-data') {
+            return response()->json(['error' => 'La cabecera debe tener el tipo "multipart/form-data"'], 400);
+        }
+    
+        $id_user = auth()->user();
+        if (Plan::where(["id" => $request->id_plan])->exists()) {
+            $plan = Plan::find($request->id_plan);
+            if ($id_user->isCreadorPlan($request->id_plan) || $id_user->isAdmin()) {
+                foreach ($request->file('adjunto') as $file) {
+                    $evidencia = new Evidencias();
+                    $evidencia->id_plan = $request->id_plan;
+                    $evidencia->codigo = $plan->codigo;
+                    $evidencia->denominacion = $request->denominacion . '.' . $file->extension();
+    
+                    $path = $file->store('evidencias');
+                    error_log($path);
+    
+                    $evidencia->adjunto = $path;
+                    $evidencia->id_user = $id_user->id;
+                    $evidencia->save();
+                }
+    
+                return response([
+                    "status" => 1,
+                    "message" => "Evidencia(s) creada(s) exitosamente",
+                    "evidencias" => Evidencias::where('id_plan', $request->id_plan)->get()
+                ]);
+            } else {
+                return response([
+                    "status" => 0,
+                    "message" => "No tienes permisos para crear esta Evidencia",
+                ], 404);
+            }
+        } else {
+            return response([
+                "status" => 0,
+                "message" => "No se encontró el plan",
+            ], 404);
+        }
+    }
+    
 
 
     public function update(Request $request)

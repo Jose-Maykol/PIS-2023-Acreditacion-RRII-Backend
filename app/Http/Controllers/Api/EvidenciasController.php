@@ -19,6 +19,7 @@ class EvidenciasController extends Controller
     {
         $request->validate([
             "id_plan" => "required|integer",
+            "id_tipo" => "required|integer", //Tipo de evidencia
             "codigo" => "required",
             "denominacion" => "required",
             "adjunto" => "required",
@@ -87,6 +88,7 @@ class EvidenciasController extends Controller
     {
         $request->validate([
             "id" => "required|integer",
+            "id_tipo" => "required|integer", //Tipo de evidencia
             "codigo" => "required",
             "denominacion" => "required",
             "adjunto" => "required"

@@ -13,6 +13,7 @@ class Estandar extends Model
     protected $table ='estandars';
     protected $fillable = [
         'name',
+        'position',
 		'cabecera'
     ];
 

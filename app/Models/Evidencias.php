@@ -16,7 +16,6 @@ class Evidencias extends Model
         'codigo',
         'denominacion',
         'adjunto',
-
     ];
 
 
@@ -26,5 +25,7 @@ class Evidencias extends Model
     public function plans(){
         return $this->belongsTo(plan::class,'id_plan');
     }
-
+    public function evidenciaTipo(){
+        return $this->belongsTo(EvidenciasTipo::class,'id_tipo');
+    }
 }

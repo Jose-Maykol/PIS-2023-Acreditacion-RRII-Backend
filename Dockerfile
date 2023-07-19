@@ -40,7 +40,7 @@ RUN composer install --no-ansi --no-dev --no-interaction --no-progress --optimiz
 RUN php artisan key:generate
 #RUN php artisan migrate
 RUN chown -R www-data:www-data storage/ bootstrap/cache/
-EXPOSE 8000
+EXPOSE 9000
 
 #USER $user
 

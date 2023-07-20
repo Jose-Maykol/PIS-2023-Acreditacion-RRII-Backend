@@ -15,3 +15,16 @@ build-code-test:
     - sudo php artisan migrate
     - echo "End build test"
 
+build-code-production:
+  stage: build
+  only:
+    - main
+  tags:
+    - production
+  script:
+    - echo "Start build production"
+    - cd /var/www/acreditacion-rrii-backend
+    - sudo git checkout main
+    - sudo git pull
+    - sudo php artisan migrate
+    - echo "End build production"

@@ -19,13 +19,13 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*','http://localhost:3000/'],
+    'allowed_origins' => ['*','http://localhost:3000/', 'https://acreditacion-rrii.braincraft.cloud/'],
 
     'allowed_origins_patterns' =>  ['content-type', 'accept', 'x-custom-header', 'Access-Control-Allow-Origin'],
 
     'allowed_headers' => ['*'],
 
-    'exposed_headers' => ['x-custom-response-header'],
+    'exposed_headers' => [],
 
     'max_age' => 0,
 

@@ -11,8 +11,20 @@ build-code-test:
     - echo "Start build test"
     - cd /var/www/acreditacion-rrii-backend
     - sudo git checkout testing
-    - sudo git pull https://$GLAB_USER:$GLAB_PASS@gitlab.com/4rian903/acreditacion-rrii-backend.git
-    - sudo composer install
+    - sudo git pull
     - sudo php artisan migrate
     - echo "End build test"
 
+build-code-production:
+  stage: build
+  only:
+    - main
+  tags:
+    - production
+  script:
+    - echo "Start build production"
+    - cd /var/www/acreditacion-rrii-backend
+    - sudo git checkout main
+    - sudo git pull
+    - sudo php artisan migrate
+    - echo "End build production"

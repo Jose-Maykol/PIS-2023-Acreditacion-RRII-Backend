@@ -19,7 +19,7 @@ class EvidenciasController extends Controller
     {
         $request->validate([
             "id_plan" => "required|integer",
-            "id_tipo" => "required|integer", //Tipo de evidencia
+            "id_tipo" => "required|integer",
             "codigo" => "required",
             "denominacion" => "required",
             "adjunto" => "required",
@@ -30,6 +30,7 @@ class EvidenciasController extends Controller
             if ($id_user->isCreadorPlan($request->id_plan) or $id_user->isAdmin()) {
                 $evidencia = new Evidencias();
                 $evidencia->id_plan = $request->id_plan;
+                $evidencia->id_tipo = $request->id_tipo;
                 $evidencia->codigo = $plan->codigo;
                 $evidencia->denominacion = $request->denominacion.'.'.$request->adjunto->extension();
                 $path = $request->adjunto->storePubliclyAs(
@@ -105,6 +106,7 @@ class EvidenciasController extends Controller
                 foreach ($request->file('adjunto') as $index => $file) {
                     $evidencia = new Evidencias();
                     $evidencia->id_plan = $request->id_plan;
+                    $evidencia->id_tipo = $request->id_tipo;
                     $evidencia->codigo = $plan->codigo;
                     $evidencia->denominacion = $request->denominacion[$index] . '.' . $file->extension();
                     $path = $file->storeAs('evidencias', $evidencia->denominacion);
@@ -147,6 +149,7 @@ class EvidenciasController extends Controller
             $plan = plan::find($evidencia->id_plan);
             if ($id_user->isCreadorPlan($plan->id) or $id_user->isAdmin()) {
                 $evidencia->codigo = $request->codigo;
+                $evidencia->id_tipo = $request->id_tipo;
                 $evidencia->denominacion = $request->denominacion.$request->adjunto->extension();
                 $path = $request->adjunto->storePubliclyAs(
                     'evidencias',

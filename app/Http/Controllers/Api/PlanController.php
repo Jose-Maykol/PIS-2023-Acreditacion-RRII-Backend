@@ -330,6 +330,7 @@ class PlanController extends Controller
             $resp = $request->validate([
                 'id_estandar' => 'required|integer|exists:estandars,id',
                 'id_user' => 'required|integer|exists:users,id',
+                "nombre" => "required|max:255",
                 'codigo' => [
                     'required',
                     Rule::unique('plans', 'codigo')->where(function ($query) use ($request) {
@@ -345,7 +346,7 @@ class PlanController extends Controller
                 $plan->codigo = $request->codigo;
                 $plan->avance = 0;
                 $plan->estado = "Planificado";
-                $plan->nombre = "";
+                $plan->nombre = $request->nombre;
                 $plan->evaluacion_eficacia = false;
                 $plan->save();
                 return response([

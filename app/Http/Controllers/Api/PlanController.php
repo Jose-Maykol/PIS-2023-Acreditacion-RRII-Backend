@@ -352,6 +352,7 @@ class PlanController extends Controller
                 return response([
                     "status" => 1,
                     "message" => "!Plan de mejora asignado exitosamente",
+                    "plan_id" => $plan->id,
                 ], 200);
             } else {
                 return response([

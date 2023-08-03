@@ -53,6 +53,7 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::get('estandar', [EstandarController::class, 'listEstandar']);
     Route::get('estandar-valores', [EstandarController::class, 'listEstandarValores']);
     Route::get('estandar/{id}', [EstandarController::class, 'showEstandar'])->where('id', '[0-9]+');
+    Route::get('estandar/{id}/evidencias', [EstandarController::class, 'getEstandarStructure'])->where('id', '[0-9]+');
     Route::put('estandar/{id}',  [EstandarController::class, 'updateEstandar'])->where('id', '[0-9]+');
     Route::delete('estandar/{id}', [EstandarController::class, 'deleteEstandar'])->where('id', '[0-9]+');
 
@@ -67,8 +68,6 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::post('plan/asignar', [PlanController::class, 'assignPlan']);
     Route::get('plan/export/{id}', [PlanController::class, 'exportPlan'])->where('id', '[0-9]+');
     //Route::put('plan',[PlanController::class,'updatePlan']);
-
-
 
     //rutas metas
     Route::post('meta', [MetasController::class, 'create']);

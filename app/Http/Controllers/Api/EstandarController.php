@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use App\Models\Estandar;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use App\Models\Evidencias;
 
 class EstandarController extends Controller
 {
@@ -113,5 +115,73 @@ class EstandarController extends Controller
                 "msg" => "!No se encontro el estandar o no esta autorizado",
             ], 404);
         }
+    }
+
+    public function getEstandarStructure(Request $request, $id)
+    {
+        $estandarId = $id;
+        return $this->getEstandarFiles($estandarId);
+    }
+
+
+    public function getEstandarFiles($estandarId)
+    {
+        $estandarFolderPath = 'evidencias/estandares/' . 'estandar' . $estandarId;
+        $fullPath = storage_path('app/' . $estandarFolderPath); // Obtener la ruta completa
+
+        // Utilizamos la función exists de Storage para verificar si la carpeta existe
+        if (!Storage::exists($estandarFolderPath)) {
+            return response()->json([
+                "status" => 0,
+                "message" => "No se encontró la carpeta del estándar",
+            ], 404);
+        }
+
+        // Utilizamos is_dir() para verificar si la carpeta existe
+        if (!is_dir($fullPath)) {
+            return response()->json([
+                "status" => 0,
+                "message" => "No se encontró la carpeta del estándar",
+            ], 404);
+        }
+
+        $structure = $this->getFolderStructure($fullPath);
+
+        return response()->json([
+            "status" => 1,
+            "message" => "Estructura de archivos y carpetas del estándar obtenida correctamente",
+            "structure" => $structure,
+        ]);
+    }
+
+    private function getFolderStructure($folderPath, $basePath = null)
+    {
+        if (!$basePath) {
+            $basePath = storage_path('app/');
+        }
+
+        $structure = [];
+        $files = glob($folderPath . '/*');
+
+        foreach ($files as $file) {
+            if (is_file($file)) {
+                $evidencia = Evidencias::where('adjunto', str_replace($basePath, '', $file))->first();
+                $structure[] = [
+                    "type" => "file",
+                    "name" => pathinfo($file, PATHINFO_BASENAME),
+                    "path" => str_replace($basePath, '', $file),
+                    "id_tipo" => $evidencia ? $evidencia->id_tipo : null,
+                    "id" => $evidencia ? $evidencia->id : null,
+                ];
+            } elseif (is_dir($file)) {
+                $structure[] = [
+                    "type" => "folder",
+                    "name" => pathinfo($file, PATHINFO_BASENAME),
+                    "path" => str_replace($basePath, '', $file),
+                    "children" => $this->getFolderStructure($file, $basePath),
+                ];
+            }
+        }
+        return $structure;
     }
 }

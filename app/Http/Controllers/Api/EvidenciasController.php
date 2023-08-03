@@ -92,7 +92,6 @@ class EvidenciasController extends Controller
         $request->validate([
             "id_plan" => "required|integer",
             "id_tipo" => "required|integer", // Tipo de evidencia
-            "id_estandar" => "required|integer", // Estandar al que pertenece la evidencia
             "codigo" => "required",
             "denominacion" => "required|array", // Denominacion ahora es un array
             "adjunto" => "required|array",
@@ -111,9 +110,6 @@ class EvidenciasController extends Controller
                 $estandar = $plan->id_estandar;
 
                 $estandarFolderPath = 'evidencias/estandares/' . 'estandar' . $estandar;
-                if (!file_exists($estandarFolderPath)) {
-                    mkdir($estandarFolderPath, 0777, true);
-                }
                 
                 foreach ($request->file('adjunto') as $index => $file) {
                     if ($file->getClientOriginalExtension() === 'zip') {
@@ -126,10 +122,6 @@ class EvidenciasController extends Controller
                                 $fileInfo = pathinfo($filename);
                                 $fileFolderPath = $estandarFolderPath . '/' . $fileInfo['dirname'];
                     
-                                // Crea la estructura de carpetas dentro del ZIP
-                                if (!file_exists($fileFolderPath)) {
-                                    mkdir($fileFolderPath, 0777, true);
-                                }
                                 // Obtener el nombre del archivo descomprimido
                                 $unzippedFileName = $fileInfo['basename'];
                     
@@ -140,7 +132,7 @@ class EvidenciasController extends Controller
                                 $evidencia = new Evidencias();
                                 $evidencia->id_plan = $request->id_plan;
                                 $evidencia->id_tipo = $request->id_tipo;
-                                $evidencia->id_estandar = $request->id_estandar;
+                                $evidencia->id_estandar = $plan->id_estandar;
                                 $evidencia->codigo = $request->codigo;
                                 $evidencia->denominacion = $unzippedFileName;
                                 $evidencia->adjunto = $unzippedFilePath;
@@ -159,7 +151,7 @@ class EvidenciasController extends Controller
                         $evidencia = new Evidencias();
                         $evidencia->id_plan = $request->id_plan;
                         $evidencia->id_tipo = $request->id_tipo;
-                        $evidencia->id_estandar = $request->id_estandar;
+                        $evidencia->id_estandar = $plan->id_estandar;
                         $evidencia->codigo = $request->codigo;
                         $evidencia->denominacion = $request->denominacion[$index] . '.' . $file->extension();
                         $path = $file->storeAs($estandarFolderPath, $evidencia->denominacion);
@@ -311,5 +303,4 @@ class EvidenciasController extends Controller
         // Si no se encuentra un tipo de contenido definido, devolver un tipo de contenido genérico
         return 'application/octet-stream';
     }
-    
 }

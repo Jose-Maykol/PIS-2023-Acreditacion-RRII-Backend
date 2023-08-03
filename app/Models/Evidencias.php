@@ -28,4 +28,7 @@ class Evidencias extends Model
     public function evidenciaTipo(){
         return $this->belongsTo(EvidenciasTipo::class,'id_tipo');
     }
+    public function evidenciaEstandar(){
+        return $this->belongsTo(Estandar::class,'id_estandar');
+    }
 }

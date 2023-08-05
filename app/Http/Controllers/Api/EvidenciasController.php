@@ -124,10 +124,12 @@ class EvidenciasController extends Controller
                     
                                 // Obtener el nombre del archivo descomprimido
                                 $unzippedFileName = $fileInfo['basename'];
-                    
+
                                 // Guardar el archivo descomprimido en el almacenamiento y obtener la ruta relativa
                                 $unzippedFilePath = $file->storeAs($fileFolderPath, $fileInfo['basename']);
                     
+                                $unzippedFilePath = str_replace('/./', '/', $unzippedFilePath);
+
                                 // Guardar la ruta del archivo descomprimido en la tabla Evidencias
                                 $evidencia = new Evidencias();
                                 $evidencia->id_plan = $request->id_plan;

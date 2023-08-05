@@ -166,12 +166,16 @@ class EstandarController extends Controller
         foreach ($files as $file) {
             if (is_file($file)) {
                 $evidencia = Evidencias::where('adjunto', str_replace($basePath, '', $file))->first();
+                $user = User::find($evidencia->id_user);
                 $structure[] = [
                     "type" => "file",
                     "name" => pathinfo($file, PATHINFO_BASENAME),
                     "path" => str_replace($basePath, '', $file),
                     "id_tipo" => $evidencia ? $evidencia->id_tipo : null,
                     "id" => $evidencia ? $evidencia->id : null,
+                    "created_at" => $evidencia ? $evidencia->created_at : null,
+                    "updated_at" => $evidencia ? $evidencia->updated_at : null,
+                    "user" => $user->name . ' ' . $user->lastname,
                 ];
             } elseif (is_dir($file)) {
                 $structure[] = [

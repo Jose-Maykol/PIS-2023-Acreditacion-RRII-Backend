@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Evidencias;
 use App\Models\plan;
 use App\Models\User;
+use App\Models\Estandar;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage; 
@@ -91,6 +92,7 @@ class EvidenciasController extends Controller
     {
         $request->validate([
             "id_plan" => "required|integer",
+            "id_estandar" => "required|integer",
             "id_tipo" => "required|integer", // Tipo de evidencia
             "codigo" => "required",
             "denominacion" => "required|array", // Denominacion ahora es un array
@@ -103,13 +105,22 @@ class EvidenciasController extends Controller
             return response()->json(['error' => 'La cabecera debe tener el tipo "multipart/form-data"'], 400);
         }
 
+        // Obtener el estandar correspondiente al id_estandar proporcionado
+        $estandar = Estandar::find($request->id_estandar);
+
+        if (!$estandar) {
+            return response([
+                "status" => 0,
+                "message" => "No se encontró el estándar",
+            ], 404);
+        }
+
         $id_user = auth()->user();
-        if (Plan::where(["id" => $request->id_plan])->exists()) {
+        if (Estandar::where(["id" => $request->id_estandar])->exists()) {
             $plan = Plan::find($request->id_plan);
             if ($id_user->isCreadorPlan($request->id_plan) || $id_user->isAdmin()) {
-                $estandar = $plan->id_estandar;
 
-                $estandarFolderPath = 'evidencias/estandares/' . 'estandar' . $estandar;
+                $estandarFolderPath = 'evidencias/estandares/' . 'estandar' . $estandar->id;
                 
                 foreach ($request->file('adjunto') as $index => $file) {
                     if ($file->getClientOriginalExtension() === 'zip') {
@@ -134,7 +145,7 @@ class EvidenciasController extends Controller
                                 $evidencia = new Evidencias();
                                 $evidencia->id_plan = $request->id_plan;
                                 $evidencia->id_tipo = $request->id_tipo;
-                                $evidencia->id_estandar = $plan->id_estandar;
+                                $evidencia->id_estandar = $estandar->id;
                                 $evidencia->codigo = $request->codigo;
                                 $evidencia->denominacion = $unzippedFileName;
                                 $evidencia->adjunto = $unzippedFilePath;
@@ -153,7 +164,7 @@ class EvidenciasController extends Controller
                         $evidencia = new Evidencias();
                         $evidencia->id_plan = $request->id_plan;
                         $evidencia->id_tipo = $request->id_tipo;
-                        $evidencia->id_estandar = $plan->id_estandar;
+                        $evidencia->id_estandar = $estandar->id;
                         $evidencia->codigo = $request->codigo;
                         $evidencia->denominacion = $request->denominacion[$index] . '.' . $file->extension();
                         $path = $file->storeAs($estandarFolderPath, $evidencia->denominacion);

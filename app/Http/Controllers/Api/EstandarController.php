@@ -120,24 +120,24 @@ class EstandarController extends Controller
     public function getEstandarStructure(Request $request, $id)
     {
         $estandarId = $id;
-        return $this->getEstandarFiles($estandarId);
+        $id_tipo = $request->query('tipo');
+
+        return $this->getEstandarFiles($estandarId, $id_tipo);
     }
 
 
-    public function getEstandarFiles($estandarId)
+    public function getEstandarFiles($estandarId, $id_tipo = null)
     {
         $estandarFolderPath = 'evidencias/estandares/' . 'estandar' . $estandarId;
-        $fullPath = storage_path('app/' . $estandarFolderPath); // Obtener la ruta completa
+        $fullPath = storage_path('app/' . $estandarFolderPath);
 
-        // Utilizamos la función exists de Storage para verificar si la carpeta existe
         if (!Storage::exists($estandarFolderPath)) {
             return response()->json([
                 "status" => 0,
                 "message" => "No se encontró la carpeta del estándar",
             ], 404);
         }
-
-        // Utilizamos is_dir() para verificar si la carpeta existe
+        
         if (!is_dir($fullPath)) {
             return response()->json([
                 "status" => 0,
@@ -145,7 +145,7 @@ class EstandarController extends Controller
             ], 404);
         }
 
-        $structure = $this->getFolderStructure($fullPath);
+        $structure = $this->getFolderStructure($fullPath, $id_tipo);
 
         return response()->json([
             "status" => 1,
@@ -154,7 +154,7 @@ class EstandarController extends Controller
         ]);
     }
 
-    private function getFolderStructure($folderPath, $basePath = null)
+    private function getFolderStructure($folderPath, $id_tipo = null, $basePath = null)
     {
         if (!$basePath) {
             $basePath = storage_path('app/');
@@ -166,24 +166,29 @@ class EstandarController extends Controller
         foreach ($files as $file) {
             if (is_file($file)) {
                 $evidencia = Evidencias::where('adjunto', str_replace($basePath, '', $file))->first();
-                $user = User::find($evidencia->id_user);
-                $structure[] = [
-                    "type" => "file",
-                    "name" => pathinfo($file, PATHINFO_BASENAME),
-                    "path" => str_replace($basePath, '', $file),
-                    "id_tipo" => $evidencia ? $evidencia->id_tipo : null,
-                    "id" => $evidencia ? $evidencia->id : null,
-                    "created_at" => $evidencia ? $evidencia->created_at : null,
-                    "updated_at" => $evidencia ? $evidencia->updated_at : null,
-                    "user" => $user->name . ' ' . $user->lastname,
-                ];
+                if (!$id_tipo || ($evidencia && $evidencia->id_tipo == $id_tipo)) {
+                    $user = $evidencia ? User::find($evidencia->id_user) : null;
+                    $structure[] = [
+                        "type" => "file",
+                        "name" => pathinfo($file, PATHINFO_BASENAME),
+                        "path" => str_replace($basePath, '', $file),
+                        "id_tipo" => $evidencia ? $evidencia->id_tipo : null,
+                        "id" => $evidencia ? $evidencia->id : null,
+                        "created_at" => $evidencia ? $evidencia->created_at : null,
+                        "updated_at" => $evidencia ? $evidencia->updated_at : null,
+                        "user" => $user ? $user->name . ' ' . $user->lastname : null,
+                    ];
+                }
             } elseif (is_dir($file)) {
-                $structure[] = [
-                    "type" => "folder",
-                    "name" => pathinfo($file, PATHINFO_BASENAME),
-                    "path" => str_replace($basePath, '', $file),
-                    "children" => $this->getFolderStructure($file, $basePath),
-                ];
+                $children = $this->getFolderStructure($file, $id_tipo, $basePath);
+                if (!empty($children)) {
+                    $structure[] = [
+                        "type" => "folder",
+                        "name" => pathinfo($file, PATHINFO_BASENAME),
+                        "path" => str_replace($basePath, '', $file),
+                        "children" => $children,
+                    ];
+                }
             }
         }
         return $structure;

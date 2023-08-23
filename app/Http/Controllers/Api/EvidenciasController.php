@@ -104,11 +104,11 @@ class EvidenciasController extends Controller
 
         $estandarId = $request->id_estandar;
         $tipoEvidenciaId = $request->id_tipoEvidencia;
+        $generalPath = $request->has('path') ? $request->path : null;
         $parentFolder = null;
-        $generalPath = $request->has('path') ? $request->path : '';
         
         $folder = Folder::where('path', $generalPath)->where('standard_id', $estandarId)->where('evidenceType_id', $tipoEvidenciaId)->first();
-            if (!$folder) {
+        if (!$folder) {
             $folder = new Folder([
                 'name' => $generalPath == '' ? 'root' : $generalPath,
                 'user_id' => $userId,
@@ -117,6 +117,8 @@ class EvidenciasController extends Controller
                 'evidenceType_id' => $tipoEvidenciaId,
             ]);
             $folder->save();
+        } else {
+            $parentFolder = $folder->id;
         }
 
         foreach ($request->file('files') as $file) {
@@ -125,7 +127,7 @@ class EvidenciasController extends Controller
                 $zip = new ZipArchive;
                 if ($zip->open($file) === TRUE) 
                 {
-                    $extractedPath = storage_path('app/evidencias/'. 'estandar_' . $estandarId . '/tipo_evidencia_'. $tipoEvidenciaId);
+                    $extractedPath = storage_path('app/evidencias/'. 'estandar_' . $estandarId . '/tipo_evidencia_'. $tipoEvidenciaId) . '/' . $generalPath;
                     $zip->extractTo($extractedPath);
                     $zip->close();
 
@@ -145,7 +147,7 @@ class EvidenciasController extends Controller
                 }
             } else 
             {
-                $path = $file->storeAs('evidencias/'. 'estandar_' . $estandarId . '/tipo_evidencia_'. $tipoEvidenciaId . $generalPath, $file->getClientOriginalName());
+                $path = $file->storeAs('evidencias/'. 'estandar_' . $estandarId . '/tipo_evidencia_'. $tipoEvidenciaId . '/' . $generalPath, $file->getClientOriginalName());
                 $relativePath = str_replace(storage_path('app/'), '', $path);
                 $basePath = 'evidencias/'. 'estandar_' . $estandarId . '/tipo_evidencia_'. $tipoEvidenciaId . '/';
                 $relativePath = str_replace($basePath, '', $relativePath);
@@ -192,11 +194,16 @@ class EvidenciasController extends Controller
                     }
                     if ($parentFolder == null) {
                         $rootFolder = Folder::where('path', null)->where('standard_id', $estandarId)->where('evidenceType_id', $tipoEvidenciaId)->first();
-                        $folder->parent_id = $rootFolder->id;
+                        if ($rootFolder) {
+                            $folder->parent_id = $rootFolder->id;
+                        }
                     }
                     $folder->save();
                     $this->createEvidencesAndFolders($filePath, $userId, $estandarId, $tipoEvidenciaId, $folder);
                 } else {
+                    if (Evidence::where('path', $relativePath)->where('standard_id', $estandarId)->where('evidenceType_id', $tipoEvidenciaId)->exists()) {
+                        continue;
+                    }
                     $fileInfo = pathinfo($filePath);
                     $evidence = new Evidence([
                         'name' => $fileInfo['filename'],

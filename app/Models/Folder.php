@@ -5,28 +5,27 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Evidence extends Model {
+class Folder extends Model 
+{
     use HasFactory;
+    
     public $timestamps = true;
-    protected $table ='evidences';
+    protected $table ='folders';
     protected $fillable = [
         'name',
         'path',
-        'file',
-        'type',
-        'size',
         'user_id',
-        'folder_id',
-        'evidenceType_id',
+        'parent_id',
+        'evidenceType_id',  
         'standard_id',
     ];
 
-    public function user() {
+    public function users() {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function folder() {
-        return $this->belongsTo(Folder::class, 'folder_id');
+    public function parent() {
+        return $this->belongsTo(Folder::class, 'parent_id');
     }
 
     public function evidenceType() {

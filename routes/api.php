@@ -111,7 +111,7 @@ Route::middleware("auth:sanctum")->group(function () {
 
     //ruta evidencias
     Route::post('evidencia', [EvidenciasController::class, 'create']);
-    Route::post('evidencias', [EvidenciasController::class, 'createMany']);
+    Route::post('evidencias', [EvidenciasController::class, 'createEvidence']);
     Route::get('evidencia/download/{id}', [EvidenciasController::class, 'download'])->where('id', '[0-9]+');
     Route::get('evidencia/view/{id}', [EvidenciasController::class, 'view'])->where('id', '[0-9]+');
     Route::get('evidencia/{id}', [EvidenciasController::class, 'show'])->where('id', '[0-9]+');

@@ -7,6 +7,8 @@ use App\Models\Evidencias;
 use App\Models\plan;
 use App\Models\User;
 use App\Models\Estandar;
+use App\Models\Folder;
+use App\Models\Evidence;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage; 
@@ -85,6 +87,133 @@ class EvidenciasController extends Controller
                 "status" => 0,
                 "msg" => "!No se encontro el evidencia",
             ], 404);
+        }
+    }
+
+    public function createEvidence(Request $request)
+    {
+        $request->validate([
+            "id_estandar" => "required|integer",
+            "id_tipoEvidencia" => "required|integer",
+            "files" => "required|array",
+            "files.*" => "file",
+            "path" => "nullable|string",
+        ]);
+
+        $userId = auth()->user()->id;
+
+        $estandarId = $request->id_estandar;
+        $tipoEvidenciaId = $request->id_tipoEvidencia;
+        $parentFolder = null;
+        $generalPath = $request->has('path') ? $request->path : '';
+        
+        $folder = Folder::where('path', $generalPath)->where('standard_id', $estandarId)->where('evidenceType_id', $tipoEvidenciaId)->first();
+            if (!$folder) {
+            $folder = new Folder([
+                'name' => $generalPath == '' ? 'root' : $generalPath,
+                'user_id' => $userId,
+                'path' => $generalPath,
+                'standard_id' => $estandarId,
+                'evidenceType_id' => $tipoEvidenciaId,
+            ]);
+            $folder->save();
+        }
+
+        foreach ($request->file('files') as $file) {
+            if ($file->getClientOriginalExtension() == 'zip') 
+            {
+                $zip = new ZipArchive;
+                if ($zip->open($file) === TRUE) 
+                {
+                    $extractedPath = storage_path('app/evidencias/'. 'estandar_' . $estandarId . '/tipo_evidencia_'. $tipoEvidenciaId);
+                    $zip->extractTo($extractedPath);
+                    $zip->close();
+
+                    $this->createEvidencesAndFolders($extractedPath, $userId, $estandarId, $tipoEvidenciaId, $parentFolder);
+
+                    return response([
+                        "status" => 1,
+                        "message" => "Evidencia creada exitosamente",
+                    ]);
+                }
+                else 
+                {
+                    return response([
+                        "status" => 0,
+                        "message" => "Error al descomprimir el archivo ZIP",
+                    ], 404);
+                }
+            } else 
+            {
+                $path = $file->storeAs('evidencias/'. 'estandar_' . $estandarId . '/tipo_evidencia_'. $tipoEvidenciaId . $generalPath, $file->getClientOriginalName());
+                $relativePath = str_replace(storage_path('app/'), '', $path);
+                $basePath = 'evidencias/'. 'estandar_' . $estandarId . '/tipo_evidencia_'. $tipoEvidenciaId . '/';
+                $relativePath = str_replace($basePath, '', $relativePath);
+                $evidence = new Evidence([
+                    'name' => $file->getClientOriginalName(),
+                    'file' => $file->getClientOriginalName(),
+                    'type' => $file->getClientOriginalExtension(),
+                    'size' => $file->getSize(),
+                    'user_id' => $userId,
+                    'standard_id' => $estandarId,
+                    'evidenceType_id' => $tipoEvidenciaId,
+                    'path' => $relativePath,
+                    'folder_id' => $folder->id,
+                ]);
+                $evidence->save();
+                return response([
+                    "status" => 1,
+                    "message" => "Evidencia creada exitosamente",
+                ]);
+            }
+        }
+    }
+
+    private function createEvidencesAndFolders($path, $userId, $estandarId, $tipoEvidenciaId, $parentFolder = null)
+    {   
+    
+        $files = scandir($path);
+        foreach ($files as $file) {
+            if ($file !== '.' && $file !== '..') {
+                $filePath = $path . '/' . $file;
+                $relativePath = str_replace(storage_path('app/'), '', $filePath);
+                $basePath = 'evidencias/'. 'estandar_' . $estandarId . '/tipo_evidencia_'. $tipoEvidenciaId . '/';
+                $relativePath = str_replace($basePath, '', $relativePath);
+                if (is_dir($filePath)) {
+                    $folder = new Folder([
+                        'name' => $file,
+                        'user_id' => $userId,
+                        'path' => $relativePath,
+                        'standard_id' => $estandarId,
+                        'evidenceType_id' => $tipoEvidenciaId,
+                    ]);
+                    if ($parentFolder) {
+                        $folder->parent()->associate($parentFolder);
+                    }
+                    if ($parentFolder == null) {
+                        $rootFolder = Folder::where('path', null)->where('standard_id', $estandarId)->where('evidenceType_id', $tipoEvidenciaId)->first();
+                        $folder->parent_id = $rootFolder->id;
+                    }
+                    $folder->save();
+                    $this->createEvidencesAndFolders($filePath, $userId, $estandarId, $tipoEvidenciaId, $folder);
+                } else {
+                    $fileInfo = pathinfo($filePath);
+                    $evidence = new Evidence([
+                        'name' => $fileInfo['filename'],
+                        'file' => $fileInfo['basename'],
+                        'type' => $fileInfo['extension'],
+                        'size' => filesize($filePath),
+                        'user_id' => $userId,
+                        'standard_id' => $estandarId,
+                        'evidenceType_id' => $tipoEvidenciaId,
+                        'path' => $relativePath,
+                    ]);
+                    if ($parentFolder) {
+                        $evidence->folder()->associate($parentFolder);
+                    }
+                    $evidence->save();
+                }
+            }
         }
     }
 

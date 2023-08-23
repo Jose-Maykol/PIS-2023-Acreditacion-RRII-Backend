@@ -15,12 +15,14 @@ return new class extends Migration
     {
         Schema::create('folders', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
             $table->string('name');
             $table->string('path')->nullable();
-            $table->foreignId('user_id')->constrained();
+            $table->foreignId('user_id')->constrained('users');
             $table->unsignedBigInteger('parent_id')->nullable();
             $table->foreign('parent_id')->references('id')->on('folders')->onDelete('cascade');
+            $table->foreignId('evidenceType_id')->constrained('evidencias_tipo');
+            $table->foreignId('standard_id')->constrained('estandars');
+            $table->timestamps();
         });
     }
 

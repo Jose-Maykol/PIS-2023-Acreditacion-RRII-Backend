@@ -127,10 +127,34 @@ class EvidenciasController extends Controller
                 $zip = new ZipArchive;
                 if ($zip->open($file) === TRUE) 
                 {
+
                     $extractedPath = storage_path('app/evidencias/'. 'estandar_' . $estandarId . '/tipo_evidencia_'. $tipoEvidenciaId) . '/' . $generalPath;
+                    for ($i = 0; $i < $zip->numFiles; $i++) 
+                    {
+                        $fileInfo = $zip->statIndex($i);
+                        $fileName = $generalPath == null ? '/' . trim($fileInfo['name'], '/') : $generalPath . '/' . trim($fileInfo['name'], '/');
+                        $isDirectory = substr($fileName, -1) === '/';
+                        if ($isDirectory) {
+                            if (Folder::where('path', $fileName)->where('standard_id', $estandarId)->where('evidenceType_id', $tipoEvidenciaId)->exists()) {
+                                return response([
+                                    "status" => 0,
+                                    "message" => "Ya existe existe este carpeta",
+                                    "file" => $fileName,
+                                ], 404);
+                            }
+                        } else {
+                           if (Evidence::where('path', $fileName)->where('standard_id', $estandarId)->where('evidenceType_id', $tipoEvidenciaId)->exists()) {
+                                return response([
+                                    "status" => 0,
+                                    "message" => "Ya existe existe este archivo",
+                                    "file" => $fileName,
+                                ], 404);
+                            }
+                        }
+                    }
+
                     $zip->extractTo($extractedPath);
                     $zip->close();
-
                     $this->createEvidencesAndFolders($extractedPath, $userId, $estandarId, $tipoEvidenciaId, $parentFolder);
 
                     return response([
@@ -145,12 +169,22 @@ class EvidenciasController extends Controller
                         "message" => "Error al descomprimir el archivo ZIP",
                     ], 404);
                 }
-            } else 
+            } 
+            else 
             {
                 $path = $file->storeAs('evidencias/'. 'estandar_' . $estandarId . '/tipo_evidencia_'. $tipoEvidenciaId . '/' . $generalPath, $file->getClientOriginalName());
                 $relativePath = str_replace(storage_path('app/'), '', $path);
                 $basePath = 'evidencias/'. 'estandar_' . $estandarId . '/tipo_evidencia_'. $tipoEvidenciaId . '/';
                 $relativePath = str_replace($basePath, '', $relativePath);
+
+                if (Evidence::where('path', $relativePath)->where('standard_id', $estandarId)->where('evidenceType_id', $tipoEvidenciaId)->exists()) {
+                    return response([
+                        "status" => 0,
+                        "message" => "Ya existe existe este archivo",
+                        "file" => $file->getClientOriginalName(),
+                    ], 404);
+                }
+                
                 $evidence = new Evidence([
                     'name' => $file->getClientOriginalName(),
                     'file' => $file->getClientOriginalName(),

@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use App\Models\Estandar;
 use App\Models\User;
+use App\Models\Folder;
+use App\Models\Evidence;
 use Illuminate\Support\Facades\DB;
 use App\Models\Evidencias;
 
@@ -115,6 +117,50 @@ class EstandarController extends Controller
                 "msg" => "!No se encontro el estandar o no esta autorizado",
             ], 404);
         }
+    }
+
+    public function getStandardEvidences(Request $request, $id)
+    {
+        
+
+        $request->validate([
+            'parent_id' => 'nullable|integer',  
+        ]);
+
+        $standardId = $id;
+        $parentIdFolder = $request->parent_id;
+        $idTypeEvidence = $request->query('tipo');
+
+        if (!$request->parent_id) {
+            $queryRootFolder = Folder::where('standard_id', $standardId)->where('evidenceType_id', $idTypeEvidence)->where('parent_id', null)->first();
+            if ($queryRootFolder == null) {
+                return response()->json([
+                    "status" => 0,
+                    "message" => "Aun no hay evidencias para este estándar",
+                ], 404);
+            }
+            else {
+                $parentIdFolder = $queryRootFolder->id;
+            }
+        }
+
+        $evidences = Evidence::where('folder_id', $parentIdFolder)->where('evidenceType_id', $idTypeEvidence)->where('standard_id', $standardId)->get();
+        $folders = Folder::where('parent_id', $parentIdFolder)->where('standard_id', $standardId)->where('evidenceType_id', $idTypeEvidence)->get();
+
+        if ($evidences->isEmpty() && $folders->isEmpty()) {
+            return response()->json([
+                "status" => 0,
+                "message" => "No se encontraron evidencias",
+            ], 404);
+        }
+
+        return response()->json([
+            "status" => 1,
+            "message" => "Evidencias obtenidas correctamente",
+            "evidences" => $evidences,
+            "folders" => $folders,
+        ]);
+        
     }
 
     public function getEstandarStructure(Request $request, $id)

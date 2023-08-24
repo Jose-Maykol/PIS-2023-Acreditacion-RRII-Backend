@@ -18,7 +18,6 @@ class Evidencias extends Model
         'adjunto',
     ];
 
-
     public function users(){
         return $this->belongsTo(User::class,'id_user');
     }

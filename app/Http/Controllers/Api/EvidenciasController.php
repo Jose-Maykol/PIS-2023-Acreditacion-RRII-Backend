@@ -172,10 +172,7 @@ class EvidenciasController extends Controller
             } 
             else 
             {
-                $path = $file->storeAs('evidencias/'. 'estandar_' . $estandarId . '/tipo_evidencia_'. $tipoEvidenciaId . '/' . $generalPath, $file->getClientOriginalName());
-                $relativePath = str_replace(storage_path('app/'), '', $path);
-                $basePath = 'evidencias/'. 'estandar_' . $estandarId . '/tipo_evidencia_'. $tipoEvidenciaId . '/';
-                $relativePath = str_replace($basePath, '', $relativePath);
+                $relativePath = $generalPath == null ? '/' . $file->getClientOriginalName() : $generalPath . '/' . $file->getClientOriginalName();
 
                 if (Evidence::where('path', $relativePath)->where('standard_id', $estandarId)->where('evidenceType_id', $tipoEvidenciaId)->exists()) {
                     return response([
@@ -184,7 +181,9 @@ class EvidenciasController extends Controller
                         "file" => $file->getClientOriginalName(),
                     ], 404);
                 }
-                
+
+                $path = $file->storeAs('evidencias/'. 'estandar_' . $estandarId . '/tipo_evidencia_'. $tipoEvidenciaId . '/' . $generalPath, $file->getClientOriginalName());
+
                 $evidence = new Evidence([
                     'name' => $file->getClientOriginalName(),
                     'file' => $file->getClientOriginalName(),

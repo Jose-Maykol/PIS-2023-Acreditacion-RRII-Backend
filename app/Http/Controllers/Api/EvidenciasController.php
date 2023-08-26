@@ -257,111 +257,6 @@ class EvidenciasController extends Controller
         }
     }
 
-    public function createMany(Request $request)
-    {
-        $request->validate([
-            "id_plan" => "required|integer",
-            "id_estandar" => "required|integer",
-            "id_tipo" => "required|integer", // Tipo de evidencia
-            "codigo" => "required",
-            "denominacion" => "required|array", // Denominacion ahora es un array
-            "adjunto" => "required|array",
-            "adjunto.*" => "file", // Validación individual de cada archivo
-        ]); 
-
-        // Validar la cabecera de la solicitud
-        if (!$request->headers->get('Content-Type') === 'multipart/form-data') {
-            return response()->json(['error' => 'La cabecera debe tener el tipo "multipart/form-data"'], 400);
-        }
-
-        // Obtener el estandar correspondiente al id_estandar proporcionado
-        $estandar = Estandar::find($request->id_estandar);
-
-        if (!$estandar) {
-            return response([
-                "status" => 0,
-                "message" => "No se encontró el estándar",
-            ], 404);
-        }
-
-        $id_user = auth()->user();
-        if (Estandar::where(["id" => $request->id_estandar])->exists()) {
-            $plan = Plan::find($request->id_plan);
-            if ($id_user->isCreadorPlan($request->id_plan) || $id_user->isAdmin()) {
-
-                $estandarFolderPath = 'evidencias/estandares/' . 'estandar' . $estandar->id;
-                
-                foreach ($request->file('adjunto') as $index => $file) {
-                    if ($file->getClientOriginalExtension() === 'zip') {
-                        $zip = new ZipArchive;
-
-                        if ($zip->open($file) === true) {
-                            // Descomprimir y mover los archivos manteniendo la estructura
-                            for ($i = 0; $i < $zip->numFiles; $i++) {
-                                $filename = $zip->getNameIndex($i);
-                                $fileInfo = pathinfo($filename);
-                                $fileFolderPath = $estandarFolderPath . '/' . $fileInfo['dirname'];
-                    
-                                // Obtener el nombre del archivo descomprimido
-                                $unzippedFileName = $fileInfo['basename'];
-
-                                // Guardar el archivo descomprimido en el almacenamiento y obtener la ruta relativa
-                                $unzippedFilePath = $file->storeAs($fileFolderPath, $fileInfo['basename']);
-                    
-                                $unzippedFilePath = str_replace('/./', '/', $unzippedFilePath);
-
-                                // Guardar la ruta del archivo descomprimido en la tabla Evidencias
-                                $evidencia = new Evidencias();
-                                $evidencia->id_plan = $request->id_plan;
-                                $evidencia->id_tipo = $request->id_tipo;
-                                $evidencia->id_estandar = $estandar->id;
-                                $evidencia->codigo = $request->codigo;
-                                $evidencia->denominacion = $unzippedFileName;
-                                $evidencia->adjunto = $unzippedFilePath;
-                                $evidencia->id_user = $id_user->id;
-                                $evidencia->save();
-   
-                            }
-                            $zip->close();
-                        } else {
-                            return response([
-                                "status" => 0,
-                                "message" => "Error al descomprimir el archivo ZIP",
-                            ], 500);
-                        }
-                    }  else {
-                        $evidencia = new Evidencias();
-                        $evidencia->id_plan = $request->id_plan;
-                        $evidencia->id_tipo = $request->id_tipo;
-                        $evidencia->id_estandar = $estandar->id;
-                        $evidencia->codigo = $request->codigo;
-                        $evidencia->denominacion = $request->denominacion[$index] . '.' . $file->extension();
-                        $path = $file->storeAs($estandarFolderPath, $evidencia->denominacion);
-                        $evidencia->adjunto = $path;
-                        $evidencia->id_user = $id_user->id;
-                        $evidencia->save();
-                    }
-                }
-
-                return response([
-                    "status" => 1,
-                    "message" => "Evidencia(s) creada(s) exitosamente",
-                    "evidencias" => Evidencias::where('id_plan', $request->id_plan)->get()
-                ]);
-            } else {
-                return response([
-                    "status" => 0,
-                    "message" => "No tienes permisos para crear esta Evidencia",
-                ], 404);
-            }
-        } else {
-            return response([
-                "status" => 0,
-                "message" => "No se encontró el plan",
-            ], 404);
-        }
-    }
-
     public function update(Request $request)
     {
         $request->validate([
@@ -432,57 +327,45 @@ class EvidenciasController extends Controller
 
     public function download($id)
     {
-        if (Evidencias::where("id", $id)->exists()) {
-            $evidencia = Evidencias::find($id);
-            $path = storage_path('app/' . $evidencia->adjunto);
-            //$evidencia->adjunto = download($path);
+        if (Evidence::where("id", $id)->exists()) {
+            $evidence = Evidence::find($id);
+            $path = storage_path('app/' . 'evidencias/estandar_' . $evidence->standard_id . '/tipo_evidencia_' . $evidence->evidenceType_id . $evidence->path);
             return response()->download($path);
         } else {
             return response([
                 "status" => 0,
-                "msg" => "!No se encontro la evidencia",
+                "msg" => "No se encontro la evidencia",
             ], 404);
         }
     }
 
     public function view($id)
     {
-        if (Evidencias::where("id", $id)->exists()) {
-            $evidencia = Evidencias::find($id);
-            $path = storage_path('app/' . $evidencia->adjunto);
-    
-            // Obtener la extensión del archivo para establecer el tipo de contenido adecuado
+        if (Evidence::where("id", $id)->exists()) {
+            $evidence = Evidence::find($id);
+            $path = storage_path('app/' . 'evidencias/estandar_' . $evidence->standard_id . '/tipo_evidencia_' . $evidence->evidenceType_id . $evidence->path);
             $extension = pathinfo($path, PATHINFO_EXTENSION);
             $contentType = $this->getContentType($extension);
-    
-            // Leer el contenido del archivo
             $fileContents = file_get_contents($path);
-    
             return response($fileContents)->header('Content-Type', $contentType);
         } else {
             return response([
                 "status" => 0,
-                "msg" => "!No se encontró la evidencia",
+                "msg" => "No se encontró la evidencia",
             ], 404);
         }
     }
     
-    // Función auxiliar para obtener el tipo de contenido según la extensión del archivo
     private function getContentType($extension)
     {
         $contentTypes = [
             'pdf' => 'application/pdf',
             'jpg' => 'image/jpeg',
             'png' => 'image/png',
-            // Añade aquí más tipos de contenido según tus necesidades
         ];
-    
-        // Verificar si existe un tipo de contenido definido para la extensión
         if (isset($contentTypes[$extension])) {
             return $contentTypes[$extension];
         }
-    
-        // Si no se encuentra un tipo de contenido definido, devolver un tipo de contenido genérico
         return 'application/octet-stream';
     }
 }

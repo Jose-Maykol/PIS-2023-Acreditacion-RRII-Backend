@@ -327,15 +327,14 @@ class EvidenciasController extends Controller
 
     public function download($id)
     {
-        if (Evidencias::where("id", $id)->exists()) {
-            $evidencia = Evidencias::find($id);
-            $path = storage_path('app/' . $evidencia->adjunto);
-            //$evidencia->adjunto = download($path);
+        if (Evidence::where("id", $id)->exists()) {
+            $evidence = Evidence::find($id);
+            $path = storage_path('app/' . 'evidencias/estandar_' . $evidence->standard_id . '/tipo_evidencia_' . $evidence->evidenceType_id . $evidence->path);
             return response()->download($path);
         } else {
             return response([
                 "status" => 0,
-                "msg" => "!No se encontro la evidencia",
+                "msg" => "No se encontro la evidencia",
             ], 404);
         }
     }
@@ -352,7 +351,7 @@ class EvidenciasController extends Controller
         } else {
             return response([
                 "status" => 0,
-                "msg" => "!No se encontró la evidencia",
+                "msg" => "No se encontró la evidencia",
             ], 404);
         }
     }

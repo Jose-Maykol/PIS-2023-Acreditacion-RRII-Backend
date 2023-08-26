@@ -14,24 +14,27 @@ class ObservacionesController extends Controller
             "id_plan"=> "required|integer",
             "descripcion"=> "required",
         ]);
+
         $id_user = auth()->user()->id;
         if(plan::where(["id"=>$request->id_plan])->exists()){
             $plan = plan::find($request->id_plan);
             if($plan->id_user == $id_user){                
+                
                 $observacion = new Observaciones();
                 $observacion->id_plan = $request->id_plan;
                 $observacion->descripcion = $request->descripcion;
                 $observacion->save();
+
                 return response([
                     "status" => 1,
-                    "message" => "Observacion creada exitosamente",
-                ]);
+                    "message" => "Observación creada exitosamente",
+                ],201);
             }
             else{
                 return response([
                     "status" => 0,
                     "message" => "No tienes permisos para crear esta obsevacion",
-                ],404);
+                ],403);
             }
         }
         else{
@@ -57,7 +60,7 @@ class ObservacionesController extends Controller
                 return response([
                     "status" => 1,
                     "message" => "Observacion actualizada exitosamente",
-                ]);
+                ],200);
             }
             else{
                 return response([
@@ -85,13 +88,13 @@ class ObservacionesController extends Controller
                 return response([
                     "status" => 1,
                     "message" => "Observacion eliminada exitosamente",
-                ]);
+                ],200);
             }
             else{
                 return response([
                     "status" => 0,
                     "message" => "No tienes permisos para eliminar esta observacion",
-                ],404);
+                ],403);
             }
         }
         else{

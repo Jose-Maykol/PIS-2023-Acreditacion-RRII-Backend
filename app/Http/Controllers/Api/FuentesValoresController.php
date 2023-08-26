@@ -9,15 +9,30 @@ use App\Models\FuentesValores;
 class FuentesValoresController extends Controller
 {
     
-    public function listFuentesValores()
+    public function listSourcesValues()
     {
-        
-        $FuenteValorList = FuentesValores::all();
-        return response([
-            "status" => 1,
-            "msg" => "!Lista de fuentes",
-            "data" => $FuenteValorList,
-        ]);
+        try {
+            $SourceValueList = FuentesValores::all();
+
+            $response = [
+                'status' => 1,
+                'msg' => 'Lista de fuentes y valores obtenida exitosamente.',
+                'data' => FuentesValoresResource::collection($SourceValueList),
+            ];
+
+            return response()->json($response, 200);
+
+        } catch (\Exception $e) {
+            // En caso de error, retornar una respuesta adecuada
+            $errorResponse = [
+                'status' => 0,
+                'msg' => 'Hubo un error al obtener la lista de fuentes y valores.',
+                'error' => $e->getMessage(),
+            ];
+
+            return response()->json($errorResponse, 500);
+        }
+
     }
 
 }

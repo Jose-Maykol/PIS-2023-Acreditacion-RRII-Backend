@@ -25,20 +25,20 @@ class ProblemasOportunidadesController extends Controller
                 return response([
                     "status" => 1,
                     "message" => "Problema opoortunidad creada exitosamente",
-                ]);
+                ], 201);
             }
             else{
                 return response([
                     "status" => 0,
                     "message" => "No tienes permisos para crear esta problema oportunidad",
-                ],404);
+                ], 403);
             }
         }
         else{
             return response([
                 "status" => 0,
                 "message" => "No se encontro el plan",
-            ],404);
+            ], 404);
         }
     }
 
@@ -57,20 +57,20 @@ class ProblemasOportunidadesController extends Controller
                 return response([
                     "status" => 1,
                     "message" => "Problema oportunidad actualizada exitosamente",
-                ]);
+                ], 200);
             }
             else{
                 return response([
                     "status" => 0,
                     "message" => "No tienes permisos para actualizar esta problema oportunidad",
-                ],404);
+                ], 403);
             }
         }
         else{
             return response([
                 "status" => 0,
                 "message" => "No se encontro la problema oportunidad",
-            ],404);
+            ], 404);
         }
     }
 
@@ -85,20 +85,20 @@ class ProblemasOportunidadesController extends Controller
                 return response([
                     "status" => 1,
                     "message" => "Problema oportunidad eliminada exitosamente",
-                ]);
+                ], 200);
             }
             else{
                 return response([
                     "status" => 0,
                     "message" => "No tienes permisos para eliminar esta problema oportunidad",
-                ],404);
+                ], 403);
             }
         }
         else{
             return response([
                 "status" => 0,
                 "message" => "No se encontro la problema oportunidad",
-            ],404);
+            ], 404);
         }
     }
 }

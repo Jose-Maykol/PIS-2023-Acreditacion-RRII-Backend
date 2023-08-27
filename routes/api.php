@@ -30,7 +30,7 @@ Route::get('login/{provider}/callback', [LoginController::class, 'handleProvider
 //Responsables Valores
 Route::get('responsables', [ResponsablesValoresController::class, 'listResponsablesValores']);
 //fuentes Valores
-Route::get('fuentes', [FuentesValoresController::class, 'listFuentesValores']);
+Route::get('fuentes', [FuentesValoresController::class, 'listSourcesValues']);
 //Estados valores
 Route::get('estados', [EstadosValoresController::class, 'listEstadosValores']);
 //Estandares  valores

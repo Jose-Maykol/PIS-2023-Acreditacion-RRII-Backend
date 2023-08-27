@@ -17,7 +17,9 @@ class UserController extends Controller
             'email' => 'required|email|unique:users',
 			'rol'=> 'required|numeric|min:1|max:2'
         ]);
+
         $userAuth = auth()->user()->roles[0]->name;
+
         if ($userAuth == "Admin") {
             $user = new User();
             $user->name = "null";
@@ -27,15 +29,16 @@ class UserController extends Controller
 			$user->estado = true;
             $user->save();
             $user->roles()->attach($request->rol);
+
             return response()->json([
                 'message' => 'Correo registrado exitosamente',
                 'userAuth' => $user,
-            ]);
+            ], 201);
         } else {
             return response()->json([
                 "status" => 0,
                 "message" => "No eres administrador: Correo no registrado",
-            ], 404);
+            ], 403);
         }
     }
 
@@ -44,10 +47,10 @@ class UserController extends Controller
     public function userProfile()
     {
         return response()->json([
-            "status" => 0,
-            "message" => "Perfil de usuario",
+            "status" => 1,
+            "message" => "Perfil de usuario obtenido exitosamente",
             "data" => auth()->user(),
-        ]);
+        ], 200);
     }
 
 	public function listUser(){
@@ -57,9 +60,9 @@ class UserController extends Controller
 		}
         return response([
             "status" => 1,
-            "msg" => "!Lista de usuarios",
+            "msg" => "Lista de usuarios obtenida exitosamente",
             "data" => $users,
-        ]);
+        ], 200);
     }
 
 	public function listUserHabilitados(){
@@ -69,9 +72,9 @@ class UserController extends Controller
 		}
         return response([
             "status" => 1,
-            "msg" => "!Lista de usuarios no nulos y habilitados",
+            "msg" => "Lista de usuarios no nulos y habilitados obtenida exitosamente",
             "data" => $users,
-        ]);
+        ], 200);
     }
 
 
@@ -87,15 +90,15 @@ class UserController extends Controller
 			$user->roles()->sync([$request->role]);
 			return response([
 	            "status" => 1,
-	            "msg" => "!Update user",
+	            "msg" => "Usuario actualizado exitosamente",
 	            "data" => $user,
-	        ]);
+	        ], 200);
 		}
 		else{
 			return response()->json([
 				"status" => 0,
-				"message" => "No eres administrador",
-			], 404);
+				"message" => "No tienes permisos de administrador",
+			], 403);
 		}
 	}
 }

@@ -31,16 +31,16 @@ class LoginController extends Controller
                     "access_token" => $token,
                     "nombre" => $user->name,
                     "apellido" => $user->lastname,
-                ]);
+                ], 200);
             } else {
                 return response()->json([
-                    "message" => "La password es incorrecta",
-                ], 404);
+                    "message" => "Credenciales inválidas(password)",
+                ], 401);
             }
         } else {
             return response()->json([
                 "status" => 0,
-                "message" => "Usuario no registrado o deshabilitado",
+                "message" => "Usuario no registrado o Usuario deshabilitado",
             ], 404);
         }
     }
@@ -96,16 +96,16 @@ class LoginController extends Controller
 
 			$token = $userCreated->createToken('token-auth_token')->plainTextToken;
 			return response()->json([
-				"message" => "Usuario logueado",
+				"message" => "Usuario ha iniciado sesion",
 				"user" =>  $userCreated,
 				"image" =>  $userProvider->getAvatar(),
 				"role" => $userCreated->roles[0]->name,
 				"access_token" => $token
-			]);
+			], 200);
 		} else {
 			return response()->json([
 				"status" => 0,
-				"message" => "Usuario no registrado o deshabilitado",
+				"message" => "Usuario no registrado o Usuario deshabilitado",
 			], 404);
 		}
 	}
@@ -116,7 +116,7 @@ class LoginController extends Controller
 		//if (!in_array($provider, ['facebook', 'github', 'google'])){
 		//por el momento solo con google
 		if (!in_array($provider, ['google'])) {
-			return response()->json(['error' => 'Por favor usar google para loguearse'], 422);
+			return response()->json(['error' => 'Para iniciar sesion, usar su cuenta de google'], 422);
 		}
 	}
 
@@ -126,7 +126,7 @@ class LoginController extends Controller
         auth()->user()->tokens()->delete();
         return response()->json([
             "message" => "Sesion cerrada"
-        ]);
+        ], 200);
     }
 
 }

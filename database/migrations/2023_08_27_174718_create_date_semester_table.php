@@ -13,9 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('responsables_valores', function (Blueprint $table) {
+        Schema::create('date_semester', function (Blueprint $table) {
             $table->id();
-            $table->string('valor');
+            $table->year('year');
+            $table->string('semester', 1);
+            $table->timestamps();
         });
     }
 
@@ -26,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('responsables_valores');
+        Schema::dropIfExists('date_semester');
     }
 };

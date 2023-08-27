@@ -13,9 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('fuentes_valores', function (Blueprint $table) {
+        Schema::create('narratives', function (Blueprint $table) {
             $table->id();
-            $table->string('valor');
+            $table->string('semester', 8);
+            $table->mediumText('content');
+            $table->foreignId('id_standard')
+                ->constrained('standards')
+                ->onDelete('cascade');
+            $table->timestamps();
         });
     }
 
@@ -26,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('fuentes_valores');
+        Schema::dropIfExists('narratives');
     }
 };

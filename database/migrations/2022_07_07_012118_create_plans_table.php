@@ -19,16 +19,16 @@ return new class extends Migration
     {
         Schema::create('plans', function (Blueprint $table) {
             $table->id();
-            $table->string('codigo', 11);
-            $table->string('nombre', 255)->nullable();
-            $table->string('oportunidad_plan')->nullable();
-            $table->string('semestre_ejecucion', 8)->nullable();
-            $table->integer('avance');
-            $table->integer('duracion')->nullable();
-            $table->string('estado', 30);
-            $table->boolean('evaluacion_eficacia')->nullable();;
-            $table->foreignId('id_estandar')
-                ->constrained('estandars');
+            $table->string('code', 11);
+            $table->string('name', 255)->nullable();
+            $table->string('opportunity_for_improvement')->nullable();
+            $table->string('semester_execution', 8)->nullable();
+            $table->integer('advance');
+            $table->integer('duration')->nullable();
+            $table->string('status', 30);
+            $table->boolean('efficacy_evaluation')->nullable();;
+            $table->foreignId('id_standard')
+                ->constrained('standards');
             $table->foreignId('id_user')
                 ->constrained('users');
             $table->unique(['codigo', 'id_estandar']);

@@ -185,7 +185,7 @@ class EvidenciasController extends Controller
                 $path = $file->storeAs('evidencias/'. 'estandar_' . $estandarId . '/tipo_evidencia_'. $tipoEvidenciaId . '/' . $generalPath, $file->getClientOriginalName());
 
                 $evidence = new Evidence([
-                    'name' => $file->getClientOriginalName(),
+                    'name' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
                     'file' => $file->getClientOriginalName(),
                     'type' => $file->getClientOriginalExtension(),
                     'size' => $file->getSize(),
@@ -206,7 +206,6 @@ class EvidenciasController extends Controller
 
     private function createEvidencesAndFolders($path, $userId, $estandarId, $tipoEvidenciaId, $parentFolder = null)
     {   
-    
         $files = scandir($path);
         foreach ($files as $file) {
             if ($file !== '.' && $file !== '..') {
@@ -257,44 +256,38 @@ class EvidenciasController extends Controller
         }
     }
 
-    public function update(Request $request)
+    public function update(Request $request,$id)
     {
         $request->validate([
-            "id" => "required|integer",
-            "id_tipo" => "required|integer", //Tipo de evidencia
-            "codigo" => "required",
-            "denominacion" => "required",
-            "adjunto" => "required"
+            'file' => 'required|file',
         ]);
-        $id_user = auth()->user();
-        if (Evidencias::where(["id" => $request->id])->exists()) {
-            $evidencia = Evidencias::find($request->id);
-            $plan = plan::find($evidencia->id_plan);
-            if ($id_user->isCreadorPlan($plan->id) or $id_user->isAdmin()) {
-                $evidencia->codigo = $request->codigo;
-                $evidencia->id_tipo = $request->id_tipo;
-                $evidencia->denominacion = $request->denominacion.$request->adjunto->extension();
-                $path = $request->adjunto->storePubliclyAs(
-                    'evidencias',
-                    $request->adjunto->getClientOriginalName()
-                );
-                $evidencia->adjunto = $path;
-                $evidencia->save();
 
-                return response([
-                    "status" => 1,
-                    "message" => "Evidencia actualizada exitosamente",
-                ]);
-            } else {
-                return response([
-                    "status" => 0,
-                    "message" => "No tienes permisos para actualizar esta evidencia",
-                ], 404);
-            }
+        $id_user = auth()->user();
+
+        if (!$request->has('file')) {
+            return response([
+                "status" => 0,
+                "message" => "File es requerido",
+            ], 404);
+        }
+
+        if (Evidence::where("id", $id)->exists()) {
+            $evidence = Evidence::find($id);
+            $request->file->storeAs('evidencias/estandar_' . $evidence->standard_id . '/tipo_evidencia_' . $evidence->evidenceType_id . $evidence->path, $request->file->getClientOriginalName());
+            $evidence->name = pathinfo($request->file->getClientOriginalName(), PATHINFO_FILENAME);
+            $evidence->file = $request->file->getClientOriginalName();
+            $evidence->type = $request->file->getClientOriginalExtension();
+            $evidence->size = $request->file->getSize();
+            $evidence->user_id = $id_user->id;
+            $evidence->save();
+            return response([
+                "status" => 1,
+                "message" => "Evidencia actualizada exitosamente",
+            ]);
         } else {
             return response([
                 "status" => 0,
-                "message" => "No se encontro la evidencia",
+                "msg" => "No se encontro la evidencia",
             ], 404);
         }
     }

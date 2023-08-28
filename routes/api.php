@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\EvidenciasController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\NarrativasController;
 use App\Http\Controllers\Api\ActaController;
+use App\Http\Controllers\Api\FoldersController;
 
 //Rutas de Auth
 Route::post('login', [LoginController::class, 'login'])->name('login');
@@ -132,8 +133,6 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::put('acta', [ActaController::class, 'update'])->where('id', '[0-9]+');
     Route::delete('acta/{id}', [ActaController::class, 'delete'])->where('id', '[0-9]+');
     Route::get('acta', [ActaController::class, 'listActas']);
-});
 
-/*Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});*/
+    Route::post('folder', [FoldersController::class, 'create']);
+});

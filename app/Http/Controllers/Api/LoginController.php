@@ -101,7 +101,7 @@ class LoginController extends Controller
 				"image" =>  $userProvider->getAvatar(),
 				"role" => $userCreated->roles[0]->name,
 				"access_token" => $token
-			]);
+			], 200);
 		} else {
 			return response()->json([
 				"status" => 0,
@@ -126,7 +126,7 @@ class LoginController extends Controller
         auth()->user()->tokens()->delete();
         return response()->json([
             "message" => "Sesion cerrada"
-        ]);
+        ], 200);
     }
 
 }

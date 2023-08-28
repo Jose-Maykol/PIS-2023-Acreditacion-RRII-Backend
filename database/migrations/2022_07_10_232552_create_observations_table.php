@@ -13,20 +13,23 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('estandars', function (Blueprint $table) {
+        Schema::create('observations', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); //cambiar el name por nombre
-			$table->mediumText('cabecera');
             $table->timestamps();
-            //$table->foreign('id_user')->references('id')->on('users');
-            $table->foreignId('id_user')
-                  ->constrained('users');
+            $table->string('description');
+            $table->foreignId('id_plan')
+                  ->constrained('plans')
+                  ->onDelete('cascade');
         });
     }
 
-
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down()
     {
-        Schema::dropIfExists('estandars');
+        Schema::dropIfExists('observations');
     }
 };

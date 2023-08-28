@@ -13,13 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('metas', function (Blueprint $table) {
+        Schema::create('permissions', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
             $table->timestamps();
-            $table->string('descripcion');
-            $table->foreignId('id_plan')
-                  ->constrained('plans')
-                  ->onDelete('cascade');
         });
     }
 
@@ -30,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('metas');
+        Schema::dropIfExists('permissions');
     }
 };

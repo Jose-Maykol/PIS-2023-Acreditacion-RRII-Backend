@@ -28,6 +28,10 @@ class RouteServiceProvider extends ServiceProvider
     {
         $this->configureRateLimiting();
 
+        parent::boot();
+        Route::pattern('year', '\d{4}');
+        Route::pattern('semester', '[ABC]');
+
         $this->routes(function () {
             Route::middleware('api')
                 ->prefix('api')
@@ -36,6 +40,17 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('cors')
                 ->prefix('api')
                 ->group(base_path('routes/api.php'));
+            
+            Route::middleware(['api'])//   /api/
+                ->prefix('api/{year}/{semester}')
+                ->group(function(){
+                    require base_path('routes/api/AuthRoute.php');
+                    require base_path('routes/api/EvidenceRoute.php');
+                    require base_path('routes/api/PlanRoute.php');
+                    require base_path('routes/api/StandardRoute.php');
+                    require base_path('routes/api/UserRoute.php');
+                    require base_path('routes/api/ValuesRoute.php');
+                });
 
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));

@@ -28,20 +28,20 @@ class ObservacionesController extends Controller
                 return response([
                     "status" => 1,
                     "message" => "Observación creada exitosamente",
-                ],201);
+                ], 201);
             }
             else{
                 return response([
                     "status" => 0,
                     "message" => "No tienes permisos para crear esta obsevacion",
-                ],403);
+                ], 403);
             }
         }
         else{
             return response([
                 "status" => 0,
                 "message" => "No se encontro el plan",
-            ],404);
+            ], 404);
         }
     }
 
@@ -60,20 +60,20 @@ class ObservacionesController extends Controller
                 return response([
                     "status" => 1,
                     "message" => "Observacion actualizada exitosamente",
-                ],200);
+                ], 200);
             }
             else{
                 return response([
                     "status" => 0,
                     "message" => "No tienes permisos para actualizar esta observacion",
-                ],404);
+                ], 404);
             }
         }
         else{
             return response([
                 "status" => 0,
                 "message" => "No se encontro la observacion",
-            ],404);
+            ], 404);
         }
     }
 
@@ -88,20 +88,20 @@ class ObservacionesController extends Controller
                 return response([
                     "status" => 1,
                     "message" => "Observacion eliminada exitosamente",
-                ],200);
+                ], 200);
             }
             else{
                 return response([
                     "status" => 0,
                     "message" => "No tienes permisos para eliminar esta observacion",
-                ],403);
+                ], 403);
             }
         }
         else{
             return response([
                 "status" => 0,
                 "message" => "No se encontro la observacion",
-            ],404);
+            ], 404);
         }
     }
 }

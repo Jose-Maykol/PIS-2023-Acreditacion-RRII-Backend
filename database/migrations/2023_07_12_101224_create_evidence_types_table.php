@@ -13,13 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('sources', function (Blueprint $table) {
+        Schema::create('evidence_types', function (Blueprint $table) {
             $table->id();
+            $table->string('type');
             $table->timestamps();
-            $table->string('description');
-            $table->foreignId('id_plan')
-                  ->constrained('plans')
-                  ->onDelete('cascade');
         });
     }
 
@@ -30,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('sources');
+        Schema::dropIfExists('evidence_types');
     }
 };

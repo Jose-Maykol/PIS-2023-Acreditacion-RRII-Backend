@@ -13,13 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('sources', function (Blueprint $table) {
+        Schema::create('status_values', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
-            $table->string('description');
-            $table->foreignId('id_plan')
-                  ->constrained('plans')
-                  ->onDelete('cascade');
+            $table->string('value');
         });
     }
 
@@ -30,6 +26,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('sources');
+        Schema::dropIfExists('status_values');
     }
 };

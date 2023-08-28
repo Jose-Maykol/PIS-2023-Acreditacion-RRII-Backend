@@ -13,10 +13,14 @@ class Narrativa extends Model
     protected $fillable = [
         'semestre',
         'contenido',
+        'regristation'
     ];
 
     public function estandars()
     {
         return $this->belongsTo(Estandar::class, 'id_estandar');
     }
+
+    
+
 }

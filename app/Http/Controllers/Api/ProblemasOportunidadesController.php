@@ -25,13 +25,13 @@ class ProblemasOportunidadesController extends Controller
                 return response([
                     "status" => 1,
                     "message" => "Problema opoortunidad creada exitosamente",
-                ],201);
+                ], 201);
             }
             else{
                 return response([
                     "status" => 0,
                     "message" => "No tienes permisos para crear esta problema oportunidad",
-                ],403);
+                ], 403);
             }
         }
         else{

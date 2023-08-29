@@ -18,8 +18,7 @@ return new class extends Migration
             $table->timestamps();
             $table->string('name');
             $table->foreignId('id_plan')
-                  ->constrained('plans')
-                  ->onDelete('cascade');
+                  ->constrained('plans');
         });
     }
 

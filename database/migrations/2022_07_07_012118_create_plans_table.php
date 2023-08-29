@@ -31,8 +31,12 @@ return new class extends Migration
                 ->constrained('standards');
             $table->foreignId('id_user')
                 ->constrained('users');
-            $table->unique(['codigo', 'id_estandar']);
+            $table->foreignId('id_date')
+                ->constrained('date_semesters');
+            $table->unique(['code', 'id_standard']);
             $table->timestamps();
+            $table->foreignId('id_registration_status')
+                ->constrained('registration_status');
         });
     }
 

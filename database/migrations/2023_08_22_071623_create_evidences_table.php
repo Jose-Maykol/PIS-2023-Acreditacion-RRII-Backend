@@ -24,6 +24,7 @@ return new class extends Migration
             $table->foreignId('folder_id')->constrained('folders');
             $table->foreignId('evidenceType_id')->constrained('evidencias_tipo');
             $table->foreignId('standard_id')->constrained('estandars');
+            $table->foreignId('id_date')->constrained('date_semesters');
             $table->timestamps();
         });
     }

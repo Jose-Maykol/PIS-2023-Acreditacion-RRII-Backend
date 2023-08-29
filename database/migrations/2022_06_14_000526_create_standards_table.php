@@ -17,11 +17,15 @@ return new class extends Migration
             $table->id();
             $table->string('name'); //cambiar el name por nombre
 			$table->json('headboard');
-            $table->integer('nro_standard');
+            $table->unsignedInteger('nro_standard');
             $table->timestamps();
             //$table->foreign('id_user')->references('id')->on('users');
             $table->foreignId('id_user')
                   ->constrained('users');
+            $table->foreignId('id_date')
+                ->constrained('date_semesters');
+            $table->foreignId('id_registration_status')
+                ->constrained('registration_status');
         });
     }
 

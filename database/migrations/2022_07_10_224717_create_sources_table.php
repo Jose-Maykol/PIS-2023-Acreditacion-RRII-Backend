@@ -13,11 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('date_semester', function (Blueprint $table) {
+        Schema::create('sources', function (Blueprint $table) {
             $table->id();
-            $table->year('year');
-            $table->string('semester', 1);
             $table->timestamps();
+            $table->string('description');
+            $table->foreignId('id_plan')
+                  ->constrained('plans');
         });
     }
 
@@ -28,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('date_semester');
+        Schema::dropIfExists('sources');
     }
 };

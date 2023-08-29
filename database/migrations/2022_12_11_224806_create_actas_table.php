@@ -14,13 +14,11 @@ return new class extends Migration
     public function up()
     {
         Schema::create('actas', function (Blueprint $table) {
-
-
             $table->id();
-            $table->date('fecha');
-            $table->mediumText('descripcion');
-            $table->foreignId('id_estandar')
-                ->constrained('estandars');
+            $table->date('date');
+            $table->mediumText('description');
+            $table->foreignId('id_standard')
+                ->constrained('standards');
             $table->timestamps();
         });
     }

@@ -18,8 +18,10 @@ return new class extends Migration
             $table->string('semester', 8);
             $table->mediumText('content');
             $table->foreignId('id_standard')
-                ->constrained('standards')
-                ->onDelete('cascade');
+                ->constrained('standards');
+            $table->foreignId('id_date')->constrained('date_semesters');
+            $table->foreignId('id_registration_status')
+                ->constrained('registration_status');
             $table->timestamps();
         });
     }

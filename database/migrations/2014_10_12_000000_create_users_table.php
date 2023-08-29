@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('lastname');
             $table->string('email')->unique();
             $table->string('password');
-			$table->boolean('estado');
+			$table->boolean('status');
         });
     }
 

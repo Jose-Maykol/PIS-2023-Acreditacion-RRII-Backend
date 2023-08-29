@@ -20,8 +20,9 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users');
             $table->unsignedBigInteger('parent_id')->nullable();
             $table->foreign('parent_id')->references('id')->on('folders')->onDelete('cascade');
-            $table->foreignId('evidenceType_id')->constrained('evidencias_tipo');
-            $table->foreignId('standard_id')->constrained('estandars');
+            $table->foreignId('evidenceType_id')->constrained('evidence_types');
+            $table->foreignId('standard_id')->constrained('standards');
+            $table->foreignId('id_date')->constrained('date_semesters');
             $table->timestamps();
         });
     }

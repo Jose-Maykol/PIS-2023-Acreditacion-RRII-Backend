@@ -5,14 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ProblemasOportunidades extends Model
+class Observations extends Model
 {
     use HasFactory;
     public $timestamps = true;
 
-    protected $table ='problemas_oportunidades';
+    protected $table ='observations';
     protected $fillable = [
-        'descripcion',
+        'description',
 
     ];
     public function plans(){

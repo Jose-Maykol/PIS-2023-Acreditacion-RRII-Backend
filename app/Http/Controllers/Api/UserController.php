@@ -11,6 +11,16 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
+    /*
+		ruta(post): /api/users/register
+		ruta(post): /api/users/register
+		datos:
+			{
+				"email":"jpaniura@unsa.edu.pe"
+                "rol":"1"
+                "access_token": "5082e3108d0e4d8cdd948c42102aabd0768fe993b86240569aa5130e373f3b8a"
+			}
+	*/
     public function register(Request $request)
     {
         $request->validate([
@@ -44,6 +54,14 @@ class UserController extends Controller
 
 
 
+    /*
+		ruta(get): /api/users/profile
+		ruta(get): /api/users/profile
+		datos:
+			{
+				"access_token": "5082e3108d0e4d8cdd948c42102aabd0768fe993b86240569aa5130e373f3b8a"
+			}
+	*/
     public function userProfile()
     {
         return response()->json([
@@ -53,7 +71,15 @@ class UserController extends Controller
         ], 200);
     }
 
-	public function listUser(){
+	/*
+		ruta(get): /api/users/user
+		ruta(get): /api/users/user
+		datos:
+			{
+				"access_token": "5082e3108d0e4d8cdd948c42102aabd0768fe993b86240569aa5130e373f3b8a"
+			}
+	*/
+    public function listUser(){
 		$users = User::all();
 		foreach ($users as $user) {
 			$user->rol=User::find($user->id)->roles[0]->name;
@@ -65,7 +91,15 @@ class UserController extends Controller
         ], 200);
     }
 
-	public function listUserHabilitados(){
+	/*
+		ruta(get): /api/users/enabled_users
+		ruta(get): /api/users/enabled_users
+		datos:
+			{
+				"access_token": "5082e3108d0e4d8cdd948c42102aabd0768fe993b86240569aa5130e373f3b8a"
+			}
+	*/
+    public function listUserHabilitados(){
 		$users = User::whereNotIn("name",["null"])->where("estado",true)->get();
 		foreach ($users as $user) {
 			$user->rol=User::find($user->id)->roles[0]->name;
@@ -78,7 +112,18 @@ class UserController extends Controller
     }
 
 
-	public function updateRoleEstado(Request $request){
+	/*
+		ruta(put): /api/users/update
+		ruta(put): /api/users/update
+		datos:
+			{
+				"id":"jpaniura@unsa.edu.pe"
+                "role":"1"
+                "estado":"true"
+                "access_token": "5082e3108d0e4d8cdd948c42102aabd0768fe993b86240569aa5130e373f3b8a"
+			}
+	*/
+    public function updateRoleEstado(Request $request){
 		$request->validate([
 			"id"=>"exists:users",
             "role" => "present|nullable|numeric|min:1|max:2",

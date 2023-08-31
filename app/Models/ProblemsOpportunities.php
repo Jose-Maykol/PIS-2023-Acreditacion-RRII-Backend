@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Observaciones extends Model
+class ProblemsOpportunities extends Model
 {
     use HasFactory;
     public $timestamps = true;
 
-    protected $table ='observaciones';
+    protected $table ='problemas_oportunidades';
     protected $fillable = [
         'descripcion',
 

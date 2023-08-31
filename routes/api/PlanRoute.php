@@ -6,8 +6,8 @@ use App\Http\Controllers\Api\PlanController;
 use App\Http\Controllers\Api\AccionesMejorasController;
 use App\Http\Controllers\Api\CausasRaicesController;
 use App\Http\Controllers\Api\FuentesController;
-use App\Http\Controllers\Api\ObservacionesController;
-use App\Http\Controllers\Api\ProblemasOportunidadesController;
+use App\Http\Controllers\Api\ObservationsController;
+use App\Http\Controllers\Api\ProblemsOpportunitiesController;
 use App\Http\Controllers\Api\RecursosController;
 use App\Http\Controllers\Api\MetasController;
 use App\Http\Controllers\Api\ResponsablesController;
@@ -56,18 +56,18 @@ Route::middleware("auth:sanctum")->prefix('plans')->group(function () {// /api/p
     Route::prefix('{plan}/observations')->group(function(){
 
         //rutas observaciones
-        Route::post('', [ObservacionesController::class, 'create']);
-        Route::put('{observation}', [ObservacionesController::class, 'update'])->where('observation', '[0-9]+');
-        Route::delete('{observation}', [ObservacionesController::class, 'delete'])->where('observation', '[0-9]+');
+        Route::post('', [ObservationsController::class, 'create']);
+        Route::put('{observation}', [ObservationsController::class, 'update'])->where('observation', '[0-9]+');
+        Route::delete('{observation}', [ObservationsController::class, 'delete'])->where('observation', '[0-9]+');
 
     })->where('plan','[0-9]+');
 
     Route::prefix('{plan}/problems-opportunities')->group(function(){
 
         //rutas problemas
-        Route::post('', [ProblemasOportunidadesController::class, 'create']);
-        Route::put('{problem_opportunitie}', [ProblemasOportunidadesController::class, 'update'])->where('problem_opportunitie', '[0-9]+');
-        Route::delete('{problem_opportunitie}', [ProblemasOportunidadesController::class, 'delete'])->where('problem_opportunitie', '[0-9]+');
+        Route::post('', [ProblemsOpportunitiesController::class, 'create']);
+        Route::put('{problem_opportunitie}', [ProblemsOpportunitiesController::class, 'update'])->where('problem_opportunitie', '[0-9]+');
+        Route::delete('{problem_opportunitie}', [ProblemsOpportunitiesController::class, 'delete'])->where('problem_opportunitie', '[0-9]+');
 
     })->where('plan','[0-9]+');
 

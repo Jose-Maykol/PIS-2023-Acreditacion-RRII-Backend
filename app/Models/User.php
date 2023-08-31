@@ -20,7 +20,7 @@ class User extends Authenticatable
     'lastname',
     'email',
     'password',
-	'estado',
+    'estado',
   ];
 
   public $timestamps = false;

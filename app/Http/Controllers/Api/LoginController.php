@@ -13,6 +13,16 @@ use Illuminate\Support\Facades\Auth;
 class LoginController extends Controller
 {
 	//Login normal (correo y password)
+	/*
+		ruta(post): /api/auth/login
+		ruta(post): /api/auth/login
+		datos:
+		localhost:8000/api/users/profile
+			{
+				"email":"jpaniura@unsa.edu.pe",
+				"password":"null"
+			}
+	*/
 	public function login(Request $request)
     {
 
@@ -47,6 +57,14 @@ class LoginController extends Controller
 
 	//Login con plataformas externas
 	//Funcion de la recepcion del provider(google-facebook-github-twitter)
+	/*
+		ruta(get): /api/auth/login/{provider}
+		ruta(get): /api/auth/login/{provider}
+		datos:
+			{
+				"id_provider":"114480000560878434027"
+			}
+	*/
 	public function redirectToProvider($provider){
 		$validated = $this->validateProvider($provider);
 		if (!is_null($validated)) {
@@ -57,6 +75,14 @@ class LoginController extends Controller
 	}
 
 	//Funcion de la respuesta del provider
+	/*
+		ruta(get): /api/auth/login/{provider}/callback
+		ruta(get): /api/auth/login/{provider}/callback
+		datos:
+			{
+				"id_provider":"114480000560878434027"
+			}
+	*/
 	public function handleProviderCallback($provider){
 		$validated = $this->validateProvider($provider);
 		if (!is_null($validated)) {
@@ -121,6 +147,14 @@ class LoginController extends Controller
 	}
 
 	//Logout
+	/*
+		ruta(get): /api/auth/logout
+		ruta(get): /api/auth/logout
+		datos:
+			{
+				"access_token": "5082e3108d0e4d8cdd948c42102aabd0768fe993b86240569aa5130e373f3b8a"
+			}
+	*/
 	public function logout()
     {
         auth()->user()->tokens()->delete();

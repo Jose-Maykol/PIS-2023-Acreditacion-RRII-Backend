@@ -12,7 +12,7 @@ class Fuentes extends Model
 
     protected $table ='fuentes';
     protected $fillable = [
-        'descripcion',
+        'description',
         
     ];
     public function plans(){

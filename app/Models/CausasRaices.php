@@ -12,7 +12,7 @@ class CausasRaices extends Model
 
     protected $table ='causas_raices';
     protected $fillable = [
-        'descripcion',
+        'description',
 
     ];
     public function plans(){

@@ -12,7 +12,7 @@ class AccionesMejoras extends Model
 
     protected $table ='acciones_mejoras';
     protected $fillable = [
-        'descripcion',
+        'description',
 
     ];
     public function plans(){

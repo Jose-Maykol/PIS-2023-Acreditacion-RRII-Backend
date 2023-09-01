@@ -196,5 +196,13 @@ class DatabaseSeeder extends Seeder
             "valor"=>"Concluido",
          ]);
 
+         $this->plans();
     }
+
+    public function plans(){
+
+      ;\App\Models\EstadosValores::factory()->create([
+         "valor"=>"Concluido",
+      ]);
+    } // php artisan migrate
 }

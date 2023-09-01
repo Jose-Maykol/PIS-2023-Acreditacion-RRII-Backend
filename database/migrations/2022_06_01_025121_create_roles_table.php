@@ -13,14 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('observations', function (Blueprint $table) {
+        Schema::create('roles', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
-            $table->string('description');
-            $table->foreignId('plan_id')
-                  ->constrained('plans');
-            $table->foreignId('registration_status_id')
-            ->constrained('registration_status');
+            $table->string('name');//Docente //Admin
         });
     }
 
@@ -31,6 +26,13 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('observations');
+        Schema::dropIfExists('roles');
     }
+
+   //php artisan migrate:reset
+   //php artisan migrate --seed
+   //git pull origin development
+   // 
+   //git push
+   
 };

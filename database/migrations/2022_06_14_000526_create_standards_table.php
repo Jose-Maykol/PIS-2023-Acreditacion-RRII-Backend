@@ -15,20 +15,18 @@ return new class extends Migration
     {
         Schema::create('standards', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); //cambiar el name por nombre
-			$table->json('headboard');
+            $table->string('name');
+            $table->string('factor');
+            $table->string('dimension');
+            $table->string('related_standards');
             $table->unsignedInteger('nro_standard');
             $table->timestamps();
-            //$table->foreign('id_user')->references('id')->on('users');
-            $table->foreignId('id_user')
-                  ->constrained('users');
-            $table->foreignId('id_date')
+            $table->foreignId('date_id')
                 ->constrained('date_semesters');
-            $table->foreignId('id_registration_status')
+            $table->foreignId('registration_status_id')
                 ->constrained('registration_status');
         });
     }
-
 
     public function down()
     {

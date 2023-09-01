@@ -13,10 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('date_semesters', function (Blueprint $table) {
+        Schema::create('registration_status', function (Blueprint $table) {
             $table->id();
-            $table->year('year');
-            $table->string('semester', 1);
+            $table->string('description');// active/ desactive
             $table->timestamps();
         });
     }
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('date_semesters');
+        Schema::dropIfExists('registration_status');
     }
 };

@@ -13,9 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('registration_status', function (Blueprint $table) {
+        Schema::create('plan_status', function (Blueprint $table) {
             $table->id();
             $table->string('description');
+            $table->foreignId('registration_status_id')
+                ->constrained('registration_status');
             $table->timestamps();
         });
     }
@@ -27,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('registration_status');
+        Schema::dropIfExists('plan_status');
     }
 };

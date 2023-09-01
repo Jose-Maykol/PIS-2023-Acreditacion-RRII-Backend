@@ -13,14 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('observations', function (Blueprint $table) {
+        Schema::create('date_semesters', function (Blueprint $table) {
             $table->id();
+            $table->year('year');// 1 - 2022 - A
+            $table->string('semester', 1);
             $table->timestamps();
-            $table->string('description');
-            $table->foreignId('plan_id')
-                  ->constrained('plans');
-            $table->foreignId('registration_status_id')
-            ->constrained('registration_status');
         });
     }
 
@@ -31,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('observations');
+        Schema::dropIfExists('date_semesters');
     }
 };

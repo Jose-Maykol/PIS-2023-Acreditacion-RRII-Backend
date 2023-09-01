@@ -13,8 +13,9 @@ use App\Http\Controllers\Api\MetasController;
 use App\Http\Controllers\Api\ResponsablesController;
 
 
-Route::middleware("auth:sanctum")->prefix('plans')->group(function () {// /api/plans/{plan}/goals/{goal}
-   
+Route::middleware("auth:sanctum")->prefix('plans')->group(function () {// /api/2023/A/plans/{plan}/goals/{goal}/
+
+
     //rutas plan
     Route::post('', [PlanController::class, 'createPlan']);
     Route::get('', [PlanController::class, 'listPlan']);

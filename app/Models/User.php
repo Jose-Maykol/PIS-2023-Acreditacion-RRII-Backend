@@ -20,7 +20,8 @@ class User extends Authenticatable
     'lastname',
     'email',
     'password',
-	'estado',
+    'role_id',
+	'registration_status_id',
   ];
 
   public $timestamps = false;
@@ -52,9 +53,9 @@ class User extends Authenticatable
     return $this->roles()->where('name', 'Admin')->exists();
   }
 
-  public function isCreadorPlan($id_plan)
+  public function isCreatorPlan($plan_id)
   {
-    return plan::where('id', $id_plan)->where('id_user', $this->id)->exists();
+    return PlanModel::where('id', $plan_id)->where('user_id', $this->id)->exists();
   }
 
   public function isEncargadoEstandar($id_estandar)

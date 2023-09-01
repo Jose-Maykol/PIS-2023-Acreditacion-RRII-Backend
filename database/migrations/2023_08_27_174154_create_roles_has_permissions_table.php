@@ -15,13 +15,11 @@ return new class extends Migration
     {
         Schema::create('roles_has_permissions', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('id_role');
-            $table->unsignedBigInteger('id_permission');
             $table->timestamps();
-
-            $table->foreign('id_role')->references('id')->on('roles');
-            $table->foreign('id_permission')->references('id')->on('permissions');
-            
+            $table->foreignId('role_id')
+                    ->constrained('roles');
+            $table->foreignId('permission_id')
+            ->constrained('permissions');
         });
     }
 

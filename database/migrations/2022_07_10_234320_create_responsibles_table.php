@@ -16,9 +16,12 @@ return new class extends Migration
         Schema::create('responsibles', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->string('name');
-            $table->foreignId('id_plan')
+            $table->string('description');
+            $table->foreignId('plan_id')
                   ->constrained('plans');
+            $table->foreignId('registration_status_id')
+                  ->constrained('registration_status');
+
         });
     }
 

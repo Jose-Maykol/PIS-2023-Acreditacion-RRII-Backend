@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
-use App\Models\plan;
+use App\Models\PlanModel;
 use App\Models\AccionesMejoras;
 use App\Models\CausasRaices;
 use App\Models\Evidencias;
@@ -21,11 +21,11 @@ use App\Models\Responsables;
 //plan::where(["id_user" => $id_user, "id" => $id])->exists()
 class PlanController extends Controller
 {
-    public function update(Request $request, $id)
+    public function update(Request $request, $plan)
     {
 
         $id_user = auth()->user();
-        if ($id_user->isCreadorPlan($id) or $id_user->isAdmin()) {
+        if ($id_user->isCreatorPlan($plan) or $id_user->isAdmin()) {
             //Actualizamos los atributos propios
             $plan = plan::find($id);
             $plan->update([

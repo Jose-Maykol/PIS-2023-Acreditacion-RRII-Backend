@@ -20,11 +20,12 @@ return new class extends Migration
             $table->string('file')->nullable();
             $table->string('type')->nullable();
             $table->string('size')->nullable();
-            $table->foreignId('user_id')->constrained();
+            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('plan_id')->nullable()->constrained('plans');
             $table->foreignId('folder_id')->constrained('folders');
-            $table->foreignId('evidenceType_id')->constrained('evidencias_tipo');
-            $table->foreignId('standard_id')->constrained('estandars');
-            $table->foreignId('id_date')->constrained('date_semesters');
+            $table->foreignId('evidence_type_id')->constrained('evidence_types');
+            $table->foreignId('standard_id')->constrained('standards');
+            $table->foreignId('date_id')->constrained('date_semesters');
             $table->timestamps();
         });
     }

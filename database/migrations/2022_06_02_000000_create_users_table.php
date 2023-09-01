@@ -19,7 +19,10 @@ return new class extends Migration
             $table->string('lastname');
             $table->string('email')->unique();
             $table->string('password');
-			$table->boolean('status');
+            $table->foreignId('role_id')
+                ->constrained('roles');
+            $table->foreignId('registration_status_id')
+                ->constrained('registration_status');
         });
     }
 
@@ -31,5 +34,9 @@ return new class extends Migration
     public function down()
     {
         Schema::dropIfExists('users');
+    }
+    public function after()
+    {
+        $this->after('2022_07_06_025121_create_roles_table');
     }
 };

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->date('date');
             $table->mediumText('description');
-            $table->foreignId('id_standard')
+            $table->foreignId('standard_id')
                 ->constrained('standards');
             $table->timestamps();
         });

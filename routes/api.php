@@ -36,6 +36,7 @@ Route::get('estados', [EstadosValoresController::class, 'listEstadosValores']);
 //Estandares  valores
 Route::get('estandares', [EstandarController::class, 'listEstandarValores']);
 
+
 Route::middleware("auth:sanctum")->group(function () {
     //Rutas de Auth
     Route::get('logout', [LoginController::class, 'logout']);

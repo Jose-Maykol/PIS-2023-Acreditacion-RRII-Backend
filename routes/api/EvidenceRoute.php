@@ -15,4 +15,6 @@ Route::middleware("auth:sanctum")->prefix('evidences')->group(function () {
     Route::put('{evidence}', [EvidenciasController::class, 'update'])->where('evidence', '[0-9]+');
     Route::delete('{evidence}', [EvidenciasController::class, 'delete'])->where('evidence', '[0-9]+');
 
-});
+});// /api/evidences/{id}
+
+// /api/2023/A/evidences{id}

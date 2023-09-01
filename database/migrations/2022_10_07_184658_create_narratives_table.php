@@ -15,12 +15,11 @@ return new class extends Migration
     {
         Schema::create('narratives', function (Blueprint $table) {
             $table->id();
-            $table->string('semester', 8);
             $table->mediumText('content');
-            $table->foreignId('id_standard')
+            $table->foreignId('standard_id')
                 ->constrained('standards');
-            $table->foreignId('id_date')->constrained('date_semesters');
-            $table->foreignId('id_registration_status')
+            $table->foreignId('date_id')->constrained('date_semesters');
+            $table->foreignId('registration_status_id')
                 ->constrained('registration_status');
             $table->timestamps();
         });

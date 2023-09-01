@@ -25,19 +25,19 @@ return new class extends Migration
             $table->string('semester_execution', 8)->nullable();
             $table->integer('advance');
             $table->integer('duration')->nullable();
-            $table->string('status', 30);
+            $table->foreignId('plan_status_id')->constrained('plan_status');//
             $table->boolean('efficacy_evaluation')->nullable();;
-            $table->foreignId('id_standard')
+            $table->foreignId('standard_id')
                 ->constrained('standards');
-            $table->foreignId('id_user')
+            $table->foreignId('user_id')
                 ->constrained('users');
-            $table->foreignId('id_date')
+            $table->foreignId('date_id')
                 ->constrained('date_semesters');
-            $table->unique(['code', 'id_standard']);
+            $table->unique(['code', 'standard_id']);
             $table->timestamps();
-            $table->foreignId('id_registration_status')
+            $table->foreignId('registration_status_id')
                 ->constrained('registration_status');
-        });
+        }); //
     }
 
     /**

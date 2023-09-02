@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\EvidenciasController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\NarrativasController;
 use App\Http\Controllers\Api\ActaController;
+use App\Http\Controllers\Api\FoldersController;
 
 //Rutas de Auth
 Route::post('login', [LoginController::class, 'login'])->name('login');
@@ -76,14 +77,14 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::delete('meta/{id}', [MetasController::class, 'delete'])->where('id', '[0-9]+');
 
     //rutas accionesmejoras
-    Route::post('accionmejora', [AccionesMejorasController::class, 'create']);
-    Route::put('accionmejora', [AccionesMejorasController::class, 'update']);
-    Route::delete('accionmejora/{id}', [AccionesMejorasController::class, 'delete'])->where('id', '[0-9]+');
+    Route::post('accionesmejora', [AccionesMejorasController::class, 'create']);
+    Route::put('accionesmejora/{action}', [AccionesMejorasController::class, 'update']);
+    Route::delete('accionesmejora/{action}', [AccionesMejorasController::class, 'delete'])->where('id', '[0-9]+');
 
     //rutas fuentes
-    Route::post('fuente', [FuentesController::class, 'create']);
-    Route::put('fuente', [FuentesController::class, 'update']);
-    Route::delete('fuente/{id}', [FuentesController::class, 'delete'])->where('id', '[0-9]+');
+    Route::post('sources', [FuentesController::class, 'create']);
+    Route::put('sources/{source}', [FuentesController::class, 'update']);
+    Route::delete('sources/{source}', [FuentesController::class, 'delete'])->where('id', '[0-9]+');
 
     //rutas observaciones
     Route::post('observacion', [ObservacionesController::class, 'create']);
@@ -100,10 +101,10 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::put('recurso', [RecursosController::class, 'update']);
     Route::delete('recurso/{id}', [RecursosController::class, 'delete'])->where('id', '[0-9]+');
 
-    //rutas casuasraiz
-    Route::post('causa', [CausasRaicesController::class, 'create']);
-    Route::put('causa', [CausasRaicesController::class, 'update']);
-    Route::delete('causa/{id}', [CausasRaicesController::class, 'delete'])->where('id', '[0-9]+');
+    //rutas causas-raiz
+    Route::post('causes', [CausasRaicesController::class, 'create']);
+    Route::put('causes/{cause}', [CausasRaicesController::class, 'update']);
+    Route::delete('causes/{cause}', [CausasRaicesController::class, 'delete'])->where('id', '[0-9]+');
 
     //ruta responsables
     Route::post('responsable', [ResponsablesController::class, 'create']);
@@ -120,21 +121,19 @@ Route::middleware("auth:sanctum")->group(function () {
     Route::delete('evidencia/{id}', [EvidenciasController::class, 'delete'])->where('id', '[0-9]+');
 
     //ruta narrativas
-    Route::post('narrativa', [NarrativasController::class, 'create']);
-    Route::get('narrativa/{id}', [NarrativasController::class, 'show'])->where('id', '[0-9]+');
-    Route::put('narrativa', [NarrativasController::class, 'update']);
-    Route::delete('narrativa/{id}', [NarrativasController::class, 'delete'])->where('id', '[0-9]+');
-    Route::get('narrativa', [NarrativasController::class, 'listNarrativas']);
-    Route::get('narrativa/ultima/{id}', [NarrativasController::class, 'ultimaNarrativa'])->where('id', '[0-9]+');
+    Route::post('narratives', [NarrativasController::class, 'create']);
+    Route::get('narratives/{narrative}', [NarrativasController::class, 'show'])->where('id', '[0-9]+');
+    Route::put('narratives/{narrative}', [NarrativasController::class, 'update']);
+    Route::delete('narratives/{narratives}', [NarrativasController::class, 'delete'])->where('id', '[0-9]+');
+    Route::get('narratives', [NarrativasController::class, 'listNarratives']);
+    Route::get('narratives/last/{narrative}', [NarrativasController::class, 'lastNarrative'])->where('id', '[0-9]+');
 
     //ruta Actas
-    Route::post('acta', [ActaController::class, 'create']);
-    Route::get('acta/{id}', [ActaController::class, 'showActa'])->where('id', '[0-9]+');
-    Route::put('acta', [ActaController::class, 'update'])->where('id', '[0-9]+');
-    Route::delete('acta/{id}', [ActaController::class, 'delete'])->where('id', '[0-9]+');
-    Route::get('acta', [ActaController::class, 'listActas']);
-});
+    Route::post('acts', [ActaController::class, 'createAct']);
+    Route::get('acts/{act}', [ActaController::class, 'showAct'])->where('id', '[0-9]+');
+    Route::put('acts/{act}', [ActaController::class, 'updateAct'])->where('id', '[0-9]+');
+    Route::delete('acts/{act}', [ActaController::class, 'deleteAct'])->where('id', '[0-9]+');
+    Route::get('acts', [ActaController::class, 'listActs']);
 
-/*Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});*/
+    Route::post('folder', [FoldersController::class, 'create']);
+});

@@ -5,19 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Acta extends Model
+class ObservationModel extends Model
 {
     use HasFactory;
     public $timestamps = true;
 
-    protected $table = 'actas';
+    protected $table ='observations';
     protected $fillable = [
         'description',
-		'date'        
+        'plan_id',
+        'registration_status_id'
     ];
-
-    public function estandar()
-    {
-        return $this->belongsTo(Estandar::class, 'id_estandar');
+    public function plans(){
+        return $this->belongsTo(PlanModel::class,'plan_id');
     }
 }

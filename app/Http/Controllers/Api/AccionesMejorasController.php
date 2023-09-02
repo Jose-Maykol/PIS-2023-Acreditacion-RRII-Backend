@@ -10,9 +10,14 @@ use Illuminate\Http\Request;
 class AccionesMejorasController extends Controller
 {
     public function create(Request $request) {
+        /*
+            ruta(post): /api/standard/{standard}/accionesmejora
+            ruta(post): /api/standard/1/accionesmejora
+            datos: {json con los datos qué nos mandan}
+        */
         $request->validate([
             "id_plan"=> "required|integer",
-            "descripcion"=> "required",
+            "description"=> "required",
         ]);
         $id_user = auth()->user()->id;
         if(plan::where(["id"=>$request->id_plan])->exists()){
@@ -20,18 +25,19 @@ class AccionesMejorasController extends Controller
             if($plan->id_user == $id_user){                
                 $acciones = new AccionesMejoras();
                 $acciones->id_plan = $request->id_plan;
-                $acciones->descripcion = $request->descripcion;
+                $acciones->description = $request->description;
                 $acciones->save();
                 return response([
                     "status" => 1,
                     "message" => "Accion de mejora creada exitosamente",
-                ]);
+                    'data' => $acciones
+                ],201); //Recurso creado
             }
             else{
                 return response([
                     "status" => 0,
                     "message" => "No tienes permisos para crear esta accion de mejora",
-                ],404);
+                ],403); //Sin permisos
             }
         }
         else{
@@ -43,27 +49,33 @@ class AccionesMejorasController extends Controller
     }
 
     public function update(Request $request){
+        /*
+            ruta(put): /api/standard/{standard}/accionesmejora/{action}
+            ruta(put): /api/standard/1/accionesmejora/2
+            datos: {json con los datos qué nos mandan}
+        */
         $request->validate([
             "id"=> "required|integer",
-            "descripcion"=> "required"
+            "description"=> "required"
         ]);
         $id_user = auth()->user()->id;
         if(AccionesMejoras::where(["id"=>$request->id])->exists()){
             $accion = AccionesMejoras::find($request->id);
             $plan = plan::find($accion->id_plan);
             if($plan->id_user == $id_user){                
-                $accion->descripcion = $request->descripcion;
+                $accion->description = $request->description;
                 $accion->save();
                 return response([
                     "status" => 1,
                     "message" => "Accion de mejora actualizada exitosamente",
-                ]);
+                    "data" => $accion
+                ],200);
             }
             else{
                 return response([
                     "status" => 0,
                     "message" => "No tienes permisos para actualizar esta accion de mejora",
-                ],404);
+                ],403);//Sin permisos
             }
         }
         else{
@@ -74,24 +86,29 @@ class AccionesMejorasController extends Controller
         }
     }
 
-    public function delete($id)
+    public function delete($action)
     {
+        /*
+            ruta(delete): /api/standard/{standard}/accionesmejora/{action}
+            ruta(delete): /api/standard/1/accionesmejora/2
+            datos: {json con los datos qué nos mandan}
+        */
         $id_user = auth()->user()->id;
-        if(AccionesMejoras::where(["id"=>$id])->exists()){
-            $accion = AccionesMejoras::find($id);
+        if(AccionesMejoras::where(["id"=>$action])->exists()){
+            $accion = AccionesMejoras::find($action);
             $plan = plan::find($accion->id_plan);
             if($plan->id_user == $id_user){
                 $accion->delete();
                 return response([
                     "status" => 1,
                     "message" => "Accion de mejora eliminada exitosamente",
-                ]);
+                ],200);
             }
             else{
                 return response([
                     "status" => 0,
                     "message" => "No tienes permisos para eliminar esta accion de mejora",
-                ],404);
+                ],403); //Sin permisos
             }
         }
         else{

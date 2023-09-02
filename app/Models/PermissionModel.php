@@ -5,13 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class FuentesValores extends Model
+class PermissionModel extends Model
 {
     use HasFactory;
-    public $timestamps = false;
-    protected $table ='fuentes_valores';
-    protected $fillable = [
-        'valor',
 
+	protected $table ='permissions';
+
+    protected $fillable = [
+        'name'
     ];
+	public $timestamps = false;
+
 }

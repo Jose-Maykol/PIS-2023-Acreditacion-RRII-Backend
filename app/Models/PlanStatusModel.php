@@ -5,17 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class AccionesMejoras extends Model
+class PlanStatusModel extends Model
 {
     use HasFactory;
     public $timestamps = true;
 
-    protected $table ='acciones_mejoras';
+    protected $table ='plan_status';
     protected $fillable = [
-        'descripcion',
-
+        'description',
+        'registration_status_id'
     ];
-    public function plans(){
-        return $this->belongsTo(plan::class,'id_plan');
-    }
+
 }

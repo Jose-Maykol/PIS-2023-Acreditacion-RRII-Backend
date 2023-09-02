@@ -5,16 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Estandar extends Model
+use function PHPSTORM_META\map;
+
+class StandardModel extends Model
 {
 
     use HasFactory;
     public $timestamps = true;
-    protected $table ='estandars';
+
+    protected $table ='standards';
     protected $fillable = [
         'name',
-        'position',
-		'cabecera'
+        'factor',
+        'dimension',
+        'related_standards',
+        'nro_standard',
+		'date_id',
+        'registration_status_id'
     ];
 
 

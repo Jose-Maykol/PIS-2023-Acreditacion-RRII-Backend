@@ -5,17 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Metas extends Model
+class RootCauseModel extends Model
 {
     use HasFactory;
     public $timestamps = true;
 
-    protected $table ='metas';
+    protected $table ='root_causes';
     protected $fillable = [
-        'descripcion',
-
+        'description',
+        'plan_id',
+        'registration_status_id'
     ];
     public function plans(){
-        return $this->belongsTo(plan::class,'id_plan');
+        return $this->belongsTo(PlanModel::class,'plan_id');
     }
 }

@@ -12,46 +12,52 @@ class PlanModel extends Model
 
     protected $table ='plans';
     protected $fillable = [
-        'codigo',
-        'nombre',
-        'oportunidad_plan',
-        'semestre_ejecucion',
-        'duracion',
-        'estado',
-        'avance',
-        'evaluacion_eficacia',
-
+        'code',
+        'name',
+        'opportunity_for_improvement',
+        'semester_execution',
+        'advance',
+        'duration',
+        'plan_status_id',
+        'efficacy_evaluation',
+        'standard_id',
+        'user_id',
+        'date_id',
+        'registration_status_id',
     ];
 
 
-    public function getUser(){
-        return $this->belongsTo(User::class,'id_user');
+    public function user(){
+        return $this->belongsTo(User::class,'user_id');
     }
-    public function getStandard(){
-        return $this->belongsTo(StandardModel::class,'id_standard');
+    public function standard(){
+        return $this->belongsTo(StandardModel::class,'standard_id');
     }
-    public function getSources(){
-        return $this->hasMany(SourceModel::class,'id_plan')->where('id_registration_status', Registration::select('id')->where('description', 'active'));
+    public function planStatus(){
+        return $this->belongsTo(PlanStatusModel::class,'plan_status_id');
     }
-    public function getGoals(){
-        return $this->hasMany(GoalModel::class,'id_plan')->makehidden('updated_at');
+    public function sources(){
+        return $this->hasMany(SourceModel::class,'plan_id')->where('registration_status_id', RegistrationStatusModel::select('id')->where('description', 'Active'));
     }
-    public function getResources(){
-        return $this->hasMany(ResourceModel::class,'id_plan');
+    public function goals(){
+        return $this->hasMany(GoalModel::class,'plan_id');
     }
-    public function getObservation(){
-        return $this->hasMany(ObservationModel::class,'id_plan');
+    public function resources(){
+        return $this->hasMany(ResourceModel::class,'plan_id');
     }
-    public function getProblemsOpportunities(){
-        return $this->hasMany(ProblemsOpportunitiesModel::class,'id_plan');
+    public function observations(){
+        return $this->hasMany(ObservationModel::class,'plan_id');
     }
-    public function getImprovementActions(){
-        return $this->hasMany(ImprovementActionModel::class,'id_plan');
+    public function problemsOpportunities(){
+        return $this->hasMany(ProblemsOpportunitiesModel::class,'plan_id');
     }
-    public function getRootCauses(){
-        return $this->hasMany(RootCauseModel::class,'id_plan');
+    public function improvementActions(){
+        return $this->hasMany(ImprovementActionModel::class,'plan_id');
     }
-    public function getResponsibles(){
-        return $this->hasMany(ResponsibleModel::class,'id_plan');
+    public function rootCauses(){
+        return $this->hasMany(RootCauseModel::class,'plan_id');
+    }
+    public function responsibles(){
+        return $this->hasMany(ResponsibleModel::class,'plan_id');
     }
 }

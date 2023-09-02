@@ -5,17 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Fuentes extends Model
+class DateModel extends Model
 {
     use HasFactory;
     public $timestamps = true;
 
-    protected $table ='fuentes';
+    protected $table ='date_semesters';
     protected $fillable = [
-        'descripcion',
-        
+        'year',
+        'semester'
     ];
-    public function plans(){
-        return $this->belongsTo(plan::class,'id_plan');
-    }
+    
 }

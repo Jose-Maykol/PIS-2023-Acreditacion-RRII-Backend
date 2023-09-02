@@ -4,11 +4,18 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\FuentesValores;
+use App\Models\SourcesValues;
 
-class FuentesValoresController extends Controller
+class SourcesValuesController extends Controller
 {
-    
+    /*
+		ruta(get): /api/values/responsibles
+		ruta(get): /api/values/responsibles
+		datos:
+			{
+                "access_token": "5082e3108d0e4d8cdd948c42102aabd0768fe993b86240569aa5130e373f3b8a"
+			}
+	*/
     public function listSourcesValues()
     {
         try {

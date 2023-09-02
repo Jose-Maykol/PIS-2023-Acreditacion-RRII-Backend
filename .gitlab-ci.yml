@@ -1,12 +1,13 @@
-'''stages:
-  - build
+stages:
+  - test
+  - production
 
-build-code-test:
-  stage: build
+build-test:
+  stage: test
   only:
     - testing
   tags:
-    - testing
+    - testing-backend
   script:
     - echo "Start build test"
     - cd /var/www/acreditacion-rrii-backend
@@ -15,12 +16,12 @@ build-code-test:
     - sudo php artisan migrate
     - echo "End build test"
 
-build-code-production:
+build-production:
   stage: build
   only:
     - main
   tags:
-    - production
+    - production-backend
   script:
     - echo "Start build production"
     - cd /var/www/acreditacion-rrii-backend
@@ -28,4 +29,3 @@ build-code-production:
     - sudo git pull
     - sudo php artisan migrate
     - echo "End build production"
-'''

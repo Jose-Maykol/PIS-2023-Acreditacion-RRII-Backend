@@ -4,17 +4,26 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot as RelationsPivot;
 
-class RoleHasPermissionModel extends Model
+class RoleHasPermissionModel extends RelationsPivot
 {
-    use HasFactory;
 
-	protected $table ='role_has_permissions';
+	protected $table ='roles_has_permissions';
 
     protected $fillable = [
-        'permissions_id',
+        'permission_id',
         'role_id'
     ];
 	public $timestamps = false;
 
+    public function role()
+    {
+        return $this->belongsTo(RoleModel::class, 'role_id');
+    }
+
+    public function permission()
+    {
+        return $this->belongsTo(PermissionModel::class, 'permission_id');
+    }
 }

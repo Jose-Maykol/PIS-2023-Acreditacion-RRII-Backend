@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -26,31 +27,38 @@ class UserModel extends Authenticatable
 
   public $timestamps = false;
 
-  public function estandars()
+  public function role()
   {
-    return $this->hasMany(Estandar::class, 'id');
+    return $this->belongsTo(RoleModel::class, 'role_id');
+  }
+
+  public function hasPermission($permission){
+
+    return $this->role()->first()->permissions()->where('name', $permission)->exists();
+  }
+
+  public function standards()
+  {
+    return $this->hasMany(StandardModel::class, 'id');
   }
   public function plans()
   {
-    return $this->hasMany(Plan::class, 'id');
+    return $this->hasMany(PlanModel::class, 'id');
   }
-  public function evidencias()
+  public function evidences()
   {
-    return $this->hasMany(Evidencia::class, 'id');
+    return $this->hasMany(Evidence::class, 'id');
   }
   public function providers()
   {
     return $this->hasMany(Provider::class, 'id_user');
   }
 
-  public function roles()
-  {
-    return $this->belongsToMany(Role::class, 'role_user', 'id_user', 'id_rol');
-  }
+  
 
   public function isAdmin()
   {
-    return $this->roles()->where('name', 'Admin')->exists();
+    return $this->roles()->first()->where('name', 'Admin')->exists();
   }
 
   public function isCreatorPlan($plan_id)
@@ -58,8 +66,8 @@ class UserModel extends Authenticatable
     return PlanModel::where('id', $plan_id)->where('user_id', $this->id)->exists();
   }
 
-  public function isEncargadoEstandar($id_estandar)
+  public function isAssignStandard($standard_id)
   {
-    return Estandar::where('id', $id_estandar)->where('id_user', $this->id)->exists();
+    return StandardModel::where('id', $standard_id)->where('user_id', $this->id)->exists();
   }
 }

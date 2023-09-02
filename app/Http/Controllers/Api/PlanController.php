@@ -16,14 +16,17 @@ use App\Models\ImprovementActionModel;
 use App\Models\Metas;
 use App\Models\Observaciones;
 use App\Models\ObservationModel;
+use App\Models\PlanStatusModel;
 use App\Models\ProblemasOportunidades;
 use App\Models\ProblemOpportunitieModel;
 use App\Models\Recursos;
 use App\Models\ResourceModel;
 use App\Models\Responsables;
 use App\Models\ResponsibleModel;
+use App\Models\RoleModel;
 use App\Models\RootCauseModel;
 use App\Models\SourceModel;
+use App\Models\UserModel;
 
 //plan::where(["id_user" => $id_user, "id" => $id])->exists()
 class PlanController extends Controller
@@ -31,15 +34,21 @@ class PlanController extends Controller
 
     public function permissions(Request $request) {
 
+        $data = UserModel::find(1)->hasPermission('plan_update');
+        $permisos = UserModel::find(1)->role()->first()->permissions()->get()->makeHidden(["updated_at","created_at", "pivot"]);
+        //$data = RoleModel::find(1)->permissions()->get();
         //return             
         return response([
             "message" => "!Plan de mejora creado exitosamente",
+            "data" => $data,
+            "permisos" => $permisos
         ], 201);
     }
     public function update(Request $request, $plan_id)
     {
-        //$id_user = auth()->user();
-        //if ($id_user->isCreatorPlan($plan) or $id_user->isAdmin()) {
+        $user_id = auth()->user()->id;
+        $user = UserModel::find($user_id);
+        if ($user->isCreatorPlan($plan_id) or $user->isAdmin()) {
             //Actualizamos los atributos propios
             $plan = PlanModel::find($plan_id);
             $plan->update([
@@ -241,12 +250,11 @@ class PlanController extends Controller
                 }
             }
             return response()->json($plan, 200);
-        /*} else {
+        } else {
             return response([
-                "status" => 0,
                 "message" => "!No se encontro el plan o no esta autorizado",
             ], 404);
-        }*/
+        }
     }
 
     // Arreglar el formato de IDs
@@ -366,29 +374,30 @@ class PlanController extends Controller
         ], 201);
     }
 
-    /*public function assignPlan(Request $request)
+    public function assignPlan(Request $request)
     {
-        $id_user = auth()->user();
-        if ($id_user->isAdmin()) {
+        $user_id = auth()->user()->id;
+        $user = UserModel::find($user_id);
+        if ($user->isAdmin()) {
             $resp = $request->validate([
-                'id_estandar' => 'required|integer|exists:estandars,id',
-                'id_user' => 'required|integer|exists:users,id',
-                "nombre" => "required|max:255",
-                'codigo' => [
+                'standard_id' => 'required|integer|exists:standards,id',
+                'user_id' => 'required|integer|exists:users,id',
+                "name" => "required|max:255",
+                'code' => [
                     'required',
-                    Rule::unique('plans', 'codigo')->where(function ($query) use ($request) {
-                        return $query->where('id_estandar', $request->id_estandar);
+                    Rule::unique('plans', 'code')->where(function ($query) use ($request) {
+                        return $query->where('standard_id', $request->id_estandar);
                     }),
                 ],
             ]);
 
             if ($resp) {
-                $plan = new plan();
-                $plan->id_user = $request->id_user;
-                $plan->id_estandar = $request->id_estandar;
-                $plan->codigo = $request->codigo;
-                $plan->avance = 0;
-                $plan->estado = "Planificado";
+                $plan = new PlanModel();
+                $plan->user_id = $request->user_id;
+                $plan->standard_id = $request->standard_id;
+                $plan->code = $request->code;
+                $plan->advance = 0;
+                $plan->plan_status = "Planificado";
                 $plan->nombre = $request->nombre;
                 $plan->evaluacion_eficacia = false;
                 $plan->save();
@@ -409,7 +418,7 @@ class PlanController extends Controller
                 "message" => "No tiene permisos para realizar esta acción",
             ], 403);
         }
-    }*/
+    }
 
     //confirmar los datos nesesarios
     public function listPlan()
@@ -468,13 +477,14 @@ class PlanController extends Controller
                 "message" => "!No se encontro el plan o no esta autorizado",
             ], 404);
         }
-    }
+    }*/
 
 
-    public function deletePlan($id)
+    public function deletePlan($plan_id)
     {
-        $id_user = auth()->user();
-        $plan = plan::find($id);
+        $user_id = auth()->user()->id;
+        $user = UserModel::find($user_id);
+        $plan = PlanModel::find($plan_id);
         if (!$plan) {
             return response([
                 "status" => 0,
@@ -482,40 +492,37 @@ class PlanController extends Controller
             ], 404);
         }
 
-        if ($id_user->isCreadorPlan($id) or $id_user->isAdmin()) {
-            $plan->delete();
+        if ($user->isCreadorPlan($plan_id) or $user->isAdmin()) {
+            $plan->deleteRegister();
             return response([
-                "status" => 1,
-                "message" => "!Plan de mejora eliminado",
-            ]);
+            ],204);
         } else {
             return response([
                 "status" => 0,
                 "message" => "!No esta autorizado par realizar esta accion",
-            ], 404);
+            ], 403);
         }
     }
 
     //faltas completar
-    public function showPlan($id)
+    public function showPlan($plan_id)
     {
 
-        if (plan::where("id", $id)->exists()) {
-            $plan = plan::find($id);
-            $plan->fuentes = Fuentes::where("id_plan", $id)->get(['id', 'descripcion as value']);
-            $plan->problemas_oportunidades = ProblemasOportunidades::where("id_plan", $id)->get(['id', 'descripcion as value']);
-            $plan->causas_raices = CausasRaices::where("id_plan", $id)->get(['id', 'descripcion as value']);
-            $plan->acciones_mejoras = AccionesMejoras::where("id_plan", $id)->get(['id', 'descripcion as value']);
-            $plan->recursos = Recursos::where("id_plan", $id)->get(['id', 'descripcion as value']);
-            $plan->metas = Metas::where("id_plan", $id)->get(['id', 'descripcion as value']);
-            $plan->observaciones = Observaciones::where("id_plan", $id)->get(['id', 'descripcion as value']);
-            $plan->responsables = Responsables::where("id_plan", $id)->get(['id', 'nombre as value']);
-            $plan->evidencias = Evidencias::where("id_plan", $id)->get();
+        if (PlanModel::where("id", $plan_id)->exists()) {
+            $plan = PlanModel::find($plan_id);
+            $plan->sources = SourceModel::where("plan_id", $plan_id)->get(['id', 'description']);
+            $plan->problems_opportunities = ProblemOpportunitieModel::where("plan_id", $plan_id)->get(['id', 'description']);
+            $plan->root_causes = RootCauseModel::where("plan_id", $plan_id)->get(['id', 'description']);
+            $plan->improvement_actions = ImprovementActionModel::where("plan_id", $plan_id)->get(['id', 'description']);
+            $plan->resources = ResourceModel::where("plan_id", $plan_id)->get(['id', 'description']);
+            $plan->goals = GoalModel::where("plan_id", $plan_id)->get(['id', 'description']);
+            $plan->observations = ObservationModel::where("plan_id", $plan_id)->get(['id', 'description']);
+            $plan->responsibles = ResponsibleModel::where("plan_id", $plan_id)->get(['id', 'name']);
+            //$plan->evidences = Evidencias::where("id_plan", $plan_id)->get();
             return response([
-                "status" => 1,
                 "message" => "!Plan de mejora encontrado",
                 "data" => $plan,
-            ]);
+            ], 200);
         } else {
             return response([
                 "status" => 0,
@@ -523,7 +530,7 @@ class PlanController extends Controller
             ], 404);
         }
     }
-
+/*
     public function showPlanEvidence($id)
     {
 
@@ -542,157 +549,159 @@ class PlanController extends Controller
             ], 404);
         }
     }
-
+*/
     public function listPlanUser()
     {
-        $id_user = auth()->user()->id;
-        $planAll = plan::select('plans.id', 'plans.nombre', 'plans.codigo', 'plans.avance', 'plans.estado', 'plans.id_user', 'estandars.name as estandar_name', 'users.name as user_name')
-            ->join('estandars', 'plans.id_estandar', '=', 'estandars.id')
-            ->join('users', 'plans.id_user', '=', 'users.id')
-            ->where("plans.id_user", $id_user)
+        $user_id = auth()->user()->id;
+        $user = UserModel::find($user_id);
+        $planAll = PlanModel::select('plans.id', 'plans.name', 'plans.code', 'plans.advance', 'plans.user_id', 
+                                'standards.name as standard_name', 'users.name as user_name', 'plan_status.description as plan_status')
+            ->join('standards', 'plans.standard_id', '=', 'standards.id')
+            ->join('users', 'plans.user_id', '=', 'users.id')
+            ->join('plan_status', 'plans.plan_status_id', '=', 'plan_status.id')
+            ->where("plans.user_id", $user_id)
             ->orderBy('plans.id', 'asc')
             ->get();
 
         foreach ($planAll as $plan) {
-            $plan->esCreador = ($plan->id_user == $id_user) ? true : false;
-            unset($plan->id_user);
+            $plan->isCreator = ($plan->user_id == $user_id) ? true : false;
+            unset($plan->user_id);
         }
 
         if ($planAll->count() > 0) {
             return response([
-                "status" => 1,
                 "message" => "!Lista de planes de mejora",
                 "data" => $planAll,
             ], 200);
         } else {
             return response([
-                "status" => 0,
                 "message" => "!No tienes planes de mejora",
                 "data" => [],
-            ], 200);
+            ], 404);
         }
     }
 
     /*$id_user = auth()->user()->id;*/
-/*
-    public function exportPlan($id)
+
+    public function exportPlan($plan_id)
     {
-        if (plan::where("id", $id)->exists()) {
-            $plan = plan::find($id);
-            $plan->fuentes = Fuentes::where("id_plan", $id)->get(['descripcion as value']);
-            $plan->problemas_oportunidades = ProblemasOportunidades::where("id_plan", $id)->get(['descripcion as value']);
-            $plan->causas_raices = CausasRaices::where("id_plan", $id)->get(['descripcion as value']);
-            $plan->acciones_mejoras = AccionesMejoras::where("id_plan", $id)->get(['descripcion as value']);
-            $plan->recursos = Recursos::where("id_plan", $id)->get(['descripcion as value']);
-            $plan->metas = Metas::where("id_plan", $id)->get(['descripcion as value']);
-            $plan->observaciones = Observaciones::where("id_plan", $id)->get(['descripcion as value']);
-            $plan->responsables = Responsables::where("id_plan", $id)->get(['nombre as value']);
-            $plan->evidencias = Evidencias::where("id_plan", $id)->get();
+        if (PlanModel::where("id", $plan_id)->exists()) {
+            $plan = PlanModel::find($plan_id);
+            $plan->sources = SourceModel::where("plan_id", $plan_id)->get(['description']);
+            $plan->problems_opportunities = ProblemOpportunitieModel::where("plan_id", $plan_id)->get(['description']);
+            $plan->root_causes = RootCauseModel::where("plan_id", $plan_id)->get(['description']);
+            $plan->improvement_actions = ImprovementActionModel::where("plan_id", $plan_id)->get(['description']);
+            $plan->resources = ResourceModel::where("plan_id", $plan_id)->get(['description']);
+            $plan->goals = GoalModel::where("plan_id", $plan_id)->get(['description']);
+            $plan->observations = ObservationModel::where("plan_id", $plan_id)->get(['description']);
+            $plan->responsibles = ResponsibleModel::where("plan_id", $plan_id)->get(['name']);
+            $plan->evidences = Evidencias::where("id_plan", $plan_id)->get();
+            $plan->plan_status = PlanStatusModel::find($plan->plan_status_id)->description;
             try {
 
                 $template = new \PhpOffice\PhpWord\TemplateProcessor('plantilla_plan_de_mejora.docx');
 
                 //1
-                $template->setValue('codigo', $plan->codigo);
+                $template->setValue('codigo', $plan->code);
 
                 //2
-                $content_fuentes = count($plan->fuentes) == 0 ?  "No hay fuentes" : "";
-                foreach ($plan->fuentes as $fuente) {
-                    $content_fuentes .= "- " . $fuente->value . "</w:t><w:br/><w:t>";
+                $content_sources = count($plan->sources) == 0 ?  "No hay fuentes" : "";
+                foreach ($plan->sources as $source) {
+                    $content_sources .= "- " . $source->description . "</w:t><w:br/><w:t>";
                 }
-                $content_fuentes = rtrim($content_fuentes, "</w:t><w:br/><w:t>");
-                $template->setValue('fuentes', $content_fuentes);
+                $content_sources = rtrim($content_sources, "</w:t><w:br/><w:t>");
+                $template->setValue('fuentes', $content_sources);
 
                 //3
-                $content_problemas_oportunidades = count($plan->problemas_oportunidades) == 0 ? "No hay problemas/oportunidades" : "";
-                foreach ($plan->problemas_oportunidades as $problema_oportunidad) {
-                    $content_problemas_oportunidades .= "- " . $problema_oportunidad->value . "</w:t><w:br/><w:t>";
+                $content_problems_opportunities = count($plan->problems_opportunities) == 0 ? "No hay problemas/oportunidades" : "";
+                foreach ($plan->problems_opportunities as $problem_opportunity) {
+                    $content_problems_opportunities .= "- " . $problem_opportunity->description . "</w:t><w:br/><w:t>";
                 }
-                $content_problemas_oportunidades = rtrim($content_problemas_oportunidades, "</w:t><w:br/><w:t>");
-                $template->setValue('problema_oportunidad', $content_problemas_oportunidades);
+                $content_problems_opportunities = rtrim($content_problems_opportunities, "</w:t><w:br/><w:t>");
+                $template->setValue('problema_oportunidad', $content_problems_opportunities);
 
                 //4
-                $content_causas_raices = count($plan->causas_raices) == 0 ? "No hay causas raices" : "";
-                foreach ($plan->causas_raices as $causa_raiz) {
-                    $content_causas_raices .= "- " . $causa_raiz->value . "</w:t><w:br/><w:t>";
+                $content_root_causes = count($plan->root_causes) == 0 ? "No hay causas raices" : "";
+                foreach ($plan->root_causes as $root_cause) {
+                    $content_root_causes .= "- " . $root_cause->description . "</w:t><w:br/><w:t>";
                 }
-                $content_causas_raices = rtrim($content_causas_raices, "</w:t><w:br/><w:t>");
-                $template->setValue('causa', $content_causas_raices);
+                $content_root_causes = rtrim($content_root_causes, "</w:t><w:br/><w:t>");
+                $template->setValue('causa', $content_root_causes);
 
                 //5
-                $template->setValue('oportunidad', $plan->oportunidad_plan == null ? "No hay oportunidad plan de mejora" : $plan->oportunidad_plan);
+                $template->setValue('oportunidad', $plan->opportunity_for_improvement == null ? "No hay oportunidad plan de mejora" : $plan->opportunity_for_improvement);
 
                 //6
-                $content_acciones_mejoras = count($plan->acciones_mejoras) == 0 ? "No hay acciones de mejora" : "";
-                foreach ($plan->acciones_mejoras as $accion_mejora) {
-                    $content_acciones_mejoras .= "- " . $accion_mejora->value . "</w:t><w:br/><w:t>";
+                $content_improvement_actions = count($plan->improvement_actions) == 0 ? "No hay acciones de mejora" : "";
+                foreach ($plan->improvement_actions as $improvement_action) {
+                    $content_improvement_actions .= "- " . $improvement_action->description . "</w:t><w:br/><w:t>";
                 }
-                $content_acciones_mejoras = rtrim($content_acciones_mejoras, "</w:t><w:br/><w:t>");
-                $template->setValue('acciones', $content_acciones_mejoras);
+                $content_improvement_actions = rtrim($content_improvement_actions, "</w:t><w:br/><w:t>");
+                $template->setValue('acciones', $content_improvement_actions);
 
                 //7
-                $template->setValue('semestre', $plan->semestre_ejecucion == null ? "Sin definir" : $plan->semestre_ejecucion);
+                $template->setValue('semestre', $plan->semester_execution == null ? "Sin definir" : $plan->semester_execution);
 
                 //8
-                $template->setValue('duracion', $plan->duracion == null ? "Sin definir" : $plan->duracion);
+                $template->setValue('duracion', $plan->duration == null ? "Sin definir" : $plan->duration);
 
                 //9
-                $content_recursos = count($plan->recursos) == 0 ? "No hay recursos" : "";
-                foreach ($plan->recursos as $recurso) {
-                    $content_recursos .= "- " . $recurso->value . "</w:t><w:br/><w:t>";
+                $content_resources = count($plan->resources) == 0 ? "No hay recursos" : "";
+                foreach ($plan->resources as $resource) {
+                    $content_resources .= "- " . $resource->description . "</w:t><w:br/><w:t>";
                 }
-                $content_recursos = rtrim($content_recursos, "</w:t><w:br/><w:t>");
-                $template->setValue('recursos', $content_recursos);
+                $content_resources = rtrim($content_resources, "</w:t><w:br/><w:t>");
+                $template->setValue('recursos', $content_resources);
 
                 //10
-                $content_metas = count($plan->metas) == 0 ?  "No hay metas" : "";
-                foreach ($plan->metas as $meta) {
-                    $content_metas .= "- " . $meta->value . "</w:t><w:br/><w:t>";
+                $content_goals = count($plan->goals) == 0 ?  "No hay metas" : "";
+                foreach ($plan->goals as $goal) {
+                    $content_goals .= "- " . $goal->description . "</w:t><w:br/><w:t>";
                 }
-                $content_metas = rtrim($content_metas, "</w:t><w:br/><w:t>");
-                $template->setValue('metas', $content_metas);
+                $content_goals = rtrim($content_goals, "</w:t><w:br/><w:t>");
+                $template->setValue('metas', $content_goals);
 
                 //11
-                $content_responsables = count($plan->responsables) == 0 ?  "No hay responsables" : "";
-                foreach ($plan->responsables as $responsable) {
-                    $content_responsables .= "- " . $responsable->value . "</w:t><w:br/><w:t>";
+                $content_responsibles = count($plan->responsibles) == 0 ?  "No hay responsables" : "";
+                foreach ($plan->responsibles as $responsible) {
+                    $content_responsibles .= "- " . $responsible->name . "</w:t><w:br/><w:t>";
                 }
-                $content_responsables = rtrim($content_responsables, "</w:t><w:br/><w:t>");
-                $template->setValue('responsables', $content_responsables);
+                $content_responsibles = rtrim($content_responsibles, "</w:t><w:br/><w:t>");
+                $template->setValue('responsables', $content_responsibles);
 
                 //12
-                $content_observaciones = count($plan->observaciones) == 0 ? "No hay observaciones" : "";
-                foreach ($plan->observaciones as $observacion) {
-                    $content_observaciones .= "- " . $observacion->value . "</w:t><w:br/><w:t>";
+                $content_observations = count($plan->observations) == 0 ? "No hay observaciones" : "";
+                foreach ($plan->observations as $observation) {
+                    $content_observations .= "- " . $observation->description . "</w:t><w:br/><w:t>";
                 }
-                $content_observaciones = rtrim($content_observaciones, "</w:t><w:br/><w:t>");
-                $template->setValue('observaciones', $content_observaciones);
+                $content_observations = rtrim($content_observations, "</w:t><w:br/><w:t>");
+                $template->setValue('observaciones', $content_observations);
 
                 //13
-                $template->setValue('estado', $plan->estado);
+                $template->setValue('estado', $plan->plan_status);
 
                 //14
-                $content_evidencias = count($plan->evidencias) == 0 ? "No hay evidencias" : "";
-                foreach ($plan->evidencias as $evidencia) {
-                    $content_evidencias .= "- " . $evidencia->codigo . "</w:t><w:br/><w:t>";
+                $content_evidences = count($plan->evidences) == 0 ? "No hay evidencias" : "";
+                foreach ($plan->evidences as $evidence) {
+                    $content_evidences .= "- " . $evidence->code . "</w:t><w:br/><w:t>";
                 }
-                $content_evidencias = rtrim($content_evidencias, "</w:t><w:br/><w:t>");
-                $template->setValue('evidencias', $content_evidencias);
+                $content_evidences = rtrim($content_evidences, "</w:t><w:br/><w:t>");
+                $template->setValue('evidencias', $content_evidences);
 
                 //15
-                $template->setValue('avance', $plan->avance);
+                $template->setValue('avance', $plan->advance);
 
                 //16
-                $template->setValue('eficacia', $plan->evaluacion_eficacia ? "SI" : "NO");
+                $template->setValue('eficacia', $plan->efficacy_evaluation ? "SI" : "NO");
 
                 //Lista de evidencias
 
-                $template->cloneRow('n', count($plan->evidencias));
+                $template->cloneRow('n', count($plan->evidences));
                 $i = 1;
-                foreach ($plan->evidencias as $evidencia) {
+                foreach ($plan->evidences as $evidence) {
                     $template->setValue('n#' . $i, $i);
-                    $template->setValue('código_e#' . $i, $evidencia->codigo);
-                    $template->setValue('denominacion#' . $i, $evidencia->denominacion);
+                    $template->setValue('código_e#' . $i, $evidence->code);
+                    $template->setValue('denominacion#' . $i, $evidence->denomination);
                     $template->setValue('adjunto#' . $i, "Anexo" . $i);
                     $i++;
                 }
@@ -703,19 +712,16 @@ class PlanController extends Controller
                     'Content-Type' => 'application/msword',
                     'Content-Disposition' => 'attachment;filename="plan.docx"',
                 ];
-                return response()->download($tempfiledocx, $plan->codigo . '_plan.docx', $headers);
+                return response()->download($tempfiledocx, $plan->code . '_plan.docx', $headers);
             } catch (\PhpOffice\PhpWord\Exception\Exception $e) {
                 return response([
-                    "status" => 0,
                     "message" => $e->getMessage(),
-                ], 404);
+                ], 500);
             }
         } else {
             return response([
-                "status" => 0,
                 "message" => "!No se encontro el plan de mejora",
             ], 404);
         }
     }
 }
-*/

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class PermissionModel extends Model
 {
@@ -16,4 +17,8 @@ class PermissionModel extends Model
     ];
 	public $timestamps = false;
 
+    public function roles()
+    {
+        return $this->belongsToMany(RoleModel::class, 'roles_has_permissions', 'role_id', 'permission_id')->using(RoleHasPermissionModel::class);
+    }
 }

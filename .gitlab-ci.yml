@@ -17,7 +17,7 @@ build-test:
     - echo "End build test"
 
 build-production:
-  stage: build
+  stage: production
   only:
     - main
   tags:

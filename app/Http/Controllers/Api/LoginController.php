@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Http\Request;
-use App\Models\User;
+use App\Models\UserModel;
 use App\Models\Estandar;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -14,13 +14,12 @@ class LoginController extends Controller
 {
 	//Login normal (correo y password)
 	/*
-		ruta(post): /api/auth/login
-		ruta(post): /api/auth/login
+		ruta(post): localhost:8000/api/2023/A/auth/login
+		ruta(post): localhost:8000/api/2023/A/auth/login
 		datos:
-		localhost:8000/api/users/profile
 			{
-				"email":"jpaniura@unsa.edu.pe",
-				"password":"null"
+				"email":"pfloresq@unsa.edu.pe",
+				"password":"12345"
 			}
 	*/
 	public function login(Request $request)
@@ -31,10 +30,11 @@ class LoginController extends Controller
             "password" => "required"
         ]);
 
-        $user = User::where("email", "=", $request->email)->where("estado",true)->first();
+        $user = UserModel::where("email", "=", $request->email)->where("registration_status_id",true)->first();
 
         if (isset($user->id)) {
-            if (Hash::check($request->password, $user->password)) {
+            //if (Hash::check($request->password, $user->password)) {
+			if ($request->password == $user->password) {
                 $token = $user->createToken("auth_token")->plainTextToken;
                 return response()->json([
                     "message" => "Usuario logueado",
@@ -125,7 +125,7 @@ class LoginController extends Controller
 				"message" => "Usuario ha iniciado sesion",
 				"user" =>  $userCreated,
 				"image" =>  $userProvider->getAvatar(),
-				"role" => $userCreated->roles[0]->name,
+				"role" => $userCreated->role[0]->name,
 				"access_token" => $token
 			], 200);
 		} else {
@@ -152,13 +152,14 @@ class LoginController extends Controller
 		ruta(get): /api/auth/logout
 		datos:
 			{
-				"access_token": "5082e3108d0e4d8cdd948c42102aabd0768fe993b86240569aa5130e373f3b8a"
+				"access_token": "11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
 			}
 	*/
 	public function logout()
     {
         auth()->user()->tokens()->delete();
         return response()->json([
+			"status" => 1,
             "message" => "Sesion cerrada"
         ], 200);
     }

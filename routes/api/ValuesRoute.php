@@ -13,7 +13,7 @@ Route::prefix('values')->group(function(){
 
     Route::get('responsibles', [ResponsablesValoresController::class, 'listResponsablesValores']);
     //fuentes Valores
-    Route::get('sources', [SourcesValuesController::class, 'listFuentesValores']);
+    Route::get('sources', [SourcesValuesController::class, 'listSourcesValues']);
     //Estados valores
     Route::get('status', [EstadosValoresController::class, 'listEstadosValores']);
     //Estandares  valores

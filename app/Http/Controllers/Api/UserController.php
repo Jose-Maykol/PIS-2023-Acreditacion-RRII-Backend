@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\User;
+use App\Models\UserModel;
 use App\Models\Estandar;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -12,33 +12,34 @@ use Illuminate\Support\Facades\Auth;
 class UserController extends Controller
 {
     /*
-		ruta(post): /api/users/register
-		ruta(post): /api/users/register
+		ruta(post): localhost:8000/api/2023/A/users/register
+		ruta(post): localhost:8000/api/2023/A/users/register
 		datos:
 			{
-				"email":"jpaniura@unsa.edu.pe"
-                "rol":"1"
-                "access_token": "5082e3108d0e4d8cdd948c42102aabd0768fe993b86240569aa5130e373f3b8a"
+				"email":"pfloresq5@unsa.edu.pe",
+    			"role_id":"1"
+                "access_token": "11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
 			}
 	*/
     public function register(Request $request)
     {
         $request->validate([
             'email' => 'required|email|unique:users',
-			'rol'=> 'required|numeric|min:1|max:2'
+			'role_id'=> 'required|numeric|min:1|max:2'
         ]);
 
-        $userAuth = auth()->user()->roles[0]->name;
+        $userAuth = auth()->user()->name;
 
         if ($userAuth == "Admin") {
-            $user = new User();
+            $user = new UserModel();
             $user->name = "null";
             $user->lastname = "null";
             $user->email = $request->email;
             $user->password = "null";
-			$user->estado = true;
+			$user->role_id = true;
+			$user->registration_status_id = true;
             $user->save();
-            $user->roles()->attach($request->rol);
+            $user->role()->attach($request->role_id);//check
 
             return response()->json([
                 'message' => 'Correo registrado exitosamente',
@@ -55,11 +56,11 @@ class UserController extends Controller
 
 
     /*
-		ruta(get): /api/users/profile
-		ruta(get): /api/users/profile
+		ruta(get): localhost:8000/api/2023/A/users/profile
+		ruta(get): localhost:8000/api/2023/A/users/profile
 		datos:
 			{
-				"access_token": "5082e3108d0e4d8cdd948c42102aabd0768fe993b86240569aa5130e373f3b8a"
+				"access_token": "11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
 			}
 	*/
     public function userProfile()
@@ -76,13 +77,13 @@ class UserController extends Controller
 		ruta(get): /api/users/user
 		datos:
 			{
-				"access_token": "5082e3108d0e4d8cdd948c42102aabd0768fe993b86240569aa5130e373f3b8a"
+				"access_token": "11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
 			}
 	*/
     public function listUser(){
-		$users = User::all();
+		$users = UserModel::all();
 		foreach ($users as $user) {
-			$user->rol=User::find($user->id)->roles[0]->name;
+			$user->role_id = UserModel::find($user->id)->name;
 		}
         return response([
             "status" => 1,
@@ -96,13 +97,13 @@ class UserController extends Controller
 		ruta(get): /api/users/enabled_users
 		datos:
 			{
-				"access_token": "5082e3108d0e4d8cdd948c42102aabd0768fe993b86240569aa5130e373f3b8a"
+				"access_token": "11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
 			}
 	*/
     public function listUserHabilitados(){
-		$users = User::whereNotIn("name",["null"])->where("estado",true)->get();
+		$users = UserModel::whereNotIn("name",["null"])->where("registration_status_id",true)->get();
 		foreach ($users as $user) {
-			$user->rol=User::find($user->id)->roles[0]->name;
+			$user->role_id = UserModel::find($user->id)->name;
 		}
         return response([
             "status" => 1,
@@ -113,26 +114,25 @@ class UserController extends Controller
 
 
 	/*
-		ruta(put): /api/users/update
-		ruta(put): /api/users/update
+		ruta(put): localhost:8000/api/2023/A/users/update
+		ruta(put): localhost:8000/api/2023/A/users/update
 		datos:
 			{
-				"id":"jpaniura@unsa.edu.pe"
-                "role":"1"
-                "estado":"true"
-                "access_token": "5082e3108d0e4d8cdd948c42102aabd0768fe993b86240569aa5130e373f3b8a"
+				"id":"4",
+				"role_id":"1",
+				"registration_status_id":"2"
 			}
 	*/
     public function updateRoleEstado(Request $request){
 		$request->validate([
 			"id"=>"exists:users",
-            "role" => "present|nullable|numeric|min:1|max:2",
-            "estado" => "present|nullable|boolean"
+            "role_id" => "present|nullable|numeric|min:1|max:2",
+            "registration_status_id" => "present|nullable|numeric|min:1|max:2"
         ]);
 		if(auth()->user()->isAdmin()){
-			$user = User::find($request->id);
-			$user->update(['estado' =>$request->estado]);
-			$user->roles()->sync([$request->role]);
+			$user = UserModel::find($request->id);
+			$user->update(['registration_status_id' => $request->registration_status_id]);
+			//$user->role()->sync([$request->role_id]); check
 			return response([
 	            "status" => 1,
 	            "msg" => "Usuario actualizado exitosamente",

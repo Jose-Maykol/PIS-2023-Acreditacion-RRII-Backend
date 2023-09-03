@@ -9,6 +9,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+use App\Models\RoleModel;
+
 class UserModel extends Authenticatable
 {
   use HasApiTokens, HasFactory, Notifiable;
@@ -58,7 +60,7 @@ class UserModel extends Authenticatable
 
   public function isAdmin()
   {
-    return $this->roles()->first()->where('name', 'Admin')->exists();
+    return $this->role()->first()->where('name', 'Admin')->exists();
   }
 
   public function isCreatorPlan($plan_id)

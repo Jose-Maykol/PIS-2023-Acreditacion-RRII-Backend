@@ -29,6 +29,7 @@ use App\Models\SourceModel;
 use App\Models\UserModel;
 
 //plan::where(["id_user" => $id_user, "id" => $id])->exists()
+//$year, $semester, $plan_id, Request $request
 class PlanController extends Controller
 {
 
@@ -36,7 +37,7 @@ class PlanController extends Controller
 
         $data = UserModel::find(1)->hasPermission('plan_update');
         $permisos = UserModel::find(1)->role()->first()->permissions()->get()->makeHidden(["updated_at","created_at", "pivot"]);
-        //$data = RoleModel::find(1)->permissions()->get();
+        $data = RoleModel::find(1)->permissions()->get();
         //return             
         return response([
             "message" => "!Plan de mejora creado exitosamente",
@@ -258,7 +259,7 @@ class PlanController extends Controller
     }
 
     // Arreglar el formato de IDs
-    public function createPlan(Request $request, $year, $semester)
+    public function createPlan($year, $semester, $plan_id, Request $request)
     {
         $request->validate([
             'code' => [

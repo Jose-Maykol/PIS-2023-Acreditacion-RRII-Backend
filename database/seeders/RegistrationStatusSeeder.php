@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\RegistrationStatusModel;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
 
 class RegistrationStatusSeeder extends Seeder
 {
@@ -15,14 +16,15 @@ class RegistrationStatusSeeder extends Seeder
      */
     public function run()
     {
-        RegistrationStatusModel::create([
-            'description' => 'activo'
+
+        DB::table('registration_status')->insert([
+            'description' => "activo"
         ]);
-        RegistrationStatusModel::create([
-            'description' => 'inactivo'
+        DB::table('registration_status')->insert([
+            'description' => "inactivo"
         ]);
-        RegistrationStatusModel::create([
-            'description' => 'borrado'
+        DB::table('registration_status')->insert([
+            'description' => "borrado"
         ]);
     }
 }

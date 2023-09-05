@@ -9,7 +9,6 @@ use function PHPSTORM_META\map;
 
 class StandardModel extends Model
 {
-
     use HasFactory;
     public $timestamps = true;
 

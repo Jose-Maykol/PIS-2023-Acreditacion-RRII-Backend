@@ -2,13 +2,11 @@
 
 namespace Database\Seeders;
 
-
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-
-class PlanStatusSeeder extends Seeder
+class ProblemsOpportunitiesSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -17,19 +15,15 @@ class PlanStatusSeeder extends Seeder
      */
     public function run()
     {
-
-        DB::table('plan_status')->insert([
-            'description' => 'Planificado',
+        DB::table('problems_opportunities')->insert([
+            'description' => 'Este es un problema oportunidad',
+            'plan_id' => 1,
             'registration_status_id' => 1,
         ]);
-        DB::table('plan_status')->insert([
-            'description' => 'Terminado',
+        DB::table('problems_opportunities')->insert([
+            'description' => 'Este es otro problema oportunidad',
+            'plan_id' => 1,
             'registration_status_id' => 1,
-        ]);
-        DB::table('plan_status')->insert([
-            'description' => 'En proceso',
-            'registration_status_id' => 1,
-
         ]);
     }
 }

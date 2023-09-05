@@ -26,7 +26,6 @@ class PlanModel extends Model
         'registration_status_id',
     ];
 
-
     public function user(){
         return $this->belongsTo(User::class,'user_id');
     }
@@ -59,5 +58,21 @@ class PlanModel extends Model
     }
     public function responsibles(){
         return $this->hasMany(ResponsibleModel::class,'plan_id');
+    }
+    public function isActive(){
+        return PlanModel::where('id', $this->id)
+            ->where('registration_status_id', RegistrationStatusModel::select('id')->where('description', 'active'))
+            ->exists();
+    }
+    public function isDate($year, $semester){
+        return PlanModel::where('id', $this->id)
+            ->where('date_id', DateModel::select('id')->where('year', $year)->where('semester', $semester))
+            ->exists();
+    }
+
+    public function deleteRegister(){
+        return $this->update([
+            'registration_status_id' => RegistrationStatusModel::select('id')->where('description', 'delete')
+        ]);
     }
 }

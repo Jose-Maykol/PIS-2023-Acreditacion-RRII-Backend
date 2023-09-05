@@ -9,7 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class UserModel extends Authenticatable
+class User extends Authenticatable
 {
   use HasApiTokens, HasFactory, Notifiable;
 
@@ -32,6 +32,10 @@ class UserModel extends Authenticatable
     return $this->belongsTo(RoleModel::class, 'role_id');
   }
 
+  public function hasPermission2($permission){
+
+    return $this->role()->first()->permissions()->where('name', $permission)->exists();
+  }
   public function hasPermission($permission){
 
     return $this->role()->first()->permissions()->where('name', $permission)->exists();
@@ -43,7 +47,7 @@ class UserModel extends Authenticatable
   }
   public function plans()
   {
-    return $this->hasMany(PlanModel::class, 'id');
+    return $this->hasMany(PlanModel::class);
   }
   public function evidences()
   {
@@ -58,12 +62,12 @@ class UserModel extends Authenticatable
 
   public function isAdmin()
   {
-    return $this->roles()->first()->where('name', 'Admin')->exists();
+    return $this->role()->where('name', 'Admin')->exists();
   }
 
   public function isCreatorPlan($plan_id)
   {
-    return PlanModel::where('id', $plan_id)->where('user_id', $this->id)->exists();
+    return $this->plans()->where('id', $plan_id)->exists();
   }
 
   public function isAssignStandard($standard_id)

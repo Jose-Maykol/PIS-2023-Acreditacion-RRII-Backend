@@ -15,11 +15,18 @@ class PermissionsSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('permissions')->insert([ // standard_read, standard_delete, standard_create
-            'name' => 'standard_update'
+
+        DB::table('permissions')->insert([
+            'name' => 'Usted no puede eliminar'
         ]);
         DB::table('permissions')->insert([
-            'name' => ''
+            'name' => 'Usted no puede modificar'
+        ]);
+        DB::table('permissions')->insert([
+            'name' => 'Usted no tiene permisos para visualizar este archivo'
+        ]);
+        DB::table('permissions')->insert([
+            'name' => 'Usted no tiene permisos para crear'
         ]);
 
         //Admin - user_update, user_create, 

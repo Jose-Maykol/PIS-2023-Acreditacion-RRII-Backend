@@ -16,10 +16,16 @@ class PermissionsSeeder extends Seeder
     public function run()
     {
         DB::table('permissions')->insert([
-            'name' => 'Es el gfe'
+            'name' => 'Usted no puede eliminar'
         ]);
         DB::table('permissions')->insert([
-            'name' => 'No es el gfe'
+            'name' => 'Usted no puede modificar'
+        ]);
+        DB::table('permissions')->insert([
+            'name' => 'Usted no tiene permisos para visualizar este archivo'
+        ]);
+        DB::table('permissions')->insert([
+            'name' => 'Usted no tiene permisos para crear'
         ]);
     }
 }

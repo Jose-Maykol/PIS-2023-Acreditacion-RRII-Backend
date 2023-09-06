@@ -26,6 +26,13 @@ class PlanModel extends Model
         'registration_status_id',
     ];
 
+    public function date(): BelongsTo{
+        return $this->belongsTo(DateModel::class, 'date_id');
+
+    }
+    public function registrationStatus(): BelongsTo{
+        return $this->belongsTo(RegistrationStatus::class, 'registration_status_id');
+    }
     public function user(){
         return $this->belongsTo(User::class,'user_id');
     }
@@ -36,43 +43,56 @@ class PlanModel extends Model
         return $this->belongsTo(PlanStatusModel::class,'plan_status_id');
     }
     public function sources(){
-        return $this->hasMany(SourceModel::class,'plan_id')->where('registration_status_id', RegistrationStatusModel::select('id')->where('description', 'Active'));
+        return $this->hasMany(SourceModel::class,'plan_id')
+        ->where('registration_status_id', RegistrationStatusModel::select('id')
+                                            ->where('description', 'activo'))->get();
     }
     public function goals(){
-        return $this->hasMany(GoalModel::class,'plan_id');
+        return $this->hasMany(GoalModel::class,'plan_id')
+        ->where('registration_status_id', RegistrationStatusModel::registrationActivo())->get();
     }
     public function resources(){
-        return $this->hasMany(ResourceModel::class,'plan_id');
+        return $this->hasMany(ResourceModel::class,'plan_id')
+        ->where('registration_status_id', RegistrationStatusModel::select('id')
+                                            ->where('description', 'activo'))->get();
     }
     public function observations(){
-        return $this->hasMany(ObservationModel::class,'plan_id');
+        return $this->hasMany(ObservationModel::class,'plan_id')
+        ->where('registration_status_id', RegistrationStatusModel::select('id')
+                                            ->where('description', 'activo'))->get();
     }
-    public function problemsOpportunities(){
-        return $this->hasMany(ProblemsOpportunitiesModel::class,'plan_id');
+    public function problemsOpportunities(){        
+        return $this->hasMany(ProblemsOpportunitiesModel::class,'plan_id')
+        ->where('registration_status_id', RegistrationStatusModel::select('id')
+                                            ->where('description', 'activo'))->get();
     }
     public function improvementActions(){
-        return $this->hasMany(ImprovementActionModel::class,'plan_id');
+        return $this->hasMany(ImprovementActionModel::class,'plan_id')
+        ->where('registration_status_id', RegistrationStatusModel::select('id')
+                                            ->where('description', 'activo'))->get();
     }
     public function rootCauses(){
-        return $this->hasMany(RootCauseModel::class,'plan_id');
+        return $this->hasMany(RootCauseModel::class,'plan_id')
+        ->where('registration_status_id', RegistrationStatusModel::select('id')
+                                            ->where('description', 'activo'))->get();
+
     }
     public function responsibles(){
-        return $this->hasMany(ResponsibleModel::class,'plan_id');
+        return $this->hasMany(ResponsibleModel::class,'plan_id')
+        ->where('registration_status_id', RegistrationStatusModel::select('id')
+                                            ->where('description', 'activo'))->get();  
     }
     public function isActive(){
-        return PlanModel::where('id', $this->id)
-            ->where('registration_status_id', RegistrationStatusModel::select('id')->where('description', 'active'))
-            ->exists();
+        return $this->registrationStatus()->where('description','activo')->exists();
     }
     public function isDate($year, $semester){
-        return PlanModel::where('id', $this->id)
-            ->where('date_id', DateModel::select('id')->where('year', $year)->where('semester', $semester))
-            ->exists();
+        return $this->date()->where('year', $year)->where('semester', $semester)->exists();
     }
 
     public function deleteRegister(){
         return $this->update([
-            'registration_status_id' => RegistrationStatusModel::select('id')->where('description', 'delete')
+            'registration_status_id' => RegistrationStatusModel::select('id')
+                                            ->where('description', 'borrado')->get()
         ]);
     }
 }

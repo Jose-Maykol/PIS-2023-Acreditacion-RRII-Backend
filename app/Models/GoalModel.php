@@ -16,7 +16,10 @@ class GoalModel extends Model
         'plan_id',
         'registration_status_id'
     ];
-    public function plans(){
+    public function plan(): BelongsTo {
         return $this->belongsTo(PlanModel::class,'plan_id');
+    }
+    public function registrationStatus(): BelongsTo{
+        return $this->belongsTo(RegistrationStatus::class, 'registration_status_id');
     }
 }

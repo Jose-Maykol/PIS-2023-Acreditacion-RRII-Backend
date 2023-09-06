@@ -44,7 +44,7 @@ class UsersStandardsSeeder extends Seeder
             'user_id' => 5,
             'standard_id' => 5
         ]);
-
+        
         DB::table('users_standards')->insert([
             'date_id' => 5,
             'user_id' => 6,

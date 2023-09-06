@@ -14,5 +14,10 @@ class RegistrationStatusModel extends Model
     protected $fillable = [
         'description'
     ];
-
-}
+    public static function registrationDelete(){
+        return ->select('id')->where('description', 'delete')->get();
+    }
+    public function registrationActivo(){
+        return $this->select('id')->where('description', 'activo')->get();
+    }
+}//2023/A

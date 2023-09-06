@@ -16,11 +16,15 @@ class RegistrationStatusSeeder extends Seeder
      */
     public function run()
     {
+
         DB::table('registration_status')->insert([
-            'description' => "active"
+            'description' => "activo"
         ]);
         DB::table('registration_status')->insert([
-            'description' => "delete"
+            'description' => "inactivo"
+        ]);
+        DB::table('registration_status')->insert([
+            'description' => "borrado"
         ]);
     }
 }

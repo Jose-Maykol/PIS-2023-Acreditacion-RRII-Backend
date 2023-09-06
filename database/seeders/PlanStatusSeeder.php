@@ -2,9 +2,11 @@
 
 namespace Database\Seeders;
 
+
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+
 
 class PlanStatusSeeder extends Seeder
 {
@@ -15,6 +17,7 @@ class PlanStatusSeeder extends Seeder
      */
     public function run()
     {
+
         DB::table('plan_status')->insert([
             'description' => 'Planificado',
             'registration_status_id' => 1,
@@ -26,6 +29,7 @@ class PlanStatusSeeder extends Seeder
         DB::table('plan_status')->insert([
             'description' => 'En proceso',
             'registration_status_id' => 1,
+
         ]);
     }
 }

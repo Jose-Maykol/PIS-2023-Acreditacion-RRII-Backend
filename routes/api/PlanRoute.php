@@ -22,11 +22,13 @@ Route::middleware("auth:sanctum")->prefix('plans')->group(function () {// /api/2
     Route::get('{plan_id}', [PlanController::class, 'showPlan'])->where('plan_id', '[0-9]+');
     Route::get('{plan_id}/evidences', [PlanController::class, 'showPlanEvidence'])->where('plan_id', '[0-9]+');
     Route::delete('{plan_id}', [PlanController::class, 'deletePlan'])->where('plan_id', '[0-9]+');
-    Route::put('{plan_id}', [PlanController::class, 'update'])->where('plan_id', '[0-9]+');
-    Route::get('user', [PlanController::class, 'listPlanUser']);//Considerar anhadirlo a User
+    Route::put('{plan_id}',[PlanController::class,'updatePlan'])->where('plan_id', '[0-9]+');
+    
+    Route::get('users', [PlanController::class, 'listPlanUser']);//Considerar anhadirlo a User
     Route::post('assign', [PlanController::class, 'assignPlan']);
     Route::get('{plan_id}/export', [PlanController::class, 'exportPlan'])->where('plan_id', '[0-9]+');
-    //Route::put('plan',[PlanController::class,'updatePlan']);
+
+    //Route::put('{plan_id}', [PlanController::class, 'update'])->where('plan_id', '[0-9]+');
 
     Route::prefix('{plan_id}/goals')->group(function(){
         //rutas metas

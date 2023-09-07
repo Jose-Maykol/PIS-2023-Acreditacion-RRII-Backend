@@ -33,9 +33,11 @@ class LoginController extends Controller
             "password" => "required"
         ]);
 
-        $user = User::where("email", "=", $request->email)
-					->where("registration_status_id",RegistrationStatusModel::select('id')->where('description', 'active'))
-					->first();
+        $registrationStatusId = RegistrationStatusModel::select('id')->where('description', 'active')->first()->id;
+
+				$user = User::where("email", "=", $userProvider->email)
+					
+						->first();
 
         if (isset($user->id)) {
             if (true) {//Hash::check($request->password, $user->password
@@ -99,9 +101,10 @@ class LoginController extends Controller
 			return response()->json(['error' => 'Credenciales de google invalidas.'], 422);
 		}
 
-		$user = $user = User::where("email", "=", $userProvider->email)
-							->where("registration_status_id",RegistrationStatusModel::select('id')->where('description', 'active'))
-							->first();
+		$registrationStatusId = RegistrationStatusModel::select('id')->where('description', 'active')->first()->id;
+
+		$user = User::where("email", "=", $userProvider->email)
+				->first();
 		if (isset($user)) {
 			$userCreated = User::updateOrCreate(
 				[
@@ -130,7 +133,7 @@ class LoginController extends Controller
 				"message" => "Usuario ha iniciado sesion",
 				"user" =>  $userCreated,
 				"image" =>  $userProvider->getAvatar(),
-				"role" => $userCreated->role(),
+				//"role" => $userCreated->role(),
 				"access_token" => $token
 			], 200);
 		} else {

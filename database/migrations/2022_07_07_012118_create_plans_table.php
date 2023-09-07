@@ -19,7 +19,7 @@ return new class extends Migration
     {
         Schema::create('plans', function (Blueprint $table) {
             $table->id();
-            $table->string('code', 11);
+            $table->string('code', 12);
             $table->string('name', 255)->nullable();
             $table->string('opportunity_for_improvement')->nullable();
             $table->string('semester_execution', 8)->nullable();

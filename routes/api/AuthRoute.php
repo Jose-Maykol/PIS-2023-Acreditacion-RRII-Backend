@@ -16,6 +16,13 @@ Route::prefix('auth')->group(function (){
 
 });
 
+Route::prefix('{id}/user-us')->group(function(){
+        
+        Route::get('{user_id}', function ($id, $user_id){
+            return 'Response '.$id.'otra '.$user_id ;
+        });//->where(['year' => '\d{4}']);
+    });
+
 Route::middleware("auth:sanctum")->prefix('auth')->group(function () {
     //Rutas de Auth
     Route::get('logout', [LoginController::class, 'logout']);

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PlanModel extends Model
 {
@@ -26,11 +27,11 @@ class PlanModel extends Model
         'registration_status_id',
     ];
 
-    public function date(): BelongsTo{
+    public function date(): BelongsTo {
         return $this->belongsTo(DateModel::class, 'date_id');
 
     }
-    public function registrationStatus(): BelongsTo{
+    public function registrationStatus(): BelongsTo {
         return $this->belongsTo(RegistrationStatus::class, 'registration_status_id');
     }
     public function user(){

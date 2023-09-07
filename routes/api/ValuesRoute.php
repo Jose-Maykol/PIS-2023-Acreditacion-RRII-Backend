@@ -22,12 +22,7 @@ Route::prefix('values')->group(function(){
     Route::get('per',[PlanController::class, 'permissions']);
     
     
-    /*Route::prefix('{id}/user-us')->group(function(){
-        
-        Route::get('{user_id}', function ($id, $user_id, $year, $semester){
-            return 'Response '.$id.'otra '.$user_id.' '.$year.' '.$semester ;
-        });//->where(['year' => '\d{4}']);
-    });*/
+    
     
 });
 

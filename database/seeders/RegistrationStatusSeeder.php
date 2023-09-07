@@ -18,13 +18,13 @@ class RegistrationStatusSeeder extends Seeder
     {
 
         DB::table('registration_status')->insert([
-            'description' => "activo"
+            'description' => "active"
         ]);
         DB::table('registration_status')->insert([
-            'description' => "inactivo"
+            'description' => "inactive"
         ]);
         DB::table('registration_status')->insert([
-            'description' => "borrado"
+            'description' => "deleted"
         ]);
     }
 }

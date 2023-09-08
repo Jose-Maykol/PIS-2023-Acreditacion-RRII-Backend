@@ -18,4 +18,9 @@ class PlanStatusModel extends Model
     public static function planned(){
         return self::where('description', 'planificado')->value('id');
     }
+    public function deleteRegister(){
+        return $this->update([
+            'registration_status_id' => RegistrationStatusModel::registrationDelete()
+        ]);
+    }
 }

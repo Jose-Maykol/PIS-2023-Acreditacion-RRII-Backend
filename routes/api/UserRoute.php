@@ -9,9 +9,9 @@ Route::middleware("auth:sanctum")->prefix('users')->group(function () {
 
     //Rutas de Gestion de usarios
     Route::get('profile', [UserController::class, 'userProfile']);
-    Route::put('update', [UserController::class, 'updateRoleEstado']);
+    Route::put('', [UserController::class, 'updateRoleEstado']);
     Route::post('register', [UserController::class, 'register']);
-    Route::get('user', [UserController::class, 'listUser']);
+    Route::get('', [UserController::class, 'listUser']);
     Route::get('enabled_users', [UserController::class, 'listUserHabilitados']);
 
 });

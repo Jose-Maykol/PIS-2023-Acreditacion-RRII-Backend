@@ -24,4 +24,8 @@ class RoleModel extends Model
     public function permissions() {
         return $this->belongsToMany(PermissionModel::class, 'roles_has_permissions', 'role_id', 'permission_id')->using(RoleHasPermissionModel::class);
     }
+    public static function roleAdmin(){
+        return self::where('name', 'Administrador')->value('id');
+    }
+    
 }

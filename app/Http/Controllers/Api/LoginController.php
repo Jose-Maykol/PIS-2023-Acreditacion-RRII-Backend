@@ -79,7 +79,7 @@ class LoginController extends Controller
 		return Socialite::driver($provider)->stateless()->redirect();
 		//return Socialite::driver($provider)->redirect();
 	}
-
+ 
 	//Funcion de la respuesta del provider
 	/*
 		ruta(get): /api/auth/login/{provider}/callback
@@ -101,7 +101,7 @@ class LoginController extends Controller
 			return response()->json(['error' => 'Credenciales de google invalidas.'], 422);
 		}
 
-		$registrationStatusId = RegistrationStatusModel::select('id')->where('description', 'active')->first()->id;
+		$registrationStatusId = RegistrationStatusModel::registrationActive();
 
 		$user = User::where("email", "=", $userProvider->email)
 				->first();
@@ -114,7 +114,7 @@ class LoginController extends Controller
 					//'email_verified_at' => now(),
 					'name' => $userProvider->user['given_name'],
 					'lastname' => $userProvider->user['family_name'],
-					'status' => true
+					'registration_status_id' => $registrationStatusId
 				]
 			);
 

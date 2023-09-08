@@ -22,4 +22,9 @@ class ResourceModel extends Model
     public function registrationStatus(): BelongsTo{
         return $this->belongsTo(RegistrationStatus::class, 'registration_status_id');
     }
+    public function deleteRegister(){
+        return $this->update([
+            'registration_status_id' => RegistrationStatusModel::registrationDelete()
+        ]);
+    }
 }

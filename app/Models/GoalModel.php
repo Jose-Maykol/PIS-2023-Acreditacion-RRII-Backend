@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\RegistrationStatusTrait;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class GoalModel extends Model
 {
-    use HasFactory;
+    use RegistrationStatusTrait, HasFactory ;
+    
     public $timestamps = true;
 
     protected $table ='goals';
@@ -21,6 +24,7 @@ class GoalModel extends Model
         return $this->belongsTo(PlanModel::class,'plan_id');
     }
     public function registrationStatus(): BelongsTo{
-        return $this->belongsTo(RegistrationStatus::class, 'registration_status_id');
+        return $this->belongsTo(RegistrationStatusModel::class, 'registration_status_id');
     }
+    
 }

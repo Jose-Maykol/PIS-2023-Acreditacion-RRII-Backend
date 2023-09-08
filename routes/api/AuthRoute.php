@@ -3,8 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\LoginController;
-
-
+use App\Models\GoalModel;
+use App\Models\PlanModel;
+use App\Models\RegistrationStatusModel;
 
 //Rutas de Auth
 
@@ -16,11 +17,18 @@ Route::prefix('auth')->group(function (){
 
 });
 
-Route::prefix('{id}/user-us')->group(function(){
+Route::prefix('test')->group(function(){
         
-        Route::get('{user_id}', function ($id, $user_id){
-            return 'Response '.$id.'otra '.$user_id ;
-        });//->where(['year' => '\d{4}']);
+        Route::get('goal', function (Request $request){
+            
+            //$goal = PlanModel::find(2)->goalsActive();
+            $goal = PlanModel::isActived(2);
+            //$goal = GoalModel::all()->where('registration_status_id',RegistrationStatusModel::registrationActivo());
+            if($goal){
+                return PlanModel::find(2)->goalsActive();
+            }
+            return $goal;
+            });//->where(['year' => '\d{4}']);
     });
 
 Route::middleware("auth:sanctum")->prefix('auth')->group(function () {

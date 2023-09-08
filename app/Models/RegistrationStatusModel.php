@@ -15,9 +15,18 @@ class RegistrationStatusModel extends Model
         'description'
     ];
     public static function registrationDelete(){
-        return ->select('id')->where('description', 'delete')->get();
+        return self::where('description', 'borrado')->value('id');
     }
-    public function registrationActivo(){
-        return $this->select('id')->where('description', 'activo')->get();
+    public static function registrationActive(){
+        return self::where('description', 'activo')->value('id');
+    }
+    public static function registrationInactive(){
+        return self::where('description', 'inactivo')->value('id');
+    }
+    public static function registrationBeforeDelete(){
+        return self::where('description', 'antes_de_borrar')->value('id');
+    }
+    public function isActive(){
+        return $this->where('description','activo');
     }
 }//2023/A

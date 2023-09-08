@@ -33,15 +33,15 @@ class RouteServiceProvider extends ServiceProvider
         Route::pattern('semester', '[ABC]');
 
         $this->routes(function () {
-            Route::middleware('api')
+            /*Route::middleware('api')
                 ->prefix('api')
                 ->group(base_path('routes/api.php'));
-
+*/
             Route::middleware('cors')
                 ->prefix('api')
                 ->group(base_path('routes/api.php'));
             
-            Route::middleware(['api'])//   /api/
+            Route::middleware(['api'])
                 ->prefix('api/{year}/{semester}')
                 ->group(function(){
                     require base_path('routes/api/EvidenceRoute.php');

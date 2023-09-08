@@ -33,5 +33,13 @@ class StandardModel extends Model
 	public function narrativas(){
         return $this->hasMany(narrativa::class,'id_narrativa');
     }
-
+    public static function exists($standard_id){
+        return self::where('id', $standard_id)->exists();
+    }
+    public static function isActive($standard_id){
+        return self::where('id', $standard_id)->exists();
+    }
+    public static function existsAndActive($standard_id){
+        return self::exists($standard_id) and self::isActive($standard_id);
+    }
 }

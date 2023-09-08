@@ -15,5 +15,7 @@ class PlanStatusModel extends Model
         'description',
         'registration_status_id'
     ];
-
+    public static function planned(){
+        return self::where('description', 'planificado')->value('id');
+    }
 }

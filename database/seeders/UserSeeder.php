@@ -16,73 +16,73 @@ class UserSeeder extends Seeder
     public function run()
     {
         DB::table('users')->insert([
-            'name' => 'Arian',
-            'lastname' => 'Canaza',
+            'name' => 'ARIAN EDUARDO JAVIER',
+            'lastname' => 'CANAZA CUADROS',
             'email'=> 'acanazacua@unsa.edu.pe',
-            'password' => 'qwerty',
+            'password' => 'null',
             'role_id' => 1,
             'registration_status_id' => 1
         ]);
 
         DB::table('users')->insert([
-            'name' => 'José',
-            'lastname' => 'Paniura',
+            'name' => 'JOSE MAYKOL',
+            'lastname' => 'PANIURA HUAMANI',
             'email'=> 'jpaniura@unsa.edu.pe',
-            'password' => 'qwerty',
+            'password' => 'null',
             'role_id' => 1,
             'registration_status_id' => 1
         ]);
 
         DB::table('users')->insert([
-            'name' => 'Angel',
-            'lastname' => 'Zevallos',
+            'name' => 'ANGEL ALEXIS',
+            'lastname' => 'ZEVALLOS APAZA',
             'email'=> 'azevallosa@unsa.edu.pe',
-            'password' => 'qwerty',
+            'password' => 'null',
             'role_id' => 1,
             'registration_status_id' => 1
         ]);
 
         DB::table('users')->insert([
-            'name' => 'Sofia',
-            'lastname' => 'Onque',
+            'name' => 'SOFIA SAIR',
+            'lastname' => 'ONQUE GARATE',
             'email'=> 'sonque@unsa.edu.pe',
-            'password' => 'qwerty',
+            'password' => 'null',
             'role_id' => 1,
             'registration_status_id' => 1
         ]);
 
         DB::table('users')->insert([
-            'name' => 'Percy',
-            'lastname' => 'Flores',
+            'name' => 'PERCY SANTIAGO',
+            'lastname' => 'FLORES QUISPE',
             'email'=> 'pfloresq@unsa.edu.pe',
-            'password' => 'qwerty',
+            'password' => 'null',
             'role_id' => 1,
             'registration_status_id' => 1
         ]);
 
         DB::table('users')->insert([
-            'name' => 'Paulina',
-            'lastname' => 'Choqueneira',
+            'name' => 'PAULINA MIRIAM',
+            'lastname' => 'CHOQUENEIRA CCASA',
             'email'=> 'pchoqueneira@unsa.edu.pe',
-            'password' => 'qwerty',
+            'password' => 'null',
             'role_id' => 1,
             'registration_status_id' => 1
         ]);
 
         DB::table('users')->insert([
-            'name' => 'Alex',
-            'lastname' => 'Turpo',
+            'name' => 'ALEX RONALDO',
+            'lastname' => 'TURPO COILA',
             'email'=> 'aturpoco@unsa.edu.pe',
-            'password' => 'qwerty',
+            'password' => 'null',
             'role_id' => 1,
             'registration_status_id' => 1
         ]);
 
         DB::table('users')->insert([
-            'name' => 'Walter',
-            'lastname' => 'Huaracha',
+            'name' => 'WALTER',
+            'lastname' => 'HUARACHA CONDORI',
             'email'=> 'whuaracha@unsa.edu.pe',
-            'password' => 'qwerty',
+            'password' => 'null',
             'role_id' => 1,
             'registration_status_id' => 1
         ]);

@@ -16,9 +16,11 @@ class Evidence extends Model {
         'type',
         'size',
         'user_id',
+        'plan_id',
         'folder_id',
-        'evidenceType_id',
+        'evidence_type_id',
         'standard_id',
+        'date_id',
     ];
 
     public function user() {
@@ -30,10 +32,14 @@ class Evidence extends Model {
     }
 
     public function evidenceType() {
-        return $this->belongsTo(EvidenciasTipo::class, 'evidenceType_id');
+        return $this->belongsTo(EvidenciasTipo::class, 'evidence_type_id');
     }
 
     public function standard() {
         return $this->belongsTo(Estandar::class, 'standard_id');
+    }
+
+    public function date() {
+        return $this->belongsTo(DateModel::class, 'date_id');
     }
 }

@@ -142,7 +142,6 @@ class EvidenciasController extends Controller
                 $zip = new ZipArchive;
                 if ($zip->open($file) === TRUE) 
                 {
-
                     $extractedPath = storage_path('app/evidencias/'. $year . '/' . $semester . '/' . 'estandar_' . $standardId . '/tipo_evidencia_'. $typeEvidenceId) . '/' . $generalPath;
                     for ($i = 0; $i < $zip->numFiles; $i++) 
                     {
@@ -170,7 +169,7 @@ class EvidenciasController extends Controller
 
                     $zip->extractTo($extractedPath);
                     $zip->close();
-                    $this->createEvidencesAndFolders($extractedPath, $userId, $standardId, $typeEvidenceId, $parentFolder);
+                    $this->createEvidencesAndFolders($extractedPath, $userId, $standardId, $typeEvidenceId, $parentFolder, $planId, $dateId, $year, $semester);
 
                     return response([
                         "status" => 1,
@@ -200,7 +199,7 @@ class EvidenciasController extends Controller
                 $path = $file->storeAs('evidencias/'. $year . '/' . $semester . '/' .'estandar_' . $standardId . '/tipo_evidencia_'. $typeEvidenceId . '/' . $generalPath, $file->getClientOriginalName());
 
                 $evidence = new Evidence([
-                    'name' => $file->getClientOriginalName(),
+                    'name' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
                     'file' => $file->getClientOriginalName(),
                     'type' => $file->getClientOriginalExtension(),
                     'size' => $file->getSize(),
@@ -221,15 +220,14 @@ class EvidenciasController extends Controller
         }
     }
 
-    private function createEvidencesAndFolders($path, $userId, $standardId, $typeEvidenceId, $parentFolder = null)
+    private function createEvidencesAndFolders($path, $userId, $standardId, $typeEvidenceId, $parentFolder = null, $planId, $dateId, $year, $semester)
     {   
-    
         $files = scandir($path);
         foreach ($files as $file) {
             if ($file !== '.' && $file !== '..') {
                 $filePath = $path . '/' . $file;
                 $relativePath = str_replace(storage_path('app/'), '', $filePath);
-                $basePath = 'evidencias/'. 'estandar_' . $standardId . '/tipo_evidencia_'. $typeEvidenceId . '/';
+                $basePath = 'evidencias/'. $year . '/' . $semester . '/' . 'estandar_' . $standardId . '/tipo_evidencia_'. $typeEvidenceId . '/';
                 $relativePath = str_replace($basePath, '', $relativePath);
                 if (is_dir($filePath)) {
                     $folder = new Folder([
@@ -250,7 +248,7 @@ class EvidenciasController extends Controller
                         }
                     }
                     $folder->save();
-                    $this->createEvidencesAndFolders($filePath, $userId, $standardId, $typeEvidenceId, $folder);
+                    $this->createEvidencesAndFolders($filePath, $userId, $standardId, $typeEvidenceId, $folder, $planId, $dateId, $year, $semester);
                 } else {
                     if (Evidence::where('path', $relativePath)->where('standard_id', $standardId)->where('evidence_type_id', $typeEvidenceId)->exists()) {
                         continue;
@@ -277,40 +275,27 @@ class EvidenciasController extends Controller
         }
     }
 
-    public function update(Request $request)
+    public function update(Request $request, $year, $semester, $evidence_id)
     {
         $request->validate([
-            "id" => "required|integer",
-            "id_tipo" => "required|integer", //Tipo de evidencia
-            "codigo" => "required",
-            "denominacion" => "required",
-            "adjunto" => "required"
+            "file" => "file",
         ]);
-        $id_user = auth()->user();
-        if (Evidencias::where(["id" => $request->id])->exists()) {
-            $evidencia = Evidencias::find($request->id);
-            $plan = plan::find($evidencia->id_plan);
-            if ($id_user->isCreadorPlan($plan->id) or $id_user->isAdmin()) {
-                $evidencia->codigo = $request->codigo;
-                $evidencia->id_tipo = $request->id_tipo;
-                $evidencia->denominacion = $request->denominacion.$request->adjunto->extension();
-                $path = $request->adjunto->storePubliclyAs(
-                    'evidencias',
-                    $request->adjunto->getClientOriginalName()
-                );
-                $evidencia->adjunto = $path;
-                $evidencia->save();
 
-                return response([
-                    "status" => 1,
-                    "message" => "Evidencia actualizada exitosamente",
-                ]);
-            } else {
-                return response([
-                    "status" => 0,
-                    "message" => "No tienes permisos para actualizar esta evidencia",
-                ], 404);
-            }
+        if (Evidence::where(['id' => $evidence_id])->exists()) {
+            $file = $request->file('file');
+            $id_user = auth()->user();
+            $evidence = Evidence::find($evidence_id);
+            $standardId = $evidence->standard_id;
+            $typeEvidenceId = $evidence->type_evidence_id;
+            $pathEvidence = $evidence->path;
+            $path = $file->storeAs('evidencias/'. $year . '/' . $semester . '/' .'estandar_' . $standardId . '/tipo_evidencia_'. $typeEvidenceId . '/' . $pathEvidence, $file->getClientOriginalName());
+            $evidence->type = $file->getClientOriginalExtension();
+            $evidence->size = $file->getSize();
+            $evidence->save();
+            return response([
+                "status" => 1,
+                "message" => "Evidencia actualizada exitosamente",
+            ], 404);
         } else {
             return response([
                 "status" => 0,

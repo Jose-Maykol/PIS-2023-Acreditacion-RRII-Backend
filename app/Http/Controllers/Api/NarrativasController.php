@@ -9,7 +9,7 @@ use App\Models\Estandar;
 use App\Models\Narrativa;
 use App\Models\NarrativeModel;
 use App\Models\RegistrationStatusModel;
-use App\Models\UserModel;
+use App\Models\User;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 
@@ -25,8 +25,7 @@ class NarrativasController extends Controller
             ruta(post): /api/standard/1/narratives
             datos: {json con los datos qué nos mandan}
         */
-        $user_id = auth()->user()->id;
-        $user = UserModel::find($user_id);
+        $user = auth()->user();
         if ($user->isAdmin()) {
             $validator = Validator::make($request->all(), [
                 "standard_id" => "required|integer|exists:standards,id",

@@ -27,6 +27,13 @@ class User extends Authenticatable
 
   public $timestamps = false;
 
+  public function standards() {
+    return $this->belongsToMany(StandardModel::class, 'users_standards', 'user_id', 'standard_id')->using(UserStandardModel::class);
+  }
+  public function standard($user_id) {
+    return User::find($user_id)->standards()->first();
+  }
+
   public function role()
   {
     return $this->belongsTo(RoleModel::class, 'role_id');
@@ -41,13 +48,9 @@ class User extends Authenticatable
     return $this->role()->first()->permissions()->where('name', $permission)->exists();
   }
 
-  public function standards()
-  {
-    return $this->hasMany(StandardModel::class, 'id');
-  }
   public function plans()
   {
-    return $this->hasMany(PlanModel::class);
+    return $this->hasMany(PlanModel::class, 'user_id');
   }
   public function evidences()
   {
@@ -58,15 +61,11 @@ class User extends Authenticatable
     return $this->hasMany(Provider::class, 'id_user');
   }
 
-  
-
-  public function isAdmin()
-  {
-    return $this->role()->where('name', 'Admin')->exists();
+  public function isAdmin() {
+    return $this->role()->where('name', 'Administrador')->exists();
   }
 
-  public function isCreatorPlan($plan_id)
-  {
+  public function isCreatorPlan($plan_id) {
     return $this->plans()->where('id', $plan_id)->exists();
   }
 

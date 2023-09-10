@@ -13,22 +13,22 @@ Route::middleware("auth:sanctum")->prefix('standards')->group(function () {
     Route::post('', [EstandarController::class, 'createEstandar']);
     Route::get('', [EstandarController::class, 'listEstandar']);
     Route::get('standard-values', [EstandarController::class, 'listEstandarValores']);
-    Route::get('{standard}', [EstandarController::class, 'showEstandar'])->where('standard', '[0-9]+');
-    Route::get('{standard}/evidencias', [EstandarController::class, 'getStandardEvidences'])->where('standard', '[0-9]+');
-    Route::put('{standard}',  [EstandarController::class, 'updateEstandar'])->where('standard', '[0-9]+');
-    Route::delete('{standard}', [EstandarController::class, 'deleteEstandar'])->where('standard', '[0-9]+');
+    Route::get('{standard_id}', [EstandarController::class, 'showEstandar'])->where('standard_id', '[0-9]+');
+    Route::get('{standard_id}/evidencias', [EstandarController::class, 'getStandardEvidences'])->where('standard_id', '[0-9]+');
+    Route::put('{standard_id}',  [EstandarController::class, 'updateEstandar'])->where('standard_id', '[0-9]+');
+    Route::delete('{standard_id}', [EstandarController::class, 'deleteEstandar'])->where('standard_id', '[0-9]+');
 
     //ruta narrativas
 
-    Route::prefix('{standard}/narratives')->group(function(){
+    Route::prefix('{standard_id}/narratives')->group(function(){
         
         Route::post('', [NarrativasController::class, 'create']);
-        Route::get('{narrative}', [NarrativasController::class, 'show'])->where('narrative', '[0-9]+');
-        Route::put('{narrative}', [NarrativasController::class, 'update'])->where('narrative', '[0-9]+');
-        Route::delete('{narrative}', [NarrativasController::class, 'delete'])->where('narrative', '[0-9]+');
+        Route::get('{narrative_id}', [NarrativasController::class, 'show'])->where('narrative_id', '[0-9]+');
+        Route::put('{narrative_id}', [NarrativasController::class, 'update'])->where('narrative_id', '[0-9]+');
+        Route::delete('{narrative_id}', [NarrativasController::class, 'delete'])->where('narrative_id', '[0-9]+');
         Route::get('', [NarrativasController::class, 'listNarrativas']);
-        Route::get('last/{narrative}', [NarrativasController::class, 'ultimaNarrativa'])->where('narrative', '[0-9]+');
+        Route::get('last/{narrative_id}', [NarrativasController::class, 'ultimaNarrativa'])->where('narrative_id', '[0-9]+');
         
-    })->where('plan','[0-9]+');
+    })->where('standard_id','[0-9]+');
 
 });// /api/standards/{standard}/narratives/{narrative}

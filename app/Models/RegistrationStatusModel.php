@@ -26,6 +26,9 @@ class RegistrationStatusModel extends Model
     public static function registrationBeforeDelete(){
         return self::where('description', 'antes_de_borrar')->value('id');
     }
+    public static function registrationNoHabilitado(){
+        return self::where('description', 'no habilitado')->value('id');
+    }
     public function isActive(){
         return $this->where('description','activo');
     }

@@ -16,7 +16,7 @@ class PlanSeeder extends Seeder
     public function run()
     {
         DB::table('plans')->insert([ 
-            'code' => 'OM.02-01', 
+            'code' => 'OM01-01-2023', 
             'name' => 'Este es un plan de mejora del estandar 02 y es el 01', 
             'opportunity_for_improvement' => 'Construir un nuevo pabellon xd', 
             'semester_execution' => '2023-A', 
@@ -30,7 +30,7 @@ class PlanSeeder extends Seeder
         ]); 
 
         DB::table('plans')->insert([ 
-            'code' => 'OM.02-03', 
+            'code' => 'OM02-03-2023', 
             'name' => 'Este es un plan de mejora del estandar 02 y es el 02', 
             'opportunity_for_improvement' => 'Construir un nuevo pabellon xd', 
             'semester_execution' => '2023-A', 
@@ -45,7 +45,7 @@ class PlanSeeder extends Seeder
         ]); 
 
         DB::table('plans')->insert([ 
-            'code' => 'OM.05-04', 
+            'code' => 'OM05-04-2023', 
             'name' => 'Este es un plan de mejora del estandar 05 y es el 01', 
             'opportunity_for_improvement' => 'Construir un nuevo pabellon xd', 
             'semester_execution' => '2023-A', 
@@ -60,7 +60,7 @@ class PlanSeeder extends Seeder
         ]); 
 
         DB::table('plans')->insert([ 
-            'code' => 'OM.05-05', 
+            'code' => 'OM05-05-2023', 
             'name' => 'Este es un plan de mejora del estandar 05 y es el 02', 
             'opportunity_for_improvement' => 'Construir un nuevo pabellon xd', 
             'semester_execution' => '2023-A', 
@@ -75,7 +75,7 @@ class PlanSeeder extends Seeder
         ]); 
 
         DB::table('plans')->insert([ 
-            'code' => 'OM.02-06', 
+            'code' => 'OM02-06-2023', 
             'name' => 'Este es un plan de mejora del estandar 02 y sería el 03 pero está borrado', 
             'opportunity_for_improvement' => 'Construir un nuevo pabellon xd', 
             'semester_execution' => '2023-A', 
@@ -90,7 +90,7 @@ class PlanSeeder extends Seeder
         ]); 
 
         DB::table('plans')->insert([ 
-            'code' => 'OM.05-07', 
+            'code' => 'OM05-07-2023', 
             'name' => 'Este es un plan de mejora del estandar 05 y sería el 03 pero está borrado', 
             'opportunity_for_improvement' => 'Construir un nuevo pabellon xd', 
             'semester_execution' => '2023-A', 
@@ -107,7 +107,7 @@ class PlanSeeder extends Seeder
         //los del 2022 
 
         DB::table('plans')->insert([ 
-            'code' => 'OM.02-08', 
+            'code' => 'OM02-08-2022', 
             'name' => 'Este es un plan de mejora del estandar 02 y sería el 01 del año 2022 y semestre A', 
             'opportunity_for_improvement' => 'Construir un nuevo pabellon xd', 
             'semester_execution' => '2022-A', 
@@ -116,13 +116,13 @@ class PlanSeeder extends Seeder
             'plan_status_id' => 2, 
             'efficacy_evaluation' => 1, 
             'standard_id' => 2, 
-            'user_id' => 6, 
+            'user_id' => 6,
             'date_id' => 3, 
             'registration_status_id' => 1, 
         ]); 
 
         DB::table('plans')->insert([ 
-            'code' => 'OM.05-09', 
+            'code' => 'OM05-09-2022', 
             'name' => 'Este es un plan de mejora del estandar 05 y sería el 01 del año 2022 y semestre A', 
             'opportunity_for_improvement' => 'Construir un nuevo pabellon xd', 
             'semester_execution' => '2022-A', 
@@ -137,7 +137,7 @@ class PlanSeeder extends Seeder
         ]); 
 
         DB::table('plans')->insert([ 
-            'code' => 'OM.05-10', 
+            'code' => 'OM05-10-2022', 
             'name' => 'Este es un plan de mejora del estandar 05 y sería el 02 del año 2022 y semestre A, pero esta borrado', 
             'opportunity_for_improvement' => 'Construir un nuevo pabellon xd', 
             'semester_execution' => '2022-A', 
@@ -152,7 +152,7 @@ class PlanSeeder extends Seeder
         ]); 
 
         DB::table('plans')->insert([ 
-            'code' => 'OM.02-11', 
+            'code' => 'OM02-11-2022', 
             'name' => 'Este es un plan de mejora del estandar 02 y sería el 02 del año 2022 y semestre A, pero esta borrado', 
             'opportunity_for_improvement' => 'Construir un nuevo pabellon xd', 
             'semester_execution' => '2022-A', 
@@ -168,7 +168,7 @@ class PlanSeeder extends Seeder
 
         //2022 - b
         DB::table('plans')->insert([ 
-            'code' => 'OM.02-12', 
+            'code' => 'OM02-12-2022', 
             'name' => 'Este es un plan de mejora del estandar 02 y es el 01 del año 2022 - B', 
             'opportunity_for_improvement' => 'Construir un nuevo pabellon xd', 
             'semester_execution' => '2023-A', 
@@ -181,7 +181,7 @@ class PlanSeeder extends Seeder
             'registration_status_id' => 1, 
         ]); 
         DB::table('plans')->insert([ 
-            'code' => 'OM.02-13', 
+            'code' => 'OM02-13-2022', 
             'name' => 'Este es un plan de mejora del estandar 02 y sería el 02 del año 2022 y semestre A, pero esta borrado', 
             'opportunity_for_improvement' => 'Construir un nuevo pabellon xd', 
             'semester_execution' => '2022-A', 
@@ -196,7 +196,7 @@ class PlanSeeder extends Seeder
         ]);
 
         DB::table('plans')->insert([ 
-            'code' => 'OM.02-14', 
+            'code' => 'OM02-15-2023', 
             'name' => 'Este es un plan de mejora del estandar 02 y sería el 03 pero está borrado', 
             'opportunity_for_improvement' => 'Construir un nuevo pabellon xd', 
             'semester_execution' => '2023-A', 
@@ -212,7 +212,7 @@ class PlanSeeder extends Seeder
 
         //2021 - B
         DB::table('plans')->insert([ 
-            'code' => 'OM.02-15', 
+            'code' => 'OM02-17-2023', 
             'name' => 'Este es un plan de mejora del estandar 02 y es el 01 del año 2022 - B', 
             'opportunity_for_improvement' => 'Construir un nuevo pabellon xd', 
             'semester_execution' => '2023-A', 
@@ -225,7 +225,7 @@ class PlanSeeder extends Seeder
             'registration_status_id' => 1, 
         ]); 
         DB::table('plans')->insert([ 
-            'code' => 'OM.02-16', 
+            'code' => 'OM02-18-2022', 
             'name' => 'Este es un plan de mejora del estandar 02 y sería el 02 del año 2022 y semestre A, pero esta borrado', 
             'opportunity_for_improvement' => 'Construir un nuevo pabellon xd', 
             'semester_execution' => '2022-A', 
@@ -240,7 +240,7 @@ class PlanSeeder extends Seeder
         ]);
 
         DB::table('plans')->insert([ 
-            'code' => 'OM.02-17', 
+            'code' => 'OM02-19-2022', 
             'name' => 'Este es un plan de mejora del estandar 02 y sería el 03 pero está borrado', 
             'opportunity_for_improvement' => 'Construir un nuevo pabellon xd', 
             'semester_execution' => '2023-A', 
@@ -256,7 +256,7 @@ class PlanSeeder extends Seeder
 
         //2021 - A
         DB::table('plans')->insert([ 
-            'code' => 'OM.02-18', 
+            'code' => 'OM02-20-2023', 
             'name' => 'Este es un plan de mejora del estandar 02 y es el 01 del año 2022 - B', 
             'opportunity_for_improvement' => 'Construir un nuevo pabellon xd', 
             'semester_execution' => '2023-A', 
@@ -269,7 +269,7 @@ class PlanSeeder extends Seeder
             'registration_status_id' => 1, 
         ]); 
         DB::table('plans')->insert([ 
-            'code' => 'OM.02-19', 
+            'code' => 'OM03-21-2022', 
             'name' => 'Este es un plan de mejora del estandar 02 y sería el 02 del año 2022 y semestre A, pero esta borrado', 
             'opportunity_for_improvement' => 'Construir un nuevo pabellon xd', 
             'semester_execution' => '2022-A', 
@@ -284,7 +284,7 @@ class PlanSeeder extends Seeder
         ]);
 
         DB::table('plans')->insert([ 
-            'code' => 'OM.02-20', 
+            'code' => 'OM02-22-2023', 
             'name' => 'Este es un plan de mejora del estandar 02 y sería el 03 pero está borrado', 
             'opportunity_for_improvement' => 'Construir un nuevo pabellon xd', 
             'semester_execution' => '2023-A', 

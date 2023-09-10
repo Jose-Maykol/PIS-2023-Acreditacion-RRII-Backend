@@ -28,21 +28,21 @@ class UserController extends Controller
 			'rol'=> 'required|numeric|min:1|max:2'
         ]);
 
-        $userAuth = auth()->user()->roles[0]->name;
+		$userAuth = auth()->user();
 
-        if ($userAuth == "Admin") {
+        if ($userAuth->isAdmin()) {
             $user = new User();
             $user->name = "null";
             $user->lastname = "null";
             $user->email = $request->email;
             $user->password = "null";
-			$user->estado = true;
+			$user->registration_status_id = RegistrationStatusModel::registrationNoHabilitado();
+			$user->role_id = RoleModel::roleAdmin();
             $user->save();
-            $user->roles()->attach($request->rol);
 
             return response()->json([
                 'message' => 'Correo registrado exitosamente',
-                'userAuth' => $user,
+                'user' => $user,
             ], 201);
         } else {
             return response()->json([
@@ -65,7 +65,6 @@ class UserController extends Controller
     public function userProfile()
     {
         return response()->json([
-            "status" => 1,
             "message" => "Perfil de usuario obtenido exitosamente",
             "data" => auth()->user(),
         ], 200);
@@ -82,10 +81,9 @@ class UserController extends Controller
     public function listUser(){
 		$users = User::all();
 		foreach ($users as $user) {
-			$user->rol=User::find($user->id)->roles[0]->name;
+			$user->role = RoleModel::where('id', $user->role_id)->value('name');
 		}
         return response([
-            "status" => 1,
             "msg" => "Lista de usuarios obtenida exitosamente",
             "data" => $users,
         ], 200);
@@ -100,12 +98,13 @@ class UserController extends Controller
 			}
 	*/
     public function listUserHabilitados(){
-		$users = User::whereNotIn("name",["null"])->where("estado",true)->get();
+		$users = User::whereNotIn("name",["null"])
+					->where("registration_status_id",RegistrationStatusMode::registrationNoHabilitado())
+					->get();
 		foreach ($users as $user) {
-			$user->rol=User::find($user->id)->roles[0]->name;
+			$user->role = RoleModel::where('id', $user->role_id)->value('name');
 		}
         return response([
-            "status" => 1,
             "msg" => "Lista de usuarios no nulos y habilitados obtenida exitosamente",
             "data" => $users,
         ], 200);
@@ -123,18 +122,19 @@ class UserController extends Controller
                 "access_token": "5082e3108d0e4d8cdd948c42102aabd0768fe993b86240569aa5130e373f3b8a"
 			}
 	*/
-    public function updateRoleEstado(Request $request){
+    public function update(Request $request){
 		$request->validate([
-			"id"=>"exists:users",
-            "role" => "present|nullable|numeric|min:1|max:2",
-            "estado" => "present|nullable|boolean"
+			"id"=>"exists:users,id",
+            "role_id" => "present|nullable|numeric|min:1|max:2",
+            "registration_status_id" => "present|nullable|numeric|min:1|max:2"
         ]);
 		if(auth()->user()->isAdmin()){
 			$user = User::find($request->id);
-			$user->update(['estado' =>$request->estado]);
-			$user->roles()->sync([$request->role]);
+			$user->update([
+				'registration_status_id' =>$request->registration_status_id,
+				'role_id' => $request->role_id
+			]);
 			return response([
-	            "status" => 1,
 	            "msg" => "Usuario actualizado exitosamente",
 	            "data" => $user,
 	        ], 200);

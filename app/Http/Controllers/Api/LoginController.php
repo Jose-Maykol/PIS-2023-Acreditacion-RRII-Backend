@@ -79,7 +79,7 @@ class LoginController extends Controller
 		return Socialite::driver($provider)->stateless()->redirect();
 		//return Socialite::driver($provider)->redirect();
 	}
-
+ 
 	//Funcion de la respuesta del provider
 	/*
 		ruta(get): /api/auth/login/{provider}/callback

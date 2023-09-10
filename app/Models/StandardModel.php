@@ -23,15 +23,19 @@ class StandardModel extends Model
         'registration_status_id'
     ];
 
-
-    public function users(){
-        return $this->belongsTo(User::class,'id_user');
+    public function users(): BelongsToMany    {
+        return $this->belongsToMany(User::class, 'users_standards', 'standard_id', 'user_id')
+        ->using(UserStandardModel::class);
     }
+    public function user($standard_id){
+        return StandardModel::find($standard_id)->users()->first();
+    }
+    
     public function plans(){
-        return $this->hasMany(plan::class,'id_estandar');
+        return $this->hasMany(PlanModel::class,'standard_id');
     }
-	public function narrativas(){
-        return $this->hasMany(narrativa::class,'id_narrativa');
+	public function narratives(){
+        return $this->hasMany(NarrativeModel::class,'standard_id');
     }
     public static function exists($standard_id){
         return self::where('id', $standard_id)->exists();

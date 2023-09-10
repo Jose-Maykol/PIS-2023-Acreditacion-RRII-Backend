@@ -6,14 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\DateModel;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
-use App\Models\Estandar;
+use App\Models\StandardModel;
 use App\Models\User;
 use App\Models\Folder;
 use App\Models\Evidence;
 use Illuminate\Support\Facades\DB;
 use App\Models\Evidencias;
 use App\Models\RegistrationStatusModel;
-use App\Models\StandardModel;
 use App\Models\UserModel;
 use PhpParser\PrettyPrinter\Standard;
 
@@ -28,16 +27,16 @@ class EstandarController extends Controller
             "related_standards" => "required",
             "nro_standard" => "required|integer",
         ]);
-        $id_user = auth()->user()->id;
+        $user = auth()->user();
         $standard = new StandardModel();
-        $standard->user_id = $id_user;
+        $standard->user_id = $user->id;
         $standard->name = $request->name;
         $standard->factor = $request->factor;
         $standard->dimension = $request->dimension;
         $standard->related_standards = $request->narelated_standardsme;
         $standard->nro_standard = $request->nro_standard;
-        $standard->date_id = DateModel::where('year', $year)->where('semester', $semester)->get()->id;
-        $standard->registration_status_id = RegistrationStatusModel::where('description', 'Active')->get()->id;
+        $standard->date_id = DateModel::dateId($year,$semester);
+        $standard->registration_status_id = RegistrationStatusModel::registrationActive();
 
         $standard->save();
         return response([
@@ -46,13 +45,24 @@ class EstandarController extends Controller
         ],201);
     }
 
-    public function listEstandar()
+    public function listEstandar($year, $semester)
     {
-        $standards = StandardModel::all();
-        return response([
-            "msg" => "!Lista de Estandares",
-            "data" => $standards,
-        ], 200);
+        $standards = StandardModel::where("date_id", DateModel::dateId($year,$semester))
+                        ->where('registration_status_id', RegistrationStatusModel::registrationActive())
+                        ->get();
+        
+        if(standards){
+            return response([
+                "msg" => "!Lista de Estandares",
+                "data" => $standards,
+            ], 200);
+        }
+        else {
+            return response([
+                "msg" => "!No hay lista de Estandares",
+            ], 404);
+        }
+                      
     }
 
     public function listEstandarValores()
@@ -71,7 +81,9 @@ class EstandarController extends Controller
 
     public function showEstandar($standard_id)
     {
-        if (StandardModel::where("id", $standard_id)->exists()) {
+        if (StandardModel::where("id", $standard_id)
+                ->where('registration_status_id', RegistrationStatusModel::registrationActive())
+                ->exists()) {
             $standard = StandardModel::find($standard_id);
             $user = UserModel::find($standard->user_id);
             $standard->user = $user;

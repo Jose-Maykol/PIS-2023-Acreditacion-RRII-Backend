@@ -118,8 +118,8 @@ class PlanModel extends Model
 
     public function deleteRegister(){
         return $this->update([
-            'registration_status_id' => RegistrationStatusModel::select('id')
-                                            ->where('description', 'borrado')->get()
+            'registration_status_id' => RegistrationStatusModel::registrationDelete()
         ]);
     }
+    
 }

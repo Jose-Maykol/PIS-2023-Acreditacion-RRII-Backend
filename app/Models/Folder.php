@@ -16,8 +16,9 @@ class Folder extends Model
         'path',
         'user_id',
         'parent_id',
-        'evidenceType_id',  
+        'evidence_type_id',  
         'standard_id',
+        'date_id'
     ];
 
     public function users() {
@@ -29,10 +30,14 @@ class Folder extends Model
     }
 
     public function evidenceType() {
-        return $this->belongsTo(EvidenciasTipo::class, 'evidenceType_id');
+        return $this->belongsTo(EvidenciasTipo::class, 'evidence_type_id');
     }
 
     public function standard() {
         return $this->belongsTo(Estandar::class, 'standard_id');
+    }
+    
+    public function date() {
+        return $this->belongsTo(DateModel::class, 'date_id');
     }
 }

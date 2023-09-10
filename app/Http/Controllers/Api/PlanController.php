@@ -121,8 +121,8 @@ class PlanController extends Controller
             "observations.*.description" => "required"
         ]);
         $user = auth()->user();
-        if (PlanModel::existsAndActive($plan_id) and PlanModel::find($id)->isDate($year, $semester) 
-                and $user->isCreatorPlan($plan_id,$year,$semester) or $user->isAdmin()) {
+        if (PlanModel::existsAndActive($plan_id) and $user->isCreatorPlan($plan_id) 
+                or $user->isAdmin()) {
             $plan = PlanModel::find($id);
             $plan->code = $request->code;
             $plan->name = $request->name;
@@ -131,7 +131,6 @@ class PlanController extends Controller
             $plan->advance = $request->advance;
             $plan->duration = $request->duration;
             $plan->efficacy_evaluation = $request->efficacy_evaluation;
-
             $plan->standard_id = $request->standard_id;
             $plan->plan_status_id = $request->plan_status_id;
 
@@ -320,10 +319,6 @@ class PlanController extends Controller
                 }
             }
             return response()->json($plan, 200);
-            return response([
-                "message" => "!Plan de mejora actualizado",
-                "data" => $plan,
-            ]);
         } else {
             return response([
                 "status" => 0,
@@ -592,9 +587,10 @@ class PlanController extends Controller
     //confirmar los datos nesesarios
     public function listPlan($year, $semester)
     {
-        $user_id = auth()->user()->id;
+        $user = auth()->user();
         $planAll = PlanModel::where('date_id', 
-                        DateModel::select('id')->where('year', $year)->where('semester', $semester))
+                        DateModel::dateId($year, $semester))
+                        ->where('registration_status_id', RegistrationStatusModel::registrationActive())
                         ->select('plans.id', 'plans.name', 'plans.code', 'plans.advance', 'plans.user_id', 
                                     'standards.name as standard_name', 'users.name as user_name', 'plan_status.description as plan_status')
             ->join('standards', 'plans.standard_id', '=', 'standards.id')
@@ -617,8 +613,7 @@ class PlanController extends Controller
 
     public function deletePlan($plan_id)
     {
-        $user_id = auth()->user()->id;
-        $user = UserModel::find($user_id);
+        $user = auth()->user();
         $plan = PlanModel::find($plan_id);
         if (!$plan) {
             return response([
@@ -642,32 +637,31 @@ class PlanController extends Controller
     public function showPlan($plan_id)
     {
 
-        if (PlanModel::where('registration_status_id', RegistrationStatusModel::where('description', 'Active')->get(['id']))
-                ->where("id", $plan_id)->exists()) {
+        if (PlanModel::exists($plan_id) and PlanMode::isActived($plan_id)) {
             $plan = PlanModel::find($plan_id);
             $plan->sources = SourceModel::where("plan_id", $plan_id)
-                                ->where('registration_status_id', RegistrationStatusModel::where('description', 'Active')->get(['id']))
+                                ->where('registration_status_id', RegistrationStatusModel::registrationActive())
                                 ->get(['id', 'description']);
             $plan->problems_opportunities = ProblemOpportunitieModel::where("plan_id", $plan_id)
-                                ->where('registration_status_id', RegistrationStatusModel::where('description', 'Active')->get(['id']))
+                                ->where('registration_status_id', RegistrationStatusModel::registrationActive())
                                 ->get(['id', 'description']);
             $plan->root_causes = RootCauseModel::where("plan_id", $plan_id)
-                                ->where('registration_status_id', RegistrationStatusModel::where('description', 'Active')->get(['id']))
+                                ->where('registration_status_id', RegistrationStatusModel::registrationActive())
                                 ->get(['id', 'description']);
             $plan->improvement_actions = ImprovementActionModel::where("plan_id", $plan_id)
-                                ->where('registration_status_id', RegistrationStatusModel::where('description', 'Active')->get(['id']))
+                                ->where('registration_status_id', RegistrationStatusModel::registrationActive())
                                 ->get(['id', 'description']);
             $plan->resources = ResourceModel::where("plan_id", $plan_id)
-                                ->where('registration_status_id', RegistrationStatusModel::where('description', 'Active')->get(['id']))
+                                ->where('registration_status_id', RegistrationStatusModel::registrationActive())
                                 ->get(['id', 'description']);
             $plan->goals = GoalModel::where("plan_id", $plan_id)
-                                ->where('registration_status_id', RegistrationStatusModel::where('description', 'Active')->get(['id']))
+                                ->where('registration_status_id', RegistrationStatusModel::registrationActive())
                                 ->get(['id', 'description']);
             $plan->observations = ObservationModel::where("plan_id", $plan_id)
-                                ->where('registration_status_id', RegistrationStatusModel::where('description', 'Active')->get(['id']))
+                                ->where('registration_status_id', RegistrationStatusModel::registrationActive())
                                 ->get(['id', 'description']);
             $plan->responsibles = ResponsibleModel::where("plan_id", $plan_id)
-                                ->where('registration_status_id', RegistrationStatusModel::where('description', 'Active')->get(['id']))
+                                ->where('registration_status_id', RegistrationStatusModel::registrationActive())
                                 ->get(['id', 'description']);
             $plan->evidences = Evidencias::where("id_plan", $plan_id)->get();
             return response([
@@ -702,9 +696,9 @@ class PlanController extends Controller
 */
     public function listPlanUser()
     {
-        $user_id = auth()->user()->id;
-        $user = UserModel::find($user_id);
-        $planAll = PlanModel::select('plans.id', 'plans.name', 'plans.code', 'plans.advance', 'plans.user_id', 
+        $user = auth()->user();
+        $planAll = PlanModel::where('registration_status_id', RegistrationStatusModel::registrationActive())
+            ->select('plans.id', 'plans.name', 'plans.code', 'plans.advance', 'plans.user_id', 
                                 'standards.name as standard_name', 'users.name as user_name', 'plan_status.description as plan_status')
             ->join('standards', 'plans.standard_id', '=', 'standards.id')
             ->join('users', 'plans.user_id', '=', 'users.id')

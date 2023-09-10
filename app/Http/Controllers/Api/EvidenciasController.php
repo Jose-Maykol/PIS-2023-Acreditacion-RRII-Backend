@@ -359,15 +359,21 @@ class EvidenciasController extends Controller
         }
     }
 
-    public function view($id)
+    public function view($year, $semester, $evidence_id)
     {
-        if (Evidence::where("id", $id)->exists()) {
-            $evidence = Evidence::find($id);
-            $path = storage_path('app/' . 'evidencias/estandar_' . $evidence->standard_id . '/tipo_evidencia_' . $evidence->evidenceType_id . $evidence->path);
+        if (Evidence::where("id", $evidence_id)->exists()) {
+            $evidence = Evidence::find($evidence_id);
+            $dateId = DateModel::dateId($year, $semester);
+            $path = storage_path('app/' . 'evidencias/'. $year . '/' . $semester . '/' .'estandar_' . $evidence->standard_id . '/tipo_evidencia_' . $evidence->evidence_type_id . $evidence->path);
             $extension = pathinfo($path, PATHINFO_EXTENSION);
             $contentType = $this->getContentType($extension);
             $fileContents = file_get_contents($path);
-            return response($fileContents)->header('Content-Type', $contentType);
+            $base64Content = base64_encode($fileContents);
+            return response([
+                "status" => 0,
+                "evidence_id" => $evidence_id,
+                "base64_content" => $base64Content,
+            ], 200)->header('Content-Type', 'application/json');
         } else {
             return response([
                 "status" => 0,

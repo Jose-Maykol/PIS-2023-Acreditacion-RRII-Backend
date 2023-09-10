@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\LoginController;
 use App\Models\GoalModel;
 use App\Models\PlanModel;
 use App\Models\RegistrationStatusModel;
+use App\Models\User;
 
 //Rutas de Auth
 
@@ -18,7 +19,10 @@ Route::prefix('auth')->group(function (){
 });
 
 Route::prefix('test')->group(function(){
-        
+        Route::get('log', function (Request $request){
+            $token = User::find(1)->createToken('Token Name')->plainTextToken;
+            return response()->json(['token' => $token]);
+        });
         Route::get('goal', function (Request $request){
             
             //$goal = PlanModel::find(2)->goalsActive();

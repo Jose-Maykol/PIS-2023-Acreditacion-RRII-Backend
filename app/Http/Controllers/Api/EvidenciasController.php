@@ -345,11 +345,11 @@ class EvidenciasController extends Controller
         }
     }
 
-    public function download($id)
+    public function download($year, $semester, $evidence_id)
     {
-        if (Evidence::where("id", $id)->exists()) {
-            $evidence = Evidence::find($id);
-            $path = storage_path('app/' . 'evidencias/estandar_' . $evidence->standard_id . '/tipo_evidencia_' . $evidence->evidence_type_id . $evidence->path);
+        if (Evidence::where("id", $evidence_id)->exists()) {
+            $evidence = Evidence::find($evidence_id);
+            $path = storage_path('app/' . 'evidencias/'. $year . '/' . $semester . '/estandar_' . $evidence->standard_id . '/tipo_evidencia_' . $evidence->evidence_type_id . $evidence->path);
             return response()->download($path);
         } else {
             return response([
@@ -364,7 +364,7 @@ class EvidenciasController extends Controller
         if (Evidence::where("id", $evidence_id)->exists()) {
             $evidence = Evidence::find($evidence_id);
             $dateId = DateModel::dateId($year, $semester);
-            $path = storage_path('app/' . 'evidencias/'. $year . '/' . $semester . '/' .'estandar_' . $evidence->standard_id . '/tipo_evidencia_' . $evidence->evidence_type_id . $evidence->path);
+            $path = storage_path('app/' . 'evidencias/'. $year . '/' . $semester . '/estandar_' . $evidence->standard_id . '/tipo_evidencia_' . $evidence->evidence_type_id . $evidence->path);
             $extension = pathinfo($path, PATHINFO_EXTENSION);
             $contentType = $this->getContentType($extension);
             $fileContents = file_get_contents($path);

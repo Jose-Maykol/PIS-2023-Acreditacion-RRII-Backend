@@ -285,9 +285,18 @@ class EvidenciasController extends Controller
             $file = $request->file('file');
             $id_user = auth()->user();
             $evidence = Evidence::find($evidence_id);
+            
+            if ($evidence->file !== $file->getClientOriginalName()) {
+                return response([
+                    "status" => 0,
+                    "message" => "La evidencia a actualizar no tiene el mismo nombre de archivo",
+                ], 404);
+            }
+
             $standardId = $evidence->standard_id;
             $typeEvidenceId = $evidence->type_evidence_id;
             $pathEvidence = $evidence->path;
+            $pathEvidence = preg_replace('/^\/+/', '', $pathEvidence);
             $path = $file->storeAs('evidencias/'. $year . '/' . $semester . '/' .'estandar_' . $standardId . '/tipo_evidencia_'. $typeEvidenceId . '/' . $pathEvidence, $file->getClientOriginalName());
             $evidence->type = $file->getClientOriginalExtension();
             $evidence->size = $file->getSize();
@@ -300,6 +309,39 @@ class EvidenciasController extends Controller
             return response([
                 "status" => 0,
                 "message" => "No se encontro la evidencia",
+            ], 404);
+        }
+    }
+
+    public function rename(Request $request, $year, $semester, $evidence_id) 
+    {
+        $request->validate([
+            "new_filename" => "required|string",
+        ]);
+        if (Evidence::where("id", $evidence_id)->exists()) {
+            $newFilename = $request->new_filename;
+            $evidence = Evidence::find($evidence_id);
+            $standardId = $evidence->standard_id;
+            $typeEvidenceId = $evidence->type_evidence_id;
+            $pathEvidence = $evidence->path;
+            $currentPath = 'evidencias/' . $year . '/' . $semester . '/' .'estandar_' . $standardId . '/tipo_evidencia_'. $typeEvidenceId;
+            $currentFilePath = storage_path($currentPath . $pathEvidence);
+            $folder = Folder::find($evidence->folder_id);
+            $folderName = $folder->path;
+            $newFilePath = $currentPath . $folderName . '/' . $newFilename;
+            Storage::move($currentFilePath, $newFilePath);
+            $evidence->name = $newFilename;
+            $evidence->path = $folderName . '/' . $newFilename . '.' . $evidence->type;
+            $evidence->file = $newFilename . '.'. $evidence->type;
+            $evidence->save();
+            return response([
+                "status" => 1,
+                "message" => "Nombre de evidencia actualizada exitosamente",
+            ], 404);
+        } else {
+            return response([
+                "status" => 0,
+                "msg" => "No se encontro la evidencia",
             ], 404);
         }
     }

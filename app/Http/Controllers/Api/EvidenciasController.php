@@ -346,24 +346,18 @@ class EvidenciasController extends Controller
         }
     }
 
-    public function delete($id)
+    public function delete($year, $semester, $evidence_id)
     {
         $id_user = auth()->user();
-        if (Evidencias::where(["id" => $id])->exists()) {
-            $evidencia = Evidencias::find($id);
-            $plan = plan::find($evidencia->id_plan);
-            if ($id_user->isCreadorPlan($plan->id) or $id_user->isAdmin()) {
-                $evidencia->delete();
-                return response([
-                    "status" => 1,
-                    "message" => "Evidencia eliminada exitosamente",
-                ]);
-            } else {
-                return response([
-                    "status" => 0,
-                    "message" => "No tienes permisos para eliminar esta evidencia",
-                ], 404);
-            }
+        if (Evidence::where("id", $evidence_id)->exists()) {
+            $evidence = Evidence::find($evidence_id);
+            $pathEvidence = 'evidencias/'. $year . '/' . $semester . '/estandar_' . $evidence->standard_id . '/tipo_evidencia_' . $evidence->evidence_type_id . $evidence->path;
+            Storage::delete($pathEvidence);
+            $evidence->delete();
+            return response([
+                "status" => 0,
+                "message" => "Evidencia eliminada exitosamente",
+            ], 404);
         } else {
             return response([
                 "status" => 0,

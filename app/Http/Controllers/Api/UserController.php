@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Estandar;
+use App\Models\RegistrationStatusModel;
+use App\Models\RoleModel;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
@@ -36,7 +38,7 @@ class UserController extends Controller
             $user->lastname = "null";
             $user->email = $request->email;
             $user->password = "null";
-			$user->registration_status_id = RegistrationStatusModel::registrationNoHabilitado();
+			$user->registration_status_id = RegistrationStatusModel::registrationInactive();
 			$user->role_id = RoleModel::roleAdmin();
             $user->save();
 
@@ -99,7 +101,7 @@ class UserController extends Controller
 	*/
     public function listUserHabilitados(){
 		$users = User::whereNotIn("name",["null"])
-					->where("registration_status_id",RegistrationStatusMode::registrationNoHabilitado())
+					->where("registration_status_id",RegistrationStatusModel::registrationActive())
 					->get();
 		foreach ($users as $user) {
 			$user->role = RoleModel::where('id', $user->role_id)->value('name');

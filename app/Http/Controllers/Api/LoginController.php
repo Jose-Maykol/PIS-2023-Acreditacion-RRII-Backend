@@ -25,7 +25,7 @@ class LoginController extends Controller
 				"password":"null"
 			}
 	*/
-	public function login(Request $request)
+	/*public function login(Request $request)
     {
 
         $request->validate([
@@ -35,7 +35,7 @@ class LoginController extends Controller
 
         $registrationStatusId = RegistrationStatusModel::select('id')->where('description', 'active')->first()->id;
 
-				$user = User::where("email", "=", $userProvider->email)
+		$user = User::where("email", "=", $userProvider->email)
 					
 						->first();
 
@@ -59,7 +59,7 @@ class LoginController extends Controller
                 "message" => "Usuario no registrado o Usuario deshabilitado",
             ], 404);
         }
-    }
+    }*/
 
 	//Login con plataformas externas
 	//Funcion de la recepcion del provider(google-facebook-github-twitter)

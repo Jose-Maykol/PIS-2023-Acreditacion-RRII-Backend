@@ -16,10 +16,10 @@ class RolesSeeder extends Seeder
     public function run()
     {
         RoleModel::create([
-            'name' => 'Docente'
+            'name' => 'docente'
         ]);
         RoleModel::create([
-            'name' => 'Administrador'
+            'name' => 'administrador'
         ]);
     }
 }

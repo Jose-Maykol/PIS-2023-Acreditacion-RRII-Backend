@@ -21,7 +21,7 @@ class ImprovementActionModel extends Model
         return $this->belongsTo(PlanModel::class,'plan_id');
     }
     public function registrationStatus(): BelongsTo{
-        return $this->belongsTo(RegistrationStatus::class, 'registration_status_id');
+        return $this->belongsTo(RegistrationStatusModel::class, 'registration_status_id');
     }
     public function deleteRegister(){
         return $this->update([

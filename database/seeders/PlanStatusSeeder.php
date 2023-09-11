@@ -19,15 +19,25 @@ class PlanStatusSeeder extends Seeder
     {
 
         DB::table('plan_status')->insert([
-            'description' => 'Planificado',
+            'description' => 'planificado',
             'registration_status_id' => 1,
         ]);
         DB::table('plan_status')->insert([
-            'description' => 'Terminado',
+            'description' => 'en desarrollo',
             'registration_status_id' => 1,
         ]);
         DB::table('plan_status')->insert([
-            'description' => 'En proceso',
+            'description' => 'completado',
+            'registration_status_id' => 1,
+        ]);
+        
+        DB::table('plan_status')->insert([
+            'description' => 'postergado',
+            'registration_status_id' => 1,
+
+        ]);
+        DB::table('plan_status')->insert([
+            'description' => 'anulado',
             'registration_status_id' => 1,
 
         ]);

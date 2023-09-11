@@ -61,8 +61,11 @@ class User extends Authenticatable
     return $this->hasMany(Provider::class, 'id_user');
   }
 
+  public function isRole($role) {
+    return $this->role()->where('name', $role)->exists();
+  }
   public function isAdmin() {
-    return $this->role()->where('name', 'Administrador')->exists();
+    return $this->role()->where('name', 'administrador')->exists();
   }
 
   public function isCreatorPlan($plan_id) {
@@ -71,6 +74,6 @@ class User extends Authenticatable
 
   public function isAssignStandard($standard_id)
   {
-    return StandardModel::where('id', $standard_id)->where('user_id', $this->id)->exists();
+    return $this->standards()->first()->where('id', $standard_id)->exists();
   }
 }

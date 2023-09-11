@@ -19,7 +19,7 @@ return new class extends Migration
     {
         Schema::create('plans', function (Blueprint $table) {
             $table->id();
-            $table->string('code', 12);
+            $table->string('code', 13);
             $table->string('name', 255)->nullable();
             $table->string('opportunity_for_improvement')->nullable();
             $table->string('semester_execution', 8)->nullable();
@@ -33,7 +33,7 @@ return new class extends Migration
                 ->constrained('users');
             $table->foreignId('date_id')
                 ->constrained('date_semesters');
-            $table->unique(['code', 'standard_id']);
+            //$table->unique(['code', 'standard_id']);
             $table->timestamps();
             $table->foreignId('registration_status_id')
                 ->constrained('registration_status');

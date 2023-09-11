@@ -18,6 +18,8 @@ Route::middleware("auth:sanctum")->prefix('plans')->group(function () {// /api/2
 
     //rutas plan
     Route::post('', [PlanController::class, 'createPlan']);
+    //Route::get('pruebas', [PlanController::class, 'pruebas']);
+    //
     Route::get('', [PlanController::class, 'listPlan']);
     Route::get('{plan_id}', [PlanController::class, 'showPlan'])->where('plan_id', '[0-9]+');
     Route::get('{plan_id}/evidences', [PlanController::class, 'showPlanEvidence'])->where('plan_id', '[0-9]+');

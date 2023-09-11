@@ -26,12 +26,6 @@ class RegistrationStatusSeeder extends Seeder
         DB::table('registration_status')->insert([
             'description' => "borrado"
         ]);
-        DB::table('registration_status')->insert([
-            'description' => "antes_de_borrar"
-        ]);
-        DB::table('registration_status')->insert([
-            'description' => "no habilitado"
-        ]);
         
     }
 }

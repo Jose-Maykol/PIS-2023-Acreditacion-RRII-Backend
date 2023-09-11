@@ -29,6 +29,9 @@ class RegistrationStatusModel extends Model
     public static function registrationNoHabilitado(){
         return self::where('description', 'no habilitado')->value('id');
     }
+    public static function registrationId($registration){
+        return self::where('description', $registration)->value('id');
+    }
     public function isActive(){
         return $this->where('description','activo');
     }

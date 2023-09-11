@@ -14,10 +14,16 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Evidencias;
 use App\Models\RegistrationStatusModel;
 use App\Models\UserModel;
+use App\Models\UserStandardModel;
 use PhpParser\PrettyPrinter\Standard;
 
-class EstandarController extends Controller
+class StandardController extends Controller
 {
+    public function pruebas(Request $request, $year, $semester, $standard_id)
+    {
+       
+        
+    }
     public function createEstandar(Request $request, $year, $semester)
     {
         $request->validate([
@@ -35,60 +41,68 @@ class EstandarController extends Controller
         $standard->dimension = $request->dimension;
         $standard->related_standards = $request->narelated_standardsme;
         $standard->nro_standard = $request->nro_standard;
-        $standard->date_id = DateModel::dateId($year,$semester);
+        $standard->date_id = DateModel::dateId($year, $semester);
         $standard->registration_status_id = RegistrationStatusModel::registrationActive();
 
         $standard->save();
         return response([
             "msg" => "!Estandar creado exitosamente",
             "data" => $standard,
-        ],201);
+        ], 201);
     }
 
     public function listEstandar($year, $semester)
     {
-        $standards = StandardModel::where("date_id", DateModel::dateId($year,$semester))
-                        ->where('registration_status_id', RegistrationStatusModel::registrationActive())
-                        ->get();
-        
-        if(standards){
+        $standards = StandardModel::where("date_id", DateModel::dateId($year, $semester))
+            ->where('registration_status_id', RegistrationStatusModel::registrationActive())
+            ->get();
+
+        if ($standards) {
             return response([
                 "msg" => "!Lista de Estandares",
                 "data" => $standards,
             ], 200);
-        }
-        else {
+        } else {
             return response([
                 "msg" => "!No hay lista de Estandares",
             ], 404);
         }
-                      
     }
 
     public function listEstandarValores()
     {
-        $standardslist = StandardModel::select('standards.name', 'standards.id', "standards.user_id", "standards.nro_standard", 
-                                                "users.name as user_name", "users.lastname as user_lastname", "users.email as user_email")
+        $standardslist = StandardModel::where('standards.date_id', DateModel::dateId($year, $semester))
+            ->select(
+                'standards.name',
+                'standards.id',
+                "users_standards.user_id",
+                "standards.nro_standard",
+                "users.name as user_name",
+                "users.lastname as user_lastname",
+                "users.email as user_email"
+            )
             ->orderBy('standards.id', 'asc')
-            ->join('users', 'standards.user_id', '=', 'users.id')
+            ->join('users_standards', 'users_standards.standard_id', 'standards.id')
+            ->join('users', 'users_standards.user_id', '=', 'users.id')
             ->orderBy('standards.id', 'asc')
             ->get();
         return response([
             "msg" => "!Lista de nombres de Estandares",
             "data" => $standardslist,
-        ], );
+        ], 200);
     }
 
     public function showEstandar($standard_id)
     {
         if (StandardModel::where("id", $standard_id)
-                ->where('registration_status_id', RegistrationStatusModel::registrationActive())
-                ->exists()) {
+            ->where('registration_status_id', RegistrationStatusModel::registrationActive())
+            ->exists()
+        ) {
             $standard = StandardModel::find($standard_id);
-            $user = UserModel::find($standard->user_id);
+            $user = $standard->users()->first();
             $standard->user = $user;
             $standard->isManager = ($user->id == auth()->user()->id);
-            $standard->isAdmin = UserModel::find(auth()->user()->id)->isAdmin();
+            $standard->isAdmin = auth()->user()->isAdmin();
             return response([
                 "msg" => "!Estandar",
                 "data" => $standard,
@@ -100,37 +114,51 @@ class EstandarController extends Controller
         }
     }
 
-    public function updateEstandar(Request $request,$year, $semester, $standard_id)
+    public function updateEstandar(Request $request, $year, $semester, $standard_id)
     {
-        $id_user = auth()->user()->id;
-        $user = UserModel::find($id_user);
-        if ($user->isEncargadoEstandar($standard_id) || $id_user->isAdmin()) {
+        $user = auth()->user();
+        
+        if ($user->isAssignStandard($standard_id) or $user->isAdmin()) {
             $standard = StandardModel::find($standard_id);
             $standard->name = isset($request->name) ? $request->name : $standard->name;
             $standard->factor = isset($request->factor) ? $request->factor : $standard->factor;
             $standard->dimension = isset($request->dimension) ? $request->dimension : $standard->dimension;
             $standard->related_standards = isset($request->related_standards) ? $request->related_standards : $standard->related_standards;
             $standard->nro_standard = isset($request->nro_standard) ? $request->nro_standard : $standard->nro_standard;
-            $standard->date_id = DateModel::where('year', $year)->where('semester', $semester)->get()->id;
-
-            $standard->user_id = isset($request->user_id) ? $request->id_user : $standard->id_user;
+            //$standard->date_id = DateModel::where('year', $year)->where('semester', $semester)->get()->id;
             $standard->save();
-            return response([
-                "msg" => "!Estandar actualizado",
-                "data" => $standard,
-            ],200);
+
+            $user_id = isset($request->user_id) ? $request->user_id : $standard->users()->first()->id;
+            try{
+                $standard = StandardModel::find($standard_id);
+                $user_standard = User::find($standard->users()->first()->id);
+                $standard->users()->detach($user_standard);
+                $standard->users()->attach(User::find($user_id));
+                return response([
+                    "msg" => "!Estandar actualizado",
+                    "data" => $standard,
+                ], 200);
+            }
+            catch(\Exception $e){
+                return response([
+                    "msg" => "!Error en la Base de datos",
+                ], 500);
+            }
+           
+            
         } else {
             return response([
                 "status" => 0,
                 "msg" => "!No se encontro el estandar o no esta autorizado",
             ], 404);
         }
+        
     }
 
     public function deleteEstandar($standard_id)
     {
         $id_user = auth()->user()->id;
-        $user = UserModel::find($id_user);
+        $user = User::find($id_user);
         if (StandardModel::where(["id" => $standard_id, "user_id" => $user->id])->exists()) {
             $standard = StandardModel::where(["id" => $standard_id, "user_id" => $user->id])->first();
             $standard->deleteRegister();
@@ -146,10 +174,10 @@ class EstandarController extends Controller
 
     public function getStandardEvidences(Request $request, $standard_id)
     {
-        
+
 
         $request->validate([
-            'parent_id' => 'nullable|integer',  
+            'parent_id' => 'nullable|integer',
         ]);
 
         $standardId = $standard_id;
@@ -163,8 +191,7 @@ class EstandarController extends Controller
                     "status" => 0,
                     "message" => "Aun no hay evidencias para este estándar",
                 ], 404);
-            }
-            else {
+            } else {
                 $parentIdFolder = $queryRootFolder->id;
             }
         }
@@ -185,7 +212,6 @@ class EstandarController extends Controller
             "evidences" => $evidences,
             "folders" => $folders,
         ]);
-        
     }
 
     public function getEstandarStructure(Request $request, $id)
@@ -208,7 +234,7 @@ class EstandarController extends Controller
                 "message" => "No se encontró la carpeta del estándar",
             ], 404);
         }
-        
+
         if (!is_dir($fullPath)) {
             return response()->json([
                 "status" => 0,

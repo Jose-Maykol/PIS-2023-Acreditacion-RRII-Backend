@@ -19,6 +19,7 @@ use App\Models\ObservationModel;
 use App\Models\PlanStatusModel;
 use App\Models\ProblemasOportunidades;
 use App\Models\ProblemOpportunitieModel;
+use App\Models\ProblemOpportunityModel;
 use App\Models\Recursos;
 use App\Models\RegistrationStatusModel;
 use App\Models\ResourceModel;
@@ -47,21 +48,25 @@ class PlanController extends Controller
         ], 201);
     }
 
+    public function pruebas($year, $semester){
+        
+        
+       
+        
+        
+        
+    }
+
     // Arreglar el formato de IDs
     public function createPlan(Request $request, $year, $semester)
     {
         $request->validate([
-            'code' => [
-                'required',
-                Rule::unique('plans', 'code')->where(function ($query) use ($request) {
-                    return $query->where('standard_id', $request->standard_id);
-                }),
-            ],
+            'code' => 'required',
             'name' => 'present|max:255',
             'standard_id' => 'exists:standards,id'
         ]);
 
-        if(DateModel::exists($year, $semester)){
+        if(!DateModel::exists($year, $semester)){
             return response()->json([
                 "message" => "No existe Date"
             ], 404);
@@ -72,11 +77,12 @@ class PlanController extends Controller
             'code' => $request->code,
             'name' => $request->name,
             'user_id' => $user->id,
-            'date_id' => DateModel::date($year,$semester),
+            'date_id' => DateModel::dateId($year,$semester),
             'standard_id' => $request->standard_id,
             'efficacy_evaluation' => false,
             'advance' => 0,
-            'plan_status_id' => PlanStatusModel::planned()
+            'plan_status_id' => PlanStatusModel::planId('planificado'),
+            'registration_status_id' => RegistrationStatusModel::registrationId('activo')
         ]);
         
         return response()->json([
@@ -89,12 +95,7 @@ class PlanController extends Controller
     {
         $request->validate([
             "id" => "required|integer",
-            'code' => [
-                'required',
-                Rule::unique('plans', 'code')->where(function ($query) use ($request) {
-                    return $query->where('standard_id', $request->standard_id);
-                }),
-            ],
+            'code' => 'required',
             "name" => "present|max:255",
             "opportunity_for_improvement" => "present|max:255",
             "semester_execution" => "present|max:8", //aaaa-A/B/C/AB
@@ -116,14 +117,14 @@ class PlanController extends Controller
             "goals" => "present",
             "goals.*.description" => "required",
             "responsibles" => "present",
-            "responsibles.*.name" => "required",
+            "responsibles.*.description" => "required",
             "observations" => "present",
             "observations.*.description" => "required"
         ]);
         $user = auth()->user();
         if (PlanModel::existsAndActive($plan_id) and $user->isCreatorPlan($plan_id) 
                 or $user->isAdmin()) {
-            $plan = PlanModel::find($id);
+            $plan = PlanModel::find($plan_id);
             $plan->code = $request->code;
             $plan->name = $request->name;
             $plan->opportunity_for_improvement = $request->opportunity_for_improvement;
@@ -141,7 +142,8 @@ class PlanController extends Controller
             $sources = $request->sources;
             //Eliminar fuentes que no esten en el Request
             $existingsIds = collect($sources)->pluck('id')->filter();
-            $sources_delete = $plan->sources()->whereNotIn('id', $existingsIds)->get();
+            //$sources_delete = $plan->sources()->whereNotIn('id', $existingsIds->toArray())->get();
+            $sources_delete = $plan->sourcesActive()->whereNotIn('id', $existingsIds);
             //Actualizar fuentes de estandar
             foreach ($sources_delete as $source_delete){
                 $source_delete->deleteRegister();
@@ -149,22 +151,29 @@ class PlanController extends Controller
 
             if (isset($sources)) {
                 foreach ($sources as $source) {
-                    $plan->sources()->updateOrCreate(
-                        [
-                            "id" => $source['id']
-                        ],
-                        [
-                            "description" => $source['description']
-                            //"plan_id" => $plan->id
-                        ]
-                    );
+                    if(isset($source['id'])){
+                        $plan->sources()->updateOrCreate(
+                            [
+                                "id" => $source['id']
+                            ],
+                            [
+                                "description" => $source['description'],
+                                "registration_status_id" => RegistrationStatusModel::registrationActive(),
+                                //"id_plan" => $plan->id
+                            ]
+                        );
+                    }
+                    else{
+                        $plan->sources()->create(['description' => $source['description'], 
+                        "registration_status_id" => RegistrationStatusModel::registrationActive()]);
+                    }
                 }
             }
             /*----------------------------Problemas-------------------------------*/
             $problems = $request->problems;
             //Eliminar problemas que no esten en el Request
             $existingsIds = collect($problems)->pluck('id')->filter();
-            $problems_delete = $plan->problemsOpportunities()->whereNotIn('id', $existingsIds)->get();
+            $problems_delete = $plan->problemsOpportunitiesActive()->whereNotIn('id', $existingsIds);
 
             foreach ($problems_delete as $problem_delete){
                 $problem_delete->deleteRegister();
@@ -173,132 +182,176 @@ class PlanController extends Controller
             //Actualizar problemas de estandar
             if (isset($problems)) {
                 foreach ($problems as $problem) {
-                    $plan->problemsOpportunities()->updateOrCreate(
-                        [
-                            "id" => $problem['id']
-                        ],
-                        [
-                            "description" => $problem['description']
-                            //"id_plan" => $plan->id
-                        ]
-                    );
+                    if(isset($problem['id'])){
+                        $plan->problemsOpportunities()->updateOrCreate(
+                            [
+                                "id" => $problem['id']
+                            ],
+                            [
+                                "description" => $problem['description'],
+                                "registration_status_id" => RegistrationStatusModel::registrationActive(),
+                                //"id_plan" => $plan->id
+                            ]
+                        );
+                    }
+                    else{
+                        $plan->problemsOpportunities()->create(['description' => $problem['description'], 
+                        "registration_status_id" => RegistrationStatusModel::registrationActive()]);
+                    }
                 }
             }
             /*--------------------------------Causas-------------------------------*/
             $root_causes = $request->root_causes;
             //Eliminar causas que no esten en el Request
             $existingsIds = collect($root_causes)->pluck('id')->filter();
-            $root_causes_delete = $plan->rootCauses()->whereNotIn('id', $existingsIds)->get();
+            $root_causes_delete = $plan->rootCausesActive()->whereNotIn('id', $existingsIds);
             foreach ($root_causes_delete as $root_cause_delete){
                 $root_cause_delete->deleteRegister();
             }
             //Actualizar causas de estandar
             if (isset($root_causes)) {
                 foreach ($root_causes as $root_cause) {
-                    $plan->rootCauses()->updateOrCreate(
-                        [
-                            "id" => $root_cause['id']
-                        ],
-                        [
-                            "description" => $root_cause['description'],
-                            //"id_plan" => $plan->id
-                        ]
-                    );
+                    if(isset($root_cause['id'])){
+                        $plan->rootCauses()->updateOrCreate(
+                            [
+                                "id" => $root_cause['id']
+                            ],
+                            [
+                                "description" => $root_cause['description'],
+                                "registration_status_id" => RegistrationStatusModel::registrationActive(),
+                                //"id_plan" => $plan->id
+                            ]
+                        );
+                    }
+                    else{
+                        $plan->rootCauses()->create(['description' => $root_cause['description'], 
+                        "registration_status_id" => RegistrationStatusModel::registrationActive()]);
+                    }
                 }
             }
             /*------------------------------Acciones-------------------------------*/
             $actions = $request->actions;
             //Eliminar acciones que no esten en el Request
             $existingsIds = collect($actions)->pluck('id')->filter();
-            $actions_delete = $plan->improvementActions()->whereNotIn('id', $existingsIds)->get();
+            $actions_delete = $plan->improvementActionsActive()->whereNotIn('id', $existingsIds);
             foreach ($actions_delete as $action_delete){
                 $action_delete->deleteRegister();
             }
             //Actualizar acciones de estandar
             if (isset($actions)) {
                 foreach ($actions as $action) {
-                    $plan->improvementActions()->updateOrCreate(
-                        [
-                            "id" => $action['id']
-                        ],
-                        [
-                            "description" => $action['description'],
-                            //"id_plan" => $plan->id
-                        ]
-                    );
+                    if(isset($action['id'])){
+                        $plan->improvementActions()->updateOrCreate(
+                            [
+                                "id" => $action['id']
+                            ],
+                            [
+                                "description" => $action['description'],
+                                "registration_status_id" => RegistrationStatusModel::registrationActive(),
+                                //"id_plan" => $plan->id
+                            ]
+                        );
+                    }
+                    else{
+                        $plan->improvementActions()->create(['description' => $action['description'], 
+                        "registration_status_id" => RegistrationStatusModel::registrationActive()]);
+                    }
                 }
             }
             /*------------------------------Recursos-------------------------------*/
             $resources = $request->resources;
             //Eliminar recursos que no esten en el Request
             $existingsIds = collect($resources)->pluck('id')->filter();
-            $resources_delete = $plan->recursos()->whereNotIn('id', $existingsIds)->get();
+            $resources_delete = $plan->resourcesActive()->whereNotIn('id', $existingsIds);
             foreach ($resources_delete as $resource_delete){
                 $resource_delete->deleteRegister();
             }
             //Actualizar recursos de estandar
             if (isset($resources)) {
                 foreach ($resources as $resource) {
-                    $plan->resources()->updateOrCreate(
-                        [
-                            "id" => $resource['id']
-                        ],
-                        [
-                            "description" => $resource['description'],
-                           // "id_plan" => $plan->id
-                        ]
-                    );
+                    if(isset($resource['id'])){
+                        $plan->resources()->updateOrCreate(
+                            [
+                                "id" => $resource['id']
+                            ],
+                            [
+                                "description" => $resource['description'],
+                                "registration_status_id" => RegistrationStatusModel::registrationActive(),
+                                //"id_plan" => $plan->id
+                            ]
+                        );
+                    }
+                    else{
+                        $plan->resources()->create(['description' => $resource['description'], 
+                        "registration_status_id" => RegistrationStatusModel::registrationActive()]);
+                    }
                 }
             }
             /*--------------------------------Metas-------------------------------*/
             $goals = $request->goals;
             //Eliminar metas que no esten en el Request
             $existingsIds = collect($goals)->pluck('id')->filter();
-            $goals_delete = $plan->goals()->whereNotIn('id', $existingsIds)->get();
+            $goals_delete = $plan->goalsActive()->whereNotIn('id', $existingsIds);
             foreach ($goals_delete as $goal_delete){
                 $goal_delete->deleteRegister();
             }
+
             //Actualizar metas de estandar
             if (isset($goals)) {
                 foreach ($goals as $goal) {
-                    $plan->goals()->updateOrCreate(
-                        [
-                            "id" => $goal['id']
-                        ],
-                        [
-                            "description" => $goal['description'],
-                            //"id_plan" => $plan->id
-                        ]
-                    );
+                    if(isset($goal['id'])){
+                        $plan->goals()->updateOrCreate(
+                            [
+                                "id" => $goal['id']
+                            ],
+                            [
+                                "description" => $goal['description'],
+                                "registration_status_id" => RegistrationStatusModel::registrationActive(),
+                                //"id_plan" => $plan->id
+                            ]
+                        );
+                    }
+                    else{
+                        $plan->goals()->create(['description' => $goal['description'], 
+                        "registration_status_id" => RegistrationStatusModel::registrationActive()]);
+                    }
+                    
                 }
             }
             /*---------------------------Responsables-------------------------------*/
             $responsibles = $request->responsibles;
             //Eliminar responsables que no esten en el Request
             $existingsIds = collect($responsibles)->pluck('id')->filter();
-            $responsibles_delete = $plan->responsibles()->whereNotIn('id', $existingsIds)->get();
+            $responsibles_delete = $plan->responsiblesActive()->whereNotIn('id', $existingsIds);
             foreach ($responsibles_delete as $responsible_delete){
                 $responsible_delete->deleteRegister();
             }
             //Actualizar responsables de estandar
             if (isset($responsibles)) {
                 foreach ($responsibles as $responsible) {
-                    $plan->responsibles()->updateOrCreate(
-                        [
-                            "id" => $responsible['id']
-                        ],
-                        [
-                            "name" => $responsible['name'],
-                            //"id_plan" => $plan->id
-                        ]
-                    );
+                    if(isset($responsible['id'])){
+                        $plan->responsibles()->updateOrCreate(
+                            [
+                                "id" => $responsible['id']
+                            ],
+                            [
+                                "description" => $responsible['description'],
+                                "registration_status_id" => RegistrationStatusModel::registrationActive(),
+                                //"id_plan" => $plan->id
+                            ]
+                        );
+                    }
+                    else{
+                        $plan->responsibles()->create(['description' => $responsible['description'], 
+                        "registration_status_id" => RegistrationStatusModel::registrationActive()]);
+                    }
                 }
             }
             /*--------------------------Observaciones-------------------------------*/
             $observations = $request->observations;
             //Eliminar observaciones que no esten en el Request
             $existingsIds = collect($observations)->pluck('id')->filter();
-            $observations_delete = $plan->observations()->whereNotIn('id', $existingsIds)->get();
+            $observations_delete = $plan->observationsActive()->whereNotIn('id', $existingsIds);
 
             foreach ($observations_delete as $observation_delete){
                 $observation_delete->deleteRegister();
@@ -307,15 +360,22 @@ class PlanController extends Controller
             
             if (isset($observations)) {
                 foreach ($observations as $observation) {
-                    $plan->observations()->updateOrCreate(
-                        [
-                            "id" => $observation['id']
-                        ],
-                        [
-                            "description" => $observation['description'],
-                           //"id_plan" => $plan->id
-                        ]
-                    );
+                    if(isset($observation['id'])){
+                        $plan->observations()->updateOrCreate(
+                            [
+                                "id" => $observation['id']
+                            ],
+                            [
+                                "description" => $observation['description'],
+                                "registration_status_id" => RegistrationStatusModel::registrationActive(),
+                                //"id_plan" => $plan->id
+                            ]
+                        );
+                    }
+                    else{
+                        $plan->observations()->create(['description' => $observation['description'], 
+                        "registration_status_id" => RegistrationStatusModel::registrationActive()]);
+                    }
                 }
             }
             return response()->json($plan, 200);
@@ -588,9 +648,9 @@ class PlanController extends Controller
     public function listPlan($year, $semester)
     {
         $user = auth()->user();
-        $planAll = PlanModel::where('date_id', 
+        $planAll = PlanModel::where('plans.date_id', 
                         DateModel::dateId($year, $semester))
-                        ->where('registration_status_id', RegistrationStatusModel::registrationActive())
+                        ->where('plans.registration_status_id', RegistrationStatusModel::registrationActive())
                         ->select('plans.id', 'plans.name', 'plans.code', 'plans.advance', 'plans.user_id', 
                                     'standards.name as standard_name', 'users.name as user_name', 'plan_status.description as plan_status')
             ->join('standards', 'plans.standard_id', '=', 'standards.id')
@@ -600,7 +660,7 @@ class PlanController extends Controller
             ->get();
 
         foreach ($planAll as $plan) {
-            $plan->isCreator = ($plan->user_id == $user_id) ? true : false;
+            $plan->isCreator = ($plan->user_id == $user->id) ? true : false;
             unset($plan->user_id);
         }
         return response([
@@ -616,18 +676,18 @@ class PlanController extends Controller
         $user = auth()->user();
         $plan = PlanModel::find($plan_id);
         if (!$plan) {
-            return response([
+            return response()->json([
                 "message" => "!No se encontro el plan",
-            ], 404);
+            ],404);
         }
 
-        if ($user->isCreadorPlan($plan_id) or $user->isAdmin()) {
+        if ($user->isCreatorPlan($plan_id) or $user->isAdmin()) {
             $plan->deleteRegister();
-            return response([
+            return response()->json([
                 "message" => "!Se elimino el plan",
             ],204);
         } else {
-            return response([
+            return response()->json([
                 "message" => "!No esta autorizado par realizar esta accion",
             ], 403);
         }
@@ -637,12 +697,12 @@ class PlanController extends Controller
     public function showPlan($plan_id)
     {
 
-        if (PlanModel::exists($plan_id) and PlanMode::isActived($plan_id)) {
+        if (PlanModel::existsAndActive($plan_id)) {
             $plan = PlanModel::find($plan_id);
             $plan->sources = SourceModel::where("plan_id", $plan_id)
                                 ->where('registration_status_id', RegistrationStatusModel::registrationActive())
                                 ->get(['id', 'description']);
-            $plan->problems_opportunities = ProblemOpportunitieModel::where("plan_id", $plan_id)
+            $plan->problems_opportunities = ProblemOpportunityModel::where("plan_id", $plan_id)
                                 ->where('registration_status_id', RegistrationStatusModel::registrationActive())
                                 ->get(['id', 'description']);
             $plan->root_causes = RootCauseModel::where("plan_id", $plan_id)
@@ -663,7 +723,7 @@ class PlanController extends Controller
             $plan->responsibles = ResponsibleModel::where("plan_id", $plan_id)
                                 ->where('registration_status_id', RegistrationStatusModel::registrationActive())
                                 ->get(['id', 'description']);
-            $plan->evidences = Evidencias::where("id_plan", $plan_id)->get();
+            //$plan->evidences = Evidencias::where("id_plan", $plan_id)->get();
             return response([
                 "message" => "!Plan de mejora encontrado",
                 "data" => $plan,
@@ -694,21 +754,22 @@ class PlanController extends Controller
         }
     }
 */
-    public function listPlanUser()
+    public function listPlanUser($year, $semester)
     {
         $user = auth()->user();
-        $planAll = PlanModel::where('registration_status_id', RegistrationStatusModel::registrationActive())
+        $planAll = PlanModel::where('plans.registration_status_id', RegistrationStatusModel::registrationActive())
+                            ->where('plans.date_id', DateModel::dateId($year, $semester))
+                            ->where("plans.user_id", $user->id)
             ->select('plans.id', 'plans.name', 'plans.code', 'plans.advance', 'plans.user_id', 
                                 'standards.name as standard_name', 'users.name as user_name', 'plan_status.description as plan_status')
             ->join('standards', 'plans.standard_id', '=', 'standards.id')
             ->join('users', 'plans.user_id', '=', 'users.id')
             ->join('plan_status', 'plans.plan_status_id', '=', 'plan_status.id')
-            ->where("plans.user_id", $user_id)
             ->orderBy('plans.id', 'asc')
             ->get();
 
         foreach ($planAll as $plan) {
-            $plan->isCreator = ($plan->user_id == $user_id) ? true : false;
+            $plan->isCreator = ($plan->user_id == $user->id) ? true : false;
             unset($plan->user_id);
         }
 
@@ -732,13 +793,13 @@ class PlanController extends Controller
         if (PlanModel::where("id", $plan_id)->exists()) {
             $plan = PlanModel::find($plan_id);
             $plan->sources = SourceModel::where("plan_id", $plan_id)->get(['description']);
-            $plan->problems_opportunities = ProblemOpportunitieModel::where("plan_id", $plan_id)->get(['description']);
+            $plan->problems_opportunities = ProblemOpportunityModel::where("plan_id", $plan_id)->get(['description']);
             $plan->root_causes = RootCauseModel::where("plan_id", $plan_id)->get(['description']);
             $plan->improvement_actions = ImprovementActionModel::where("plan_id", $plan_id)->get(['description']);
             $plan->resources = ResourceModel::where("plan_id", $plan_id)->get(['description']);
             $plan->goals = GoalModel::where("plan_id", $plan_id)->get(['description']);
             $plan->observations = ObservationModel::where("plan_id", $plan_id)->get(['description']);
-            $plan->responsibles = ResponsibleModel::where("plan_id", $plan_id)->get(['name']);
+            $plan->responsibles = ResponsibleModel::where("plan_id", $plan_id)->get(['description']);
             $plan->evidences = Evidencias::where("id_plan", $plan_id)->get();
             $plan->plan_status = PlanStatusModel::find($plan->plan_status_id)->description;
             try {
@@ -808,7 +869,7 @@ class PlanController extends Controller
                 //11
                 $content_responsibles = count($plan->responsibles) == 0 ?  "No hay responsables" : "";
                 foreach ($plan->responsibles as $responsible) {
-                    $content_responsibles .= "- " . $responsible->name . "</w:t><w:br/><w:t>";
+                    $content_responsibles .= "- " . $responsible->description . "</w:t><w:br/><w:t>";
                 }
                 $content_responsibles = rtrim($content_responsibles, "</w:t><w:br/><w:t>");
                 $template->setValue('responsables', $content_responsibles);
@@ -901,7 +962,7 @@ class PlanController extends Controller
             }
     
             foreach ($request->problems_opportunities as $problem) {
-                $problem_opportunity_aux = new ProblemOpportunitieModel();
+                $problem_opportunity_aux = new ProblemOpportunityModel();
                 $problem_opportunity_aux->description = $problem["description"];
                 $problem_opportunity_aux->plan_id = $plan_id;
                 $problem_opportunity_aux->save();

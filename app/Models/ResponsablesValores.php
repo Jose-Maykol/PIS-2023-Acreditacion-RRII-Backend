@@ -10,7 +10,7 @@ class ResponsablesValores extends Model
     use HasFactory;
 
     public $timestamps = false;
-    protected $table ='responsables_valores';
+    protected $table ='responsibles_values';
     protected $fillable = [
         'valor',
 

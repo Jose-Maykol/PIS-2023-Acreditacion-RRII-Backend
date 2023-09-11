@@ -15,5 +15,12 @@ class PlanStatusModel extends Model
         'description',
         'registration_status_id'
     ];
-
+    public static function planId($plan_status){
+        return self::where('description', $plan_status)->value('id');
+    }
+    public function deleteRegister(){
+        return $this->update([
+            'registration_status_id' => RegistrationStatusModel::registrationDelete()
+        ]);
+    }
 }

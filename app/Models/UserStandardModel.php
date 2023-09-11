@@ -3,17 +3,26 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot as RelationsPivot;
 
-class UserStandardModel extends Model
+class UserStandardModel extends RelationsPivot
 {
     use HasFactory;
-    public $timestamps = true;
+    public $timestamps = false;
 
     protected $table ='users_standards';
     protected $fillable = [
-        'date_id',
         'user_id',
         'standard_id'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function standard()
+    {
+        return $this->belongsTo(StandardModel::class, 'standard_id');
+    }
 }

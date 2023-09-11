@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ImprovementActionModel extends Model
 {
@@ -16,7 +17,15 @@ class ImprovementActionModel extends Model
         'plan_id',
         'registration_status_id'
     ];
-    public function plans(){
+    public function plan(): BelongsTo {
         return $this->belongsTo(PlanModel::class,'plan_id');
+    }
+    public function registrationStatus(): BelongsTo{
+        return $this->belongsTo(RegistrationStatusModel::class, 'registration_status_id');
+    }
+    public function deleteRegister(){
+        return $this->update([
+            'registration_status_id' => RegistrationStatusModel::registrationDelete()
+        ]);
     }
 }

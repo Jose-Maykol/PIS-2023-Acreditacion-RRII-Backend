@@ -17,7 +17,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('standard_id')->constrained('standards');
-            $table->foreignId('date_id')->constrained('date_semesters');
             $table->timestamps();
         });
     }

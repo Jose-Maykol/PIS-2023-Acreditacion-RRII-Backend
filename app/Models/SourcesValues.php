@@ -13,4 +13,5 @@ class SourcesValues extends Model
     protected $fillable = [
         'value',
     ];
+    
 }

@@ -17,8 +17,9 @@ class PermissionModel extends Model
     ];
 	public $timestamps = false;
 
-    public function roles()
+    public function roles(): BelongsToMany
     {
-        return $this->belongsToMany(RoleModel::class, 'roles_has_permissions', 'role_id', 'permission_id')->using(RoleHasPermissionModel::class);
+        return $this->belongsToMany(RoleModel::class, 'roles_has_permissions', 'permission_id', 'role_id')
+        ->using(RoleHasPermissionModel::class);
     }
 }

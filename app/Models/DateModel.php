@@ -15,5 +15,10 @@ class DateModel extends Model
         'year',
         'semester'
     ];
-    
+    public static function dateId($year, $semester){
+        return self::where('year', $year)->where('semester', $semester)->value('id');
+    }
+    public static function exists($year, $semester){
+        return self::where('year', $year)->where('semester', $semester)->exists();
+    }    
 }

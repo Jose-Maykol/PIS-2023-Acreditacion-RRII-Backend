@@ -7,6 +7,8 @@ use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Http\Request;
 use App\Models\UserModel;
 use App\Models\Estandar;
+use App\Models\RegistrationStatusModel;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
@@ -22,7 +24,7 @@ class LoginController extends Controller
 				"password":"12345"
 			}
 	*/
-	public function login(Request $request)
+	/*public function login(Request $request)
     {
 
         $request->validate([
@@ -30,11 +32,22 @@ class LoginController extends Controller
             "password" => "required"
         ]);
 
+<<<<<<< HEAD
         $user = UserModel::where("email", "=", $request->email)->where("registration_status_id",true)->first();
 
         if (isset($user->id)) {
             //if (Hash::check($request->password, $user->password)) {
 			if ($request->password == $user->password) {
+=======
+        $registrationStatusId = RegistrationStatusModel::select('id')->where('description', 'active')->first()->id;
+
+		$user = User::where("email", "=", $userProvider->email)
+					
+						->first();
+
+        if (isset($user->id)) {
+            if (true) {//Hash::check($request->password, $user->password
+>>>>>>> development
                 $token = $user->createToken("auth_token")->plainTextToken;
                 return response()->json([
                     "message" => "Usuario logueado",
@@ -53,7 +66,7 @@ class LoginController extends Controller
                 "message" => "Usuario no registrado o Usuario deshabilitado",
             ], 404);
         }
-    }
+    }*/
 
 	//Login con plataformas externas
 	//Funcion de la recepcion del provider(google-facebook-github-twitter)
@@ -73,7 +86,7 @@ class LoginController extends Controller
 		return Socialite::driver($provider)->stateless()->redirect();
 		//return Socialite::driver($provider)->redirect();
 	}
-
+ 
 	//Funcion de la respuesta del provider
 	/*
 		ruta(get): /api/auth/login/{provider}/callback
@@ -95,8 +108,10 @@ class LoginController extends Controller
 			return response()->json(['error' => 'Credenciales de google invalidas.'], 422);
 		}
 
-		$user = $user = User::where("email", "=", $userProvider->email)->where("estado",true)->first();
+		$registrationStatusId = RegistrationStatusModel::registrationActive();
 
+		$user = User::where("email", "=", $userProvider->email)
+				->first();
 		if (isset($user)) {
 			$userCreated = User::updateOrCreate(
 				[
@@ -106,7 +121,7 @@ class LoginController extends Controller
 					//'email_verified_at' => now(),
 					'name' => $userProvider->user['given_name'],
 					'lastname' => $userProvider->user['family_name'],
-					'status' => true
+					'registration_status_id' => $registrationStatusId
 				]
 			);
 
@@ -125,7 +140,11 @@ class LoginController extends Controller
 				"message" => "Usuario ha iniciado sesion",
 				"user" =>  $userCreated,
 				"image" =>  $userProvider->getAvatar(),
+<<<<<<< HEAD
 				"role" => $userCreated->role[0]->name,
+=======
+				//"role" => $userCreated->role(),
+>>>>>>> development
 				"access_token" => $token
 			], 200);
 		} else {

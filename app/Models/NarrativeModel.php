@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class NarrativeModel extends Model
 {
@@ -18,11 +19,21 @@ class NarrativeModel extends Model
         'registration_status_id',
     ];
 
-    public function getStandards()
-    {
-        return $this->belongsTo(Estandar::class, 'standard_id');
+    public function standard(): BelongsTo{
+        return $this->belongsTo(StandardModel::class, 'standard_id');
     }
-
+    public function date(): BelongsTo{
+        return $this->belongsTo(DateModel::class, 'date_id');
+    }
+    
+    public function registrationStatus(): BelongsTo{
+        return $this->belongsTo(RegistrationStatusModel::class, 'registration_status_id');
+    }
+    public function deleteRegister(){
+        return $this->update([
+            'registration_status_id' => RegistrationStatusModel::registrationDelete()
+        ]);
+    }
     
 
 }

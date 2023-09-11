@@ -12,15 +12,7 @@ Route::middleware("auth:sanctum")->prefix('standards')->group(function () {
    //Route::put('pruebas/{standard_id}', [StandardController::class, 'pruebas']);
 
     //rutas estandar
-<<<<<<< HEAD
-    Route::post('', [EstandarController::class, 'createEstandar']);
-    Route::get('', [EstandarController::class, 'listEstandar']);
-    Route::get('standard-values', [EstandarController::class, 'listEstandarValores']);
-    Route::get('{standard_id}', [EstandarController::class, 'showEstandar'])->where('standard_id', '[0-9]+');
-    Route::get('{standard_id}/evidencias', [EstandarController::class, 'getStandardEvidences'])->where('standard_id', '[0-9]+');
-    Route::put('{standard_id}',  [EstandarController::class, 'updateEstandar'])->where('standard_id', '[0-9]+');
-    Route::delete('{standard_id}', [EstandarController::class, 'deleteEstandar'])->where('standard_id', '[0-9]+');
-=======
+
     Route::post('', [StandardController::class, 'createEstandar']);
     Route::get('', [StandardController::class, 'listEstandar']);
     Route::get('standard-values', [StandardController::class, 'listEstandarValores']);
@@ -28,7 +20,6 @@ Route::middleware("auth:sanctum")->prefix('standards')->group(function () {
     Route::get('{standard_id}/evidencias', [StandardController::class, 'getStandardEvidences'])->where('standard_id', '[0-9]+');
     Route::put('{standard_id}',  [StandardController::class, 'updateEstandar'])->where('standard_id', '[0-9]+');
     Route::delete('{standard_id}', [StandardController::class, 'deleteEstandar'])->where('standard_id', '[0-9]+');
->>>>>>> development
 
     //ruta narrativas
 

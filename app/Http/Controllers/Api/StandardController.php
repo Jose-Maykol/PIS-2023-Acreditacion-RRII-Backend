@@ -19,29 +19,13 @@ use PhpParser\PrettyPrinter\Standard;
 
 class StandardController extends Controller
 {
-<<<<<<< HEAD:app/Http/Controllers/Api/EstandarController.php
-    /*
-		ruta(post): localhost:8000/api/2023/A/standards
-		ruta(post): localhost:8000/api/2023/A/standards
-		datos:
-			{
-				"name":"E-1 Propositos Articulados",
-                "factor":"Uno",
-                "dimension":"Uno",
-                "related_standards":"dos",
-                "nro_standard":"1",
-                "access_token":"11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
-			}
-	*/
-    public function createEstandar($year, $semester, $standard_id, Request $request)
-=======
+
     public function pruebas(Request $request, $year, $semester, $standard_id)
     {
        
         
     }
     public function createEstandar(Request $request, $year, $semester)
->>>>>>> development:app/Http/Controllers/Api/StandardController.php
     {
         $request->validate([
             "name" => "required",
@@ -52,23 +36,15 @@ class StandardController extends Controller
         ]);
         $user = auth()->user();
         $standard = new StandardModel();
-<<<<<<< HEAD:app/Http/Controllers/Api/EstandarController.php
-        //$standard->user_id = $id_user; //id_user no es un atributo de la tabla standards
-=======
-        $standard->user_id = $user->id;
->>>>>>> development:app/Http/Controllers/Api/StandardController.php
+
         $standard->name = $request->name;
         $standard->factor = $request->factor;
         $standard->dimension = $request->dimension;
         $standard->related_standards = $request->related_standards;
         $standard->nro_standard = $request->nro_standard;
-<<<<<<< HEAD:app/Http/Controllers/Api/EstandarController.php
-        $standard->date_id = DateModel::where('year', $year)->where('semester', $semester)->first()->id;
-        $standard->registration_status_id = RegistrationStatusModel::where('description', 'Active')->first()->id;
-=======
+
         $standard->date_id = DateModel::dateId($year, $semester);
         $standard->registration_status_id = RegistrationStatusModel::registrationActive();
->>>>>>> development:app/Http/Controllers/Api/StandardController.php
 
         $standard->save();
         return response([
@@ -77,7 +53,6 @@ class StandardController extends Controller
         ], 201);
     }
 
-<<<<<<< HEAD:app/Http/Controllers/Api/EstandarController.php
     /*
 		ruta(get): localhost:8000/api/2023/A/standards
 		ruta(get): localhost:8000/api/2023/A/standards
@@ -86,10 +61,8 @@ class StandardController extends Controller
 				"access_token":"11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
 			}
 	*/
-    public function listEstandar()
-=======
+
     public function listEstandar($year, $semester)
->>>>>>> development:app/Http/Controllers/Api/StandardController.php
     {
         $standards = StandardModel::where("date_id", DateModel::dateId($year, $semester))
             ->where('registration_status_id', RegistrationStatusModel::registrationActive())
@@ -148,18 +121,13 @@ class StandardController extends Controller
 	*/
     public function showEstandar($year, $semester, $standard_id, Request $request)
     {
-<<<<<<< HEAD:app/Http/Controllers/Api/EstandarController.php
-        if (StandardModel::where("id", $standard_id)->exists()) {//No reconoce la existencia del estandar
-            $standard = StandardModel::find($standard_id);
-            $user = UserModel::find($standard->user_id);//no existe parámetro user_id en StandardModel
-=======
+
         if (StandardModel::where("id", $standard_id)
             ->where('registration_status_id', RegistrationStatusModel::registrationActive())
             ->exists()
         ) {
             $standard = StandardModel::find($standard_id);
             $user = $standard->users()->first();
->>>>>>> development:app/Http/Controllers/Api/StandardController.php
             $standard->user = $user;
             $standard->isManager = ($user->id == auth()->user()->id);
             $standard->isAdmin = auth()->user()->isAdmin();
@@ -174,7 +142,6 @@ class StandardController extends Controller
         }
     }
 
-<<<<<<< HEAD:app/Http/Controllers/Api/EstandarController.php
     /*
 		ruta(put): localhost:8000/api/2023/A/standards/{standard_id}
 		ruta(put): localhost:8000/api/2023/A/standards/1
@@ -188,18 +155,12 @@ class StandardController extends Controller
                 "access_token":"11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
             }
 	*/
-    public function updateEstandar($year, $semester, $standard_id, Request $request)
-    {
-        $id_user = auth()->user()->id;
-        $user = UserModel::find($id_user);
-        if ($user->isAssignStandard($standard_id) || $id_user->isAdmin()) {
-=======
+
     public function updateEstandar(Request $request, $year, $semester, $standard_id)
     {
         $user = auth()->user();
         
         if ($user->isAssignStandard($standard_id) or $user->isAdmin()) {
->>>>>>> development:app/Http/Controllers/Api/StandardController.php
             $standard = StandardModel::find($standard_id);
             $standard->name = isset($request->name) ? $request->name : $standard->name;
             $standard->factor = isset($request->factor) ? $request->factor : $standard->factor;
@@ -249,19 +210,11 @@ class StandardController extends Controller
         //echo 'ID: ' . $standard_id . '';
 
         $id_user = auth()->user()->id;
-<<<<<<< HEAD:app/Http/Controllers/Api/EstandarController.php
-        $user = UserModel::find($id_user);
-        //if (StandardModel::where(["id" => $standard_id, "user_id" => $user->id])->exists()) {
-        //    $standard = StandardModel::where(["id" => $standard_id, "user_id" => $user->id])->first();
-        if (StandardModel::where(['id' => $standard_id])->exists()) {
-            $standard = StandardModel::where(["id" => $standard_id])->first();
-            $standard->deleteRegister();//deleteRegister() no está implementado
-=======
+
         $user = User::find($id_user);
         if (StandardModel::where(["id" => $standard_id, "user_id" => $user->id])->exists()) {
             $standard = StandardModel::where(["id" => $standard_id, "user_id" => $user->id])->first();
             $standard->deleteRegister();
->>>>>>> development:app/Http/Controllers/Api/StandardController.php
             return response([
                 "msg" => "!Estandar eliminado",
             ], 204);

@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\RegistrationStatusModel;
+use App\Models\RoleModel;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -13,15 +15,14 @@ class UserSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
-    {
+    public function run(){
         DB::table('users')->insert([
             'name' => 'ARIAN EDUARDO JAVIER',
             'lastname' => 'CANAZA CUADROS',
             'email'=> 'acanazacua@unsa.edu.pe',
             'password' => 'null',
-            'role_id' => 1,
-            'registration_status_id' => 1
+            'role_id' => RoleModel::where('name', 'administrador')->value('id'),
+            'registration_status_id' => RegistrationStatusModel::where('description', 'activo')->value('id')
         ]);
 
         DB::table('users')->insert([
@@ -29,8 +30,8 @@ class UserSeeder extends Seeder
             'lastname' => 'PANIURA HUAMANI',
             'email'=> 'jpaniura@unsa.edu.pe',
             'password' => 'null',
-            'role_id' => 1,
-            'registration_status_id' => 1
+            'role_id' => RoleModel::where('name', 'administrador')->value('id'),
+            'registration_status_id' => RegistrationStatusModel::where('description', 'activo')->value('id')
         ]);
 
         DB::table('users')->insert([
@@ -38,8 +39,8 @@ class UserSeeder extends Seeder
             'lastname' => 'ZEVALLOS APAZA',
             'email'=> 'azevallosa@unsa.edu.pe',
             'password' => 'null',
-            'role_id' => 1,
-            'registration_status_id' => 1
+            'role_id' => RoleModel::where('name', 'administrador')->value('id'),
+            'registration_status_id' => RegistrationStatusModel::where('description', 'activo')->value('id')
         ]);
 
         DB::table('users')->insert([
@@ -47,8 +48,8 @@ class UserSeeder extends Seeder
             'lastname' => 'ONQUE GARATE',
             'email'=> 'sonque@unsa.edu.pe',
             'password' => 'null',
-            'role_id' => 1,
-            'registration_status_id' => 1
+            'role_id' => RoleModel::where('name', 'administrador')->value('id'),
+            'registration_status_id' => RegistrationStatusModel::where('description', 'activo')->value('id')
         ]);
 
         DB::table('users')->insert([
@@ -56,8 +57,8 @@ class UserSeeder extends Seeder
             'lastname' => 'FLORES QUISPE',
             'email'=> 'pfloresq@unsa.edu.pe',
             'password' => 'null',
-            'role_id' => 1,
-            'registration_status_id' => 1
+            'role_id' => RoleModel::where('name', 'administrador')->value('id'),
+            'registration_status_id' => RegistrationStatusModel::where('description', 'activo')->value('id')
         ]);
 
         DB::table('users')->insert([
@@ -65,8 +66,8 @@ class UserSeeder extends Seeder
             'lastname' => 'CHOQUENEIRA CCASA',
             'email'=> 'pchoqueneira@unsa.edu.pe',
             'password' => 'null',
-            'role_id' => 1,
-            'registration_status_id' => 1
+            'role_id' => RoleModel::where('name', 'administrador')->value('id'),
+            'registration_status_id' => RegistrationStatusModel::where('description', 'activo')->value('id')
         ]);
 
         DB::table('users')->insert([
@@ -74,8 +75,8 @@ class UserSeeder extends Seeder
             'lastname' => 'TURPO COILA',
             'email'=> 'aturpoco@unsa.edu.pe',
             'password' => 'null',
-            'role_id' => 1,
-            'registration_status_id' => 1
+            'role_id' => RoleModel::where('name', 'administrador')->value('id'),
+            'registration_status_id' => RegistrationStatusModel::where('description', 'activo')->value('id')
         ]);
 
         DB::table('users')->insert([
@@ -83,8 +84,8 @@ class UserSeeder extends Seeder
             'lastname' => 'HUARACHA CONDORI',
             'email'=> 'whuaracha@unsa.edu.pe',
             'password' => 'null',
-            'role_id' => 1,
-            'registration_status_id' => 1
+            'role_id' => RoleModel::where('name', 'administrador')->value('id'),
+            'registration_status_id' => RegistrationStatusModel::where('description', 'activo')->value('id')
         ]);
     }
 }

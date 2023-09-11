@@ -234,20 +234,22 @@ class StandardController extends Controller
                 "access_token":"11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
 			}
 	*/
-    public function getStandardEvidences($year, $semester, $standard_id, Request $request)
+
+    public function getStandardEvidences(Request $request, $year, $semester, $standard_id, $evidence_type_id)
     {
-
-
+        
         $request->validate([
             'parent_id' => 'nullable|integer',
         ]);
 
         $standardId = $standard_id;
         $parentIdFolder = $request->parent_id;
-        $idTypeEvidence = $request->query('tipo');//check parámetro
+
+        $idTypeEvidence = $evidence_type_id;
+        $dateId = DateModel::dateId($year, $semester);
 
         if (!$request->parent_id) {
-            $queryRootFolder = Folder::where('standard_id', $standardId)->where('evidenceType_id', $idTypeEvidence)->where('parent_id', null)->first();
+            $queryRootFolder = Folder::where('standard_id', $standardId)->where('evidence_type_id', $idTypeEvidence)->where('date_id', $dateId)->where('parent_id', null)->first();
             if ($queryRootFolder == null) {
                 return response()->json([
                     "status" => 0,
@@ -258,8 +260,18 @@ class StandardController extends Controller
             }
         }
 
-        $evidences = Evidence::where('folder_id', $parentIdFolder)->where('evidenceType_id', $idTypeEvidence)->where('standard_id', $standardId)->get();
-        $folders = Folder::where('parent_id', $parentIdFolder)->where('standard_id', $standardId)->where('evidenceType_id', $idTypeEvidence)->get();
+        $evidences = Evidence::join('users', 'evidences.user_id', '=', 'users.id')
+            ->where('evidences.folder_id', $parentIdFolder)
+            ->where('evidences.evidence_type_id', $idTypeEvidence)
+            ->where('evidences.standard_id', $standardId)
+            ->select('evidences.*', DB::raw("CONCAT(users.name, ' ', users.lastname) as full_name"))
+            ->get();
+        $folders = Folder::join('users', 'folders.user_id', '=', 'users.id')
+            ->where('folders.parent_id', $parentIdFolder)
+            ->where('folders.standard_id', $standardId)
+            ->where('folders.evidence_type_id', $idTypeEvidence)
+            ->select('folders.*', DB::raw("CONCAT(users.name, ' ', users.lastname) as full_name"))
+            ->get();
 
         if ($evidences->isEmpty() && $folders->isEmpty()) {
             return response()->json([

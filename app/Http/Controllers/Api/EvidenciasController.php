@@ -102,10 +102,10 @@ class EvidenciasController extends Controller
             "path" => "nullable|string",
         ]);
 
+        $userId = auth()->user()->id;
         $year = $request->route('year');
         $semester = $request ->route('semester');
         $dateId = DateModel::dateId($year, $semester);
-        $userId = auth()->user()->id;
         $standardId = $request->standard_id;
         $typeEvidenceId = $request->type_evidence_id;
         $planId = $request->has('plan_id')? $request->plan_id : null;
@@ -322,13 +322,13 @@ class EvidenciasController extends Controller
             $newFilename = $request->new_filename;
             $evidence = Evidence::find($evidence_id);
             $standardId = $evidence->standard_id;
-            $typeEvidenceId = $evidence->type_evidence_id;
+            $typeEvidenceId = $evidence->evidence_type_id;
             $pathEvidence = $evidence->path;
             $currentPath = 'evidencias/' . $year . '/' . $semester . '/' .'estandar_' . $standardId . '/tipo_evidencia_'. $typeEvidenceId;
-            $currentFilePath = storage_path($currentPath . $pathEvidence);
+            $currentFilePath = $currentPath . $pathEvidence;
             $folder = Folder::find($evidence->folder_id);
             $folderName = $folder->path;
-            $newFilePath = $currentPath . $folderName . '/' . $newFilename;
+            $newFilePath = $currentPath . $folderName . '/' . $newFilename . '.' . $evidence->type;
             Storage::move($currentFilePath, $newFilePath);
             $evidence->name = $newFilename;
             $evidence->path = $folderName . '/' . $newFilename . '.' . $evidence->type;
@@ -346,24 +346,18 @@ class EvidenciasController extends Controller
         }
     }
 
-    public function delete($id)
+    public function delete($year, $semester, $evidence_id)
     {
         $id_user = auth()->user();
-        if (Evidencias::where(["id" => $id])->exists()) {
-            $evidencia = Evidencias::find($id);
-            $plan = plan::find($evidencia->id_plan);
-            if ($id_user->isCreadorPlan($plan->id) or $id_user->isAdmin()) {
-                $evidencia->delete();
-                return response([
-                    "status" => 1,
-                    "message" => "Evidencia eliminada exitosamente",
-                ]);
-            } else {
-                return response([
-                    "status" => 0,
-                    "message" => "No tienes permisos para eliminar esta evidencia",
-                ], 404);
-            }
+        if (Evidence::where("id", $evidence_id)->exists()) {
+            $evidence = Evidence::find($evidence_id);
+            $pathEvidence = 'evidencias/'. $year . '/' . $semester . '/estandar_' . $evidence->standard_id . '/tipo_evidencia_' . $evidence->evidence_type_id . $evidence->path;
+            Storage::delete($pathEvidence);
+            $evidence->delete();
+            return response([
+                "status" => 0,
+                "message" => "Evidencia eliminada exitosamente",
+            ], 404);
         } else {
             return response([
                 "status" => 0,

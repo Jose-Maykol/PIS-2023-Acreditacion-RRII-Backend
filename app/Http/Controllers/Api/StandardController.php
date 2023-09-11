@@ -196,8 +196,18 @@ class StandardController extends Controller
             }
         }
 
-        $evidences = Evidence::where('folder_id', $parentIdFolder)->where('evidence_type_id', $idTypeEvidence)->where('standard_id', $standardId)->get();
-        $folders = Folder::where('parent_id', $parentIdFolder)->where('standard_id', $standardId)->where('evidence_type_id', $idTypeEvidence)->get();
+        $evidences = Evidence::join('users', 'evidences.user_id', '=', 'users.id')
+            ->where('evidences.folder_id', $parentIdFolder)
+            ->where('evidences.evidence_type_id', $idTypeEvidence)
+            ->where('evidences.standard_id', $standardId)
+            ->select('evidences.*', DB::raw("CONCAT(users.name, ' ', users.lastname) as full_name"))
+            ->get();
+        $folders = Folder::join('users', 'folders.user_id', '=', 'users.id')
+            ->where('folders.parent_id', $parentIdFolder)
+            ->where('folders.standard_id', $standardId)
+            ->where('folders.evidence_type_id', $idTypeEvidence)
+            ->select('folders.*', DB::raw("CONCAT(users.name, ' ', users.lastname) as full_name"))
+            ->get();
 
         if ($evidences->isEmpty() && $folders->isEmpty()) {
             return response()->json([

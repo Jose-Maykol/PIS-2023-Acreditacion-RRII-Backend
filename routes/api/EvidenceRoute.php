@@ -17,6 +17,7 @@ Route::middleware("auth:sanctum")->prefix('evidences')->group(function () {
     Route::put('{evidence_id}', [EvidenciasController::class, 'update'])->where('evidence_id', '[0-9]+');
     Route::delete('{evidence_id}', [EvidenciasController::class, 'delete'])->where('evidence_id', '[0-9]+');
     Route::post('folder', [FoldersController::class, 'create']);
+    Route::patch('folder/{folder_id}/rename', [FoldersController::class, 'rename'])->where('folder_id', '[0-9]+');
 });// /api/evidences/{id}
 
 // /api/2023/A/evidences{id}

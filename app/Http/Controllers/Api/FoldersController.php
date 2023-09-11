@@ -79,4 +79,34 @@ class FoldersController extends Controller
             ]);
         }
     }
+    public function rename(Request $request,  $year, $semester, $folder_id)
+    {
+        $request->validate([
+            "new_foldername" => "required|string",
+        ]);
+        if (Folder::where("id", $folder_id)) {
+            $newFoldername = $request->new_foldername;
+            $folder = Folder::find($folder_id);
+            $standardId = $folder->standard_id;
+            $typeEvidenceId = $folder->evidence_type_id;
+            $folderName = $folder->name;
+            $pathFolder = str_replace($folderName, '', $folder->path);
+            $currentPath = 'evidencias/' . $year . '/' . $semester . '/' .'estandar_' . $standardId . '/tipo_evidencia_'. $typeEvidenceId;
+            $currentFolderPath = $currentPath . $folder->path;
+            $newFolderPath = $currentPath . $pathFolder . $newFoldername;
+            Storage::move($currentFolderPath, $newFolderPath);
+            $folder->name = $newFoldername;
+            $folder->path = $pathFolder . $newFoldername;
+            $folder->save();
+            return response([
+                "status" => 1,
+                "message" => "Nombre de carpeta actualizado exitosamente",
+            ], 404);
+        } else {
+            return response([
+                "status" => 0,
+                "msg" => "No se encontro la carpeta",
+            ], 404);
+        }
+    }
 }

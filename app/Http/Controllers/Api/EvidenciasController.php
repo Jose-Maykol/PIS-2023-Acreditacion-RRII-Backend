@@ -102,10 +102,10 @@ class EvidenciasController extends Controller
             "path" => "nullable|string",
         ]);
 
+        $userId = auth()->user()->id;
         $year = $request->route('year');
         $semester = $request ->route('semester');
         $dateId = DateModel::dateId($year, $semester);
-        $userId = auth()->user()->id;
         $standardId = $request->standard_id;
         $typeEvidenceId = $request->type_evidence_id;
         $planId = $request->has('plan_id')? $request->plan_id : null;

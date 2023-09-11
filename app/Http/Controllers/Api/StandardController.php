@@ -172,20 +172,20 @@ class StandardController extends Controller
         }
     }
 
-    public function getStandardEvidences(Request $request, $standard_id)
+    public function getStandardEvidences(Request $request, $year, $semester, $standard_id, $evidence_type_id)
     {
-
-
+        
         $request->validate([
             'parent_id' => 'nullable|integer',
         ]);
 
         $standardId = $standard_id;
         $parentIdFolder = $request->parent_id;
-        $idTypeEvidence = $request->query('tipo');
+        $idTypeEvidence = $evidence_type_id;
+        $dateId = DateModel::dateId($year, $semester);
 
         if (!$request->parent_id) {
-            $queryRootFolder = Folder::where('standard_id', $standardId)->where('evidenceType_id', $idTypeEvidence)->where('parent_id', null)->first();
+            $queryRootFolder = Folder::where('standard_id', $standardId)->where('evidence_type_id', $idTypeEvidence)->where('date_id', $dateId)->where('parent_id', null)->first();
             if ($queryRootFolder == null) {
                 return response()->json([
                     "status" => 0,
@@ -196,8 +196,8 @@ class StandardController extends Controller
             }
         }
 
-        $evidences = Evidence::where('folder_id', $parentIdFolder)->where('evidenceType_id', $idTypeEvidence)->where('standard_id', $standardId)->get();
-        $folders = Folder::where('parent_id', $parentIdFolder)->where('standard_id', $standardId)->where('evidenceType_id', $idTypeEvidence)->get();
+        $evidences = Evidence::where('folder_id', $parentIdFolder)->where('evidence_type_id', $idTypeEvidence)->where('standard_id', $standardId)->get();
+        $folders = Folder::where('parent_id', $parentIdFolder)->where('standard_id', $standardId)->where('evidence_type_id', $idTypeEvidence)->get();
 
         if ($evidences->isEmpty() && $folders->isEmpty()) {
             return response()->json([

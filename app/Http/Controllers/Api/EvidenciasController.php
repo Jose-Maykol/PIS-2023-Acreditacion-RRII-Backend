@@ -322,13 +322,13 @@ class EvidenciasController extends Controller
             $newFilename = $request->new_filename;
             $evidence = Evidence::find($evidence_id);
             $standardId = $evidence->standard_id;
-            $typeEvidenceId = $evidence->type_evidence_id;
+            $typeEvidenceId = $evidence->evidence_type_id;
             $pathEvidence = $evidence->path;
             $currentPath = 'evidencias/' . $year . '/' . $semester . '/' .'estandar_' . $standardId . '/tipo_evidencia_'. $typeEvidenceId;
-            $currentFilePath = storage_path($currentPath . $pathEvidence);
+            $currentFilePath = $currentPath . $pathEvidence;
             $folder = Folder::find($evidence->folder_id);
             $folderName = $folder->path;
-            $newFilePath = $currentPath . $folderName . '/' . $newFilename;
+            $newFilePath = $currentPath . $folderName . '/' . $newFilename . '.' . $evidence->type;
             Storage::move($currentFilePath, $newFilePath);
             $evidence->name = $newFilename;
             $evidence->path = $folderName . '/' . $newFilename . '.' . $evidence->type;

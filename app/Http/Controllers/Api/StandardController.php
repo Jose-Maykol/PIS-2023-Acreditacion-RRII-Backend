@@ -155,9 +155,13 @@ class StandardController extends Controller
     }
     public function updateUserStandard($year, $semester, $standard_id,Request $request)
     {
+        $request->validate([
+            "user_id" => "required|integer",
+        ]);
+
         $user = auth()->user();
-        $standard = StandardModel::find($standard_id);
         if ($user->isAdmin()) {
+            $standard = StandardModel::find($standard_id);
             $user_id = isset($request->user_id) ? $request->user_id : $standard->users()->first()->id;
             try{
                 $user_standard = User::find($standard->users()->first()->id);

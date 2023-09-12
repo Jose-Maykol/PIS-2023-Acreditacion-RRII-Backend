@@ -25,7 +25,7 @@ class StandardController extends Controller
        
         
     }
-    public function createEstandar(Request $request, $year, $semester)
+    public function createEstandar($year, $semester, Request $request)
     {
         $request->validate([
             "name" => "required",
@@ -55,7 +55,7 @@ class StandardController extends Controller
 
     /*
 		ruta(get): localhost:8000/api/2023/A/standards
-		ruta(get): localhost:8000/api/2023/A/standards
+		ruta(get): localhost:8000/api/2023/A/standards/4/narratives
 		datos:
 			{
 				"access_token":"11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
@@ -82,13 +82,13 @@ class StandardController extends Controller
 
     /*
 		ruta(get): localhost:8000/api/2023/A/standards/standard-values
-		ruta(get): localhost:8000/api/2023/A/standards/standard-values
+		ruta(get): localhost:8000/api/2023/A/standards/4
 		datos:
 			{
 				"access_token":"11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
 			}
 	*/
-    public function listEstandarValores()
+    public function listEstandarValores($year, $semester)
     {
         $standardslist = StandardModel::where('standards.date_id', DateModel::dateId($year, $semester))
             ->select(
@@ -212,9 +212,9 @@ class StandardController extends Controller
         $id_user = auth()->user()->id;
 
         $user = User::find($id_user);
-        if (StandardModel::where(["id" => $standard_id, "user_id" => $user->id])->exists()) {
-            $standard = StandardModel::where(["id" => $standard_id, "user_id" => $user->id])->first();
-            $standard->deleteRegister();
+        if (StandardModel::where(["id" => $standard_id, "user_id" => $user->id])->exists()) { //ERROR:  no existe la columna «user_id»
+            $standard = StandardModel::where(["id" => $standard_id, "user_id" => $user->id])->first(); //ERROR:  no existe la columna «user_id»
+            $standard->deleteRegister(); //función no implementada
             return response([
                 "msg" => "!Estandar eliminado",
             ], 204);

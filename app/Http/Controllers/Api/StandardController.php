@@ -113,7 +113,7 @@ class StandardController extends Controller
         }
     }
 
-    public function updateEstandar(Request $request, $year, $semester, $standard_id)
+    public function updateEstandar($year, $semester, $standard_id, Request $request)
     {
         $user = auth()->user();
         
@@ -153,7 +153,7 @@ class StandardController extends Controller
         }
         
     }
-    public function updateAssign(Request $request, $year, $semester, $standard_id)
+    public function updateAssign($year, $semester, $standard_id,Request $request)
     {
         $user = auth()->user();
         $standard = StandardModel::find($standard_id);

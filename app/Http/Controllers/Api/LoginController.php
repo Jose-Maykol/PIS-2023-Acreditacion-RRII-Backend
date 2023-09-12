@@ -140,11 +140,7 @@ class LoginController extends Controller
 				"message" => "Usuario ha iniciado sesion",
 				"user" =>  $userCreated,
 				"image" =>  $userProvider->getAvatar(),
-<<<<<<< HEAD
-				"role" => $userCreated->role[0]->name,
-=======
-				//"role" => $userCreated->role(),
->>>>>>> development
+				"role" => $userCreated->role()->name,
 				"access_token" => $token
 			], 200);
 		} else {

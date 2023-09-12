@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\EstandarController;
+use App\Http\Controllers\Api\StandardController;
 use App\Http\Controllers\Api\SourcesValuesController;
 use App\Http\Controllers\Api\ResponsablesValoresController;
 use App\Http\Controllers\Api\EstadosValoresController;
@@ -17,7 +17,7 @@ Route::prefix('values')->group(function(){
     //Estados valores
     Route::get('status', [EstadosValoresController::class, 'listEstadosValores']);
     //Estandares  valores
-    Route::get('standards', [EstandarController::class, 'listEstandarValores']);
+    Route::get('standards', [StandardController::class, 'listEstandarValores']);
 
     Route::get('per',[PlanController::class, 'permissions']);
     

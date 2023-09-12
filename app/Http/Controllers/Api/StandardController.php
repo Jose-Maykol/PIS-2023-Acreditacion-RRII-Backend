@@ -91,7 +91,7 @@ class StandardController extends Controller
         ], 200);
     }
 
-    public function showEstandar($standard_id)
+    public function showEstandar($year, $semester, $standard_id)
     {
         if (StandardModel::where("id", $standard_id)
             ->where('registration_status_id', RegistrationStatusModel::registrationActive())

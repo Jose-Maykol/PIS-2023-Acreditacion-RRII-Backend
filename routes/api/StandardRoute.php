@@ -2,7 +2,10 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+<<<<<<< HEAD
 //use App\Http\Controllers\Api\EstandarController;
+=======
+>>>>>>> a69d6a307b0170b4ea24fd353858b09cc23127a1
 use App\Http\Controllers\Api\NarrativasController;
 use App\Http\Controllers\Api\StandardController;
 
@@ -17,12 +20,13 @@ Route::middleware("auth:sanctum")->prefix('standards')->group(function () {
     Route::get('', [StandardController::class, 'listEstandar']);
     Route::get('standard-values', [StandardController::class, 'listEstandarValores']);
     Route::get('{standard_id}', [StandardController::class, 'showEstandar'])->where('standard_id', '[0-9]+');
+    Route::put('{standard_id}/users', [StandardController::class, 'updateUserStandard'])->where('standard_id', '[0-9]+');
     Route::get('{standard_id}/type-evidence/{evidence_type_id}', [StandardController::class, 'getStandardEvidences'])->where('standard_id', '[0-9]+')->where('evidence_type_id', '[0-9]+');
     Route::put('{standard_id}',  [StandardController::class, 'updateEstandar'])->where('standard_id', '[0-9]+');
     Route::delete('{standard_id}', [StandardController::class, 'deleteEstandar'])->where('standard_id', '[0-9]+');
 
     //ruta narrativas
-
+    
     Route::prefix('{standard_id}/narratives')->group(function(){
         
         Route::post('', [NarrativasController::class, 'create']);

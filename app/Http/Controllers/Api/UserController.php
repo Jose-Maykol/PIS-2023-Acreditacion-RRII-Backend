@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\UserModel;
 use App\Models\Estandar;
 use App\Models\RegistrationStatusModel;
 use App\Models\RoleModel;
@@ -27,8 +26,8 @@ class UserController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|unique:users',
-			'role_id'=> 'required|numeric|min:1|max:2'
+			'role_id'=> 'required|numeric|min:1|max:2',
+            'email' => 'required|email|unique:users,email'
         ]);
 
 
@@ -41,7 +40,7 @@ class UserController extends Controller
             $user->email = $request->email;
             $user->password = "null";
 			$user->registration_status_id = RegistrationStatusModel::registrationInactive();
-			$user->role_id = RoleModel::roleAdmin();
+			$user->role_id = $request->role_id;
             $user->save();
 
             return response()->json([
@@ -55,7 +54,6 @@ class UserController extends Controller
             ], 403);
         }
     }
-
 
 
     /*
@@ -83,9 +81,10 @@ class UserController extends Controller
 			}
 	*/
     public function listUser(){
-		$users = UserModel::all();
+		$users = User::all();
 		foreach ($users as $user) {
 			$user->role = RoleModel::where('id', $user->role_id)->value('name');
+			$user->status = RegistrationStatusModel::where('id', $user->registration_status_id)->value('description');
 		}
         return response([
             "msg" => "Lista de usuarios obtenida exitosamente",

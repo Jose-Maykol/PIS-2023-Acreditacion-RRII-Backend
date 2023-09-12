@@ -88,6 +88,10 @@ class StandardController extends Controller
 				"access_token":"11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
 			}
 	*/
+<<<<<<< HEAD
+=======
+
+>>>>>>> a69d6a307b0170b4ea24fd353858b09cc23127a1
     public function listEstandarValores($year, $semester)
     {
         $standardslist = StandardModel::where('standards.date_id', DateModel::dateId($year, $semester))
@@ -100,8 +104,7 @@ class StandardController extends Controller
                 "users.lastname as user_lastname",
                 "users.email as user_email"
             )
-            ->orderBy('standards.id', 'asc')
-            ->join('users_standards', 'users_standards.standard_id', 'standards.id')
+            ->join('users_standards', 'users_standards.standard_id','=', 'standards.id')
             ->join('users', 'users_standards.user_id', '=', 'users.id')
             ->orderBy('standards.id', 'asc')
             ->get();
@@ -156,7 +159,8 @@ class StandardController extends Controller
             }
 	*/
 
-    public function updateEstandar(Request $request, $year, $semester, $standard_id)
+
+    public function updateEstandar($year, $semester, $standard_id, Request $request)
     {
         $user = auth()->user();
         
@@ -197,6 +201,40 @@ class StandardController extends Controller
         
     }
 
+    public function updateUserStandard($year, $semester, $standard_id,Request $request)
+    {
+        $request->validate([
+            "user_id" => "required|integer",
+        ]);
+
+        $user = auth()->user();
+        if ($user->isAdmin()) {
+            $standard = StandardModel::find($standard_id);
+            $user_id = isset($request->user_id) ? $request->user_id : $standard->users()->first()->id;
+            try{
+                $user_standard = User::find($standard->users()->first()->id);
+                $standard->users()->detach($user_standard);
+                $standard->users()->attach(User::find($user_id));
+                return response([
+                    "msg" => "!Estandar actualizado",
+                    "data" => $standard,
+                ], 200);
+            }
+            catch(\Exception $e){
+                return response([
+                    "msg" => "!Error en la Base de datos",
+                ], 500);
+            }
+           
+            
+        } else {
+            return response([
+                "status" => 0,
+                "msg" => "!No se encontro el estandar o no esta autorizado",
+            ], 404);
+        }
+        
+    }
     /*
 		ruta(delete): localhost:8000/api/2023/A/standards/{standard_id}
 		ruta(delete): localhost:8000/api/2023/A/standards/1
@@ -205,7 +243,8 @@ class StandardController extends Controller
 				"access_token":"11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
 			}
 	*/
-    public function deleteEstandar($year, $semester, $standard_id, Request $request)
+
+    public function deleteEstandar($standard_id)
     {
         //echo 'ID: ' . $standard_id . '';
 

@@ -81,8 +81,8 @@ class StandardController extends Controller
                 "users.lastname as user_lastname",
                 "users.email as user_email"
             )
-            ->join('users_standards', 'users_standards.standard_id', 'standards.id')
-            ->join('users_standards', 'users_standards.user_id', '=', 'users.id')
+            ->join('users_standards', 'users_standards.standard_id','=', 'standards.id')
+            ->join('users', 'users_standards.user_id', '=', 'users.id')
             ->orderBy('standards.id', 'asc')
             ->get();
         return response([

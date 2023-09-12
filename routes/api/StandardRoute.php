@@ -16,10 +16,10 @@ Route::middleware("auth:sanctum")->prefix('standards')->group(function () {
     Route::get('', [StandardController::class, 'listEstandar']);
     Route::get('standard-values', [StandardController::class, 'listEstandarValores']);
     Route::get('{standard_id}', [StandardController::class, 'showEstandar'])->where('standard_id', '[0-9]+');
+    Route::put('{standard_id}/users', [StandardController::class, 'updateUserStandard'])->where('standard_id', '[0-9]+');
     Route::get('{standard_id}/type-evidence/{evidence_type_id}', [StandardController::class, 'getStandardEvidences'])->where('standard_id', '[0-9]+')->where('evidence_type_id', '[0-9]+');
     Route::put('{standard_id}',  [StandardController::class, 'updateEstandar'])->where('standard_id', '[0-9]+');
     Route::delete('{standard_id}', [StandardController::class, 'deleteEstandar'])->where('standard_id', '[0-9]+');
-    Route::put('{standard_id}/users', [StandardController::class, 'updateUserStandard'])->where('standard_id', '[0-9]+');
 
     //ruta narrativas
     

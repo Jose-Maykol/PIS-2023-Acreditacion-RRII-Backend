@@ -26,8 +26,8 @@ class UserController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|unique:users',
-			'role_id'=> 'required|numeric|min:1|max:2'
+			'role_id'=> 'required|numeric|min:1|max:2',
+            'email' => 'required|email|unique:users,email'
         ]);
 
 

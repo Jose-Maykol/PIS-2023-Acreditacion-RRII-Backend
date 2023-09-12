@@ -153,7 +153,37 @@ class StandardController extends Controller
         }
         
     }
-
+    public function updateAssign(Request $request, $year, $semester, $standard_id)
+    {
+        $user = auth()->user();
+        
+        if ($user->isAdmin()) {
+            $user_id = isset($request->user_id) ? $request->user_id : $standard->users()->first()->id;
+            try{
+                $standard = StandardModel::find($standard_id);
+                $user_standard = User::find($standard->users()->first()->id);
+                $standard->users()->detach($user_standard);
+                $standard->users()->attach(User::find($user_id));
+                return response([
+                    "msg" => "!Estandar actualizado",
+                    "data" => $standard,
+                ], 200);
+            }
+            catch(\Exception $e){
+                return response([
+                    "msg" => "!Error en la Base de datos",
+                ], 500);
+            }
+           
+            
+        } else {
+            return response([
+                "status" => 0,
+                "msg" => "!No se encontro el estandar o no esta autorizado",
+            ], 404);
+        }
+        
+    }
     public function deleteEstandar($standard_id)
     {
         $id_user = auth()->user()->id;

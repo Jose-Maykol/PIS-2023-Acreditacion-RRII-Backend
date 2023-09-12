@@ -84,6 +84,7 @@ class UserController extends Controller
 		$users = User::all();
 		foreach ($users as $user) {
 			$user->role = RoleModel::where('id', $user->role_id)->value('name');
+			$user->status = RegistrationStatusModel::where('id', $user->registration_status_id)->value('description');
 		}
         return response([
             "msg" => "Lista de usuarios obtenida exitosamente",

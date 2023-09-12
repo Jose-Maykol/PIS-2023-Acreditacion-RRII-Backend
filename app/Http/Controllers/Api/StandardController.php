@@ -201,11 +201,10 @@ class StandardController extends Controller
     public function updateAssign(Request $request, $year, $semester, $standard_id)
     {
         $user = auth()->user();
-        
+        $standard = StandardModel::find($standard_id);
         if ($user->isAdmin()) {
             $user_id = isset($request->user_id) ? $request->user_id : $standard->users()->first()->id;
             try{
-                $standard = StandardModel::find($standard_id);
                 $user_standard = User::find($standard->users()->first()->id);
                 $standard->users()->detach($user_standard);
                 $standard->users()->attach(User::find($user_id));

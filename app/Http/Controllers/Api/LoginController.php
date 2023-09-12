@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Http\Request;
-use App\Models\UserModel;
+use App\Models\User;
 use App\Models\Estandar;
 use App\Models\RegistrationStatusModel;
 use GuzzleHttp\Exception\ClientException;
@@ -32,13 +32,7 @@ class LoginController extends Controller
             "password" => "required"
         ]);
 
-<<<<<<< HEAD
-        $user = UserModel::where("email", "=", $request->email)->where("registration_status_id",true)->first();
 
-        if (isset($user->id)) {
-            //if (Hash::check($request->password, $user->password)) {
-			if ($request->password == $user->password) {
-=======
         $registrationStatusId = RegistrationStatusModel::select('id')->where('description', 'active')->first()->id;
 
 		$user = User::where("email", "=", $userProvider->email)
@@ -47,7 +41,6 @@ class LoginController extends Controller
 
         if (isset($user->id)) {
             if (true) {//Hash::check($request->password, $user->password
->>>>>>> development
                 $token = $user->createToken("auth_token")->plainTextToken;
                 return response()->json([
                     "message" => "Usuario logueado",

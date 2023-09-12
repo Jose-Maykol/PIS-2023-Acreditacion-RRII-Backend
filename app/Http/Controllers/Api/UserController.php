@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\UserModel;
 use App\Models\Estandar;
 use App\Models\RegistrationStatusModel;
 use App\Models\RoleModel;
@@ -83,7 +82,7 @@ class UserController extends Controller
 			}
 	*/
     public function listUser(){
-		$users = UserModel::all();
+		$users = User::all();
 		foreach ($users as $user) {
 			$user->role = RoleModel::where('id', $user->role_id)->value('name');
 		}

@@ -69,7 +69,7 @@ class StandardController extends Controller
         }
     }
 
-    public function listEstandarValores()
+    public function listEstandarValores($year, $semester)
     {
         $standardslist = StandardModel::where('standards.date_id', DateModel::dateId($year, $semester))
             ->select(

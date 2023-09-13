@@ -38,10 +38,6 @@ class PlanController extends Controller
 
     public function permissions(Request $request) {
 
-<<<<<<< HEAD
-=======
-
->>>>>>> a69d6a307b0170b4ea24fd353858b09cc23127a1
         $data = User::find(1)->hasPermission('plan_update');
         $permisos = User::find(1)->role()->first()->permissions()->get()->makeHidden(["updated_at","created_at", "pivot"]);
         //$data = RoleModel::find(1)->permissions()->get();

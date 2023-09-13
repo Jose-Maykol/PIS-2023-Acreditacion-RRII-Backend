@@ -25,7 +25,7 @@ class NarrativasController extends Controller
             {
                 "standard_id":"1",
                 "content":"Narrativa de prueba"
-            }
+            } 
         */
         $user = auth()->user();
         if ($user->isAdmin()) {

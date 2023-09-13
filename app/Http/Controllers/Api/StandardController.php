@@ -88,12 +88,7 @@ class StandardController extends Controller
 				"access_token":"11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
 			}
 	*/
-<<<<<<< HEAD
-=======
-
->>>>>>> a69d6a307b0170b4ea24fd353858b09cc23127a1
-    public function listEstandarValores($year, $semester)
-    {
+    public function listEstandarValores($year, $semester){
         $standardslist = StandardModel::where('standards.date_id', DateModel::dateId($year, $semester))
             ->select(
                 'standards.name',

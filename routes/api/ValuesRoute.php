@@ -2,10 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-<<<<<<< HEAD
-//use App\Http\Controllers\Api\EstandarController;
-=======
->>>>>>> a69d6a307b0170b4ea24fd353858b09cc23127a1
+
 use App\Http\Controllers\Api\StandardController;
 use App\Http\Controllers\Api\SourcesValuesController;
 use App\Http\Controllers\Api\ResponsablesValoresController;

@@ -5,12 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Http\Request;
-<<<<<<< HEAD
-//use App\Models\UserModel;
-=======
->>>>>>> a69d6a307b0170b4ea24fd353858b09cc23127a1
+
 use App\Models\User;
-use App\Models\Estandar;
+use App\Models\StandardModel;
 use App\Models\RegistrationStatusModel;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\Hash;
@@ -76,15 +73,12 @@ class LoginController extends Controller
             "password" => "required"
         ]);
 
-<<<<<<< HEAD
         $user = UserModel::where("email", "=", $request->email)->where("registration_status_id",true)->first();
 
         if (isset($user->id)) {
             //if (Hash::check($request->password, $user->password)) {
 			if ($request->password == $user->password) {
-=======
 
->>>>>>> a69d6a307b0170b4ea24fd353858b09cc23127a1
         $registrationStatusId = RegistrationStatusModel::select('id')->where('description', 'active')->first()->id;
 
 		$user = User::where("email", "=", $userProvider->email)
@@ -185,13 +179,7 @@ class LoginController extends Controller
 				"message" => "Usuario ha iniciado sesion",
 				"user" =>  $userCreated,
 				"image" =>  $userProvider->getAvatar(),
-<<<<<<< HEAD
-				"role" => $userCreated->role[0]->name,
-				//"role" => $userCreated->role(),
-=======
-
 				"role" => ($userCreated->role->name == 'administrador') ? 'Admin' : 'Docente',
->>>>>>> a69d6a307b0170b4ea24fd353858b09cc23127a1
 				"access_token" => $token
 			], 200);
 		} else {

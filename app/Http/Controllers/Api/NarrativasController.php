@@ -30,12 +30,7 @@ class NarrativasController extends Controller
             $validator = Validator::make($request->all(), [
                 "standard_id" => "required|integer|exists:standards,id",
                 "content" => "required",
-                "semester" => [
-                    'required',
-                    Rule::unique('narratives', 'semestre')->where(function ($query) use ($request) {
-                        return $query->where('standard_id', $request->standard_id);
-                    }),
-                ],
+                "semester" => "required"
             ]);
 
             if ($validator->fails()) {
@@ -46,9 +41,9 @@ class NarrativasController extends Controller
 
             $narrative = new NarrativeModel();
             $narrative->standard_id = $request->standard_id;
-            $narrative->date_id = DateModel::where('year', $year)->where('semester', $semester)->get()->id;
+            $narrative->date_id = DateModel::dateId($year, $semester);
             $narrative->content = $request->content;
-            $narrative->registration_status_id = RegistrationStatusModel::where('description', 'Active')->get()->id;
+            $narrative->registration_status_id = RegistrationStatusModel::registrationActive();
             $narrative->save();
             return response([
                 "message" => "!Narrativa creada exitosamente",

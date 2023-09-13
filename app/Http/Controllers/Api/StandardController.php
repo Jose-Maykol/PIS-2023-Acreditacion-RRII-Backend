@@ -19,12 +19,13 @@ use PhpParser\PrettyPrinter\Standard;
 
 class StandardController extends Controller
 {
+
     public function pruebas(Request $request, $year, $semester, $standard_id)
     {
        
         
     }
-    public function createEstandar(Request $request, $year, $semester)
+    public function createEstandar($year, $semester, Request $request)
     {
         $request->validate([
             "name" => "required",
@@ -35,12 +36,13 @@ class StandardController extends Controller
         ]);
         $user = auth()->user();
         $standard = new StandardModel();
-        $standard->user_id = $user->id;
+
         $standard->name = $request->name;
         $standard->factor = $request->factor;
         $standard->dimension = $request->dimension;
-        $standard->related_standards = $request->narelated_standardsme;
+        $standard->related_standards = $request->related_standards;
         $standard->nro_standard = $request->nro_standard;
+
         $standard->date_id = DateModel::dateId($year, $semester);
         $standard->registration_status_id = RegistrationStatusModel::registrationActive();
 
@@ -50,6 +52,15 @@ class StandardController extends Controller
             "data" => $standard,
         ], 201);
     }
+
+    /*
+		ruta(get): localhost:8000/api/2023/A/standards
+		ruta(get): localhost:8000/api/2023/A/standards/4/narratives
+		datos:
+			{
+				"access_token":"11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
+			}
+	*/
 
     public function listEstandar($year, $semester)
     {
@@ -69,8 +80,15 @@ class StandardController extends Controller
         }
     }
 
-    public function listEstandarValores($year, $semester)
-    {
+    /*
+		ruta(get): localhost:8000/api/2023/A/standards/standard-values
+		ruta(get): localhost:8000/api/2023/A/standards/4
+		datos:
+			{
+				"access_token":"11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
+			}
+	*/
+    public function listEstandarValores($year, $semester){
         $standardslist = StandardModel::where('standards.date_id', DateModel::dateId($year, $semester))
             ->select(
                 'standards.name',
@@ -91,8 +109,17 @@ class StandardController extends Controller
         ], 200);
     }
 
-    public function showEstandar($year, $semester, $standard_id)
+    /*
+		ruta(get): localhost:8000/api/2023/A/standards/{standard_id}
+		ruta(get): localhost:8000/api/2023/A/standards/1
+		datos:
+			{
+				"access_token":"11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
+			}
+	*/
+    public function showEstandar($year, $semester, $standard_id, Request $request)
     {
+
         if (StandardModel::where("id", $standard_id)
             ->where('registration_status_id', RegistrationStatusModel::registrationActive())
             ->exists()
@@ -112,6 +139,21 @@ class StandardController extends Controller
             ], 404);
         }
     }
+
+    /*
+		ruta(put): localhost:8000/api/2023/A/standards/{standard_id}
+		ruta(put): localhost:8000/api/2023/A/standards/1
+		datos:
+			{
+                "name":"E-4 Sostenibilidad(Modificado)",
+                "factor":"Uno",
+                "dimension":"Uno",
+                "related_standards":"dos",
+                "nro_standard":"1",
+                "access_token":"11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
+            }
+	*/
+
 
     public function updateEstandar($year, $semester, $standard_id, Request $request)
     {
@@ -153,6 +195,7 @@ class StandardController extends Controller
         }
         
     }
+
     public function updateUserStandard($year, $semester, $standard_id,Request $request)
     {
         $request->validate([
@@ -187,13 +230,25 @@ class StandardController extends Controller
         }
         
     }
+    /*
+		ruta(delete): localhost:8000/api/2023/A/standards/{standard_id}
+		ruta(delete): localhost:8000/api/2023/A/standards/1
+		datos:
+			{
+				"access_token":"11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
+			}
+	*/
+
     public function deleteEstandar($standard_id)
     {
+        //echo 'ID: ' . $standard_id . '';
+
         $id_user = auth()->user()->id;
+
         $user = User::find($id_user);
-        if (StandardModel::where(["id" => $standard_id, "user_id" => $user->id])->exists()) {
-            $standard = StandardModel::where(["id" => $standard_id, "user_id" => $user->id])->first();
-            $standard->deleteRegister();
+        if (StandardModel::where(["id" => $standard_id, "user_id" => $user->id])->exists()) { //ERROR:  no existe la columna «user_id»
+            $standard = StandardModel::where(["id" => $standard_id, "user_id" => $user->id])->first(); //ERROR:  no existe la columna «user_id»
+            $standard->deleteRegister(); //función no implementada
             return response([
                 "msg" => "!Estandar eliminado",
             ], 204);
@@ -204,6 +259,16 @@ class StandardController extends Controller
         }
     }
 
+    /*
+		ruta(get): localhost:8000/api/2023/A/standards/{standard_id}/evidencias
+		ruta(get): localhost:8000/api/2023/A/standards/1/evidencias
+		datos:
+			{
+				"parent_id":"1",
+                "access_token":"11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
+			}
+	*/
+
     public function getStandardEvidences(Request $request, $year, $semester, $standard_id, $evidence_type_id)
     {
         
@@ -213,6 +278,7 @@ class StandardController extends Controller
 
         $standardId = $standard_id;
         $parentIdFolder = $request->parent_id;
+
         $idTypeEvidence = $evidence_type_id;
         $dateId = DateModel::dateId($year, $semester);
 

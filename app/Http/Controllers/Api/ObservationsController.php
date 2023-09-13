@@ -3,20 +3,21 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Observations;
-use App\Models\plan;
+//use App\Models\Observations;
+use App\Models\ObservationModel;
+//use App\Models\plan;
+use App\Models\PlanModel;
 use Illuminate\Http\Request;
 
 class ObservationsController extends Controller
 {
     /*
-		ruta(post): /api/plans/{plan}/observations
-		ruta(post): /api/plans/30/observations
+		ruta(post): /api/plans/{plan_id}/observations
+		ruta(post): /api/2023/A/plans/1/observations
 		datos:
 			{
-				"id_plan":"30"
-                "description":"Problema 1"
-                "access_token": "5082e3108d0e4d8cdd948c42102aabd0768fe993b86240569aa5130e373f3b8a"
+				"id_plan":"1",
+                "description":"Modificacion de observacion"
 			}
 	*/
     public function create(Request $request) {
@@ -26,13 +27,14 @@ class ObservationsController extends Controller
         ]);
 
         $id_user = auth()->user()->id;
-        if(plan::where(["id"=>$request->id_plan])->exists()){
-            $plan = plan::find($request->id_plan);
-            if($plan->id_user == $id_user){                
+        if(PlanModel::where(["id"=>$request->id_plan])->exists()){
+            $plan = PlanModel::find($request->id_plan);
+            if($plan->user_id == $id_user){                
                 
-                $observacion = new Observaciones();
-                $observacion->id_plan = $request->id_plan;
+                $observacion = new ObservationModel();
+                $observacion->plan_id = $request->id_plan;
                 $observacion->description = $request->description;
+                $observacion->registration_status_id = '1';
                 $observacion->save();
 
                 return response([
@@ -56,25 +58,24 @@ class ObservationsController extends Controller
     }
 
     /*
-		ruta(put): /api/plans/{plan}/observations/{observation}
-		ruta(put): /api/plans/30/observations/1
+		ruta(put): /api/plans/{plan_id}/observations/{observation_id}
+		ruta(put): /api/2023/A/plans/1/observations/1
 		datos:
 			{
-				"id":"30"
-                "description":"Problema 1"
-                "access_token": "5082e3108d0e4d8cdd948c42102aabd0768fe993b86240569aa5130e373f3b8a"
+				"id_plan":"1"
+                "description":"Esta es otra observacion"
 			}
 	*/
     public function update(Request $request){
         $request->validate([
-            "id"=> "required|integer",
+            "id_plan"=> "required|integer",
             "description"=> "required"
         ]);
         $id_user = auth()->user()->id;
-        if(Observaciones::where(["id"=>$request->id])->exists()){
-            $observacion = Observaciones::find($request->id);
-            $plan = plan::find($observacion->id_plan);
-            if($plan->id_user == $id_user){                
+        if(ObservationModel::where(["id"=>$request->id_plan])->exists()){
+            $observacion = ObservationModel::find($request->id_plan);
+            $plan = PlanModel::find($observacion->plan_id);
+            if($plan->user_id == $id_user){                
                 $observacion->description = $request->description;
                 $observacion->save();
                 return response([
@@ -98,21 +99,17 @@ class ObservationsController extends Controller
     }
 
     /*
-		ruta(delete): /api/plans/{plan}/observations/{observation}
-		ruta(delete): /api/plans/30/observations/1
-		datos:
-			{
-				{observation}:"1"
-                "access_token": "5082e3108d0e4d8cdd948c42102aabd0768fe993b86240569aa5130e373f3b8a"
-			}
-	*/
-    public function delete($observation)
+        ruta(delete): /api/plans/{plan_id}/observations/{observation_id}
+        ruta(delete): /api/2023/A/plans/1/observations/1
+        datos: {json con los datos qué nos mandan}
+    */
+    public function delete($year, $semester, $plan_id, $observation_id)
     {
         $id_user = auth()->user()->id;
-        if(Observaciones::where(["id"=>$observation])->exists()){
-            $observacion = Observaciones::find($observation);
-            $plan = plan::find($observacion->id_plan);
-            if($plan->id_user == $id_user){
+        if(ObservationModel::where(["id"=>$observation_id])->exists()){
+            $observacion = ObservationModel::find($observation_id);
+            $plan = PlanModel::find($observacion->plan_id);
+            if($plan->user_id == $id_user){
                 $observacion->delete();
                 return response([
                     "status" => 1,

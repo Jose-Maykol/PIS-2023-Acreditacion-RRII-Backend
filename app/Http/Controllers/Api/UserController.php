@@ -4,31 +4,32 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\User;
 use App\Models\Estandar;
 use App\Models\RegistrationStatusModel;
 use App\Models\RoleModel;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
     /*
-		ruta(post): /api/users/register
-		ruta(post): /api/users/register
+		ruta(post): localhost:8000/api/2023/A/users/register
+		ruta(post): localhost:8000/api/2023/A/users/register
 		datos:
 			{
-				"email":"jpaniura@unsa.edu.pe"
-                "rol":"1"
-                "access_token": "5082e3108d0e4d8cdd948c42102aabd0768fe993b86240569aa5130e373f3b8a"
+				"email":"pfloresq5@unsa.edu.pe",
+    			"role_id":"1"
+                "access_token": "11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
 			}
 	*/
     public function register(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|unique:users,email',
-			'rol'=> 'required|numeric|min:1|max:2'
+			'role_id'=> 'required|numeric|min:1|max:2',
+            'email' => 'required|email|unique:users,email'
         ]);
+
 
 		$userAuth = auth()->user();
 
@@ -56,11 +57,11 @@ class UserController extends Controller
 
 
     /*
-		ruta(get): /api/users/profile
-		ruta(get): /api/users/profile
+		ruta(get): localhost:8000/api/2023/A/users/profile
+		ruta(get): localhost:8000/api/2023/A/users/profile
 		datos:
 			{
-				"access_token": "5082e3108d0e4d8cdd948c42102aabd0768fe993b86240569aa5130e373f3b8a"
+				"access_token": "11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
 			}
 	*/
     public function userProfile()
@@ -76,7 +77,7 @@ class UserController extends Controller
 		ruta(get): /api/users/user
 		datos:
 			{
-				"access_token": "5082e3108d0e4d8cdd948c42102aabd0768fe993b86240569aa5130e373f3b8a"
+				"access_token": "11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
 			}
 	*/
     public function listUser(){
@@ -96,10 +97,11 @@ class UserController extends Controller
 		ruta(get): /api/users/enabled_users
 		datos:
 			{
-				"access_token": "5082e3108d0e4d8cdd948c42102aabd0768fe993b86240569aa5130e373f3b8a"
+				"access_token": "11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
 			}
 	*/
     public function listUserHabilitados(){
+
 		$users = User::whereNotIn("name",["null"])
 					->where("registration_status_id",RegistrationStatusModel::registrationActive())
 					->get();
@@ -114,23 +116,24 @@ class UserController extends Controller
 
 
 	/*
-		ruta(put): /api/users/update
-		ruta(put): /api/users/update
+		ruta(put): localhost:8000/api/2023/A/users/update
+		ruta(put): localhost:8000/api/2023/A/users/update
 		datos:
 			{
-				"id":"jpaniura@unsa.edu.pe"
-                "role":"1"
-                "estado":"true"
-                "access_token": "5082e3108d0e4d8cdd948c42102aabd0768fe993b86240569aa5130e373f3b8a"
+				"id":"4",
+				"role_id":"1",
+				"registration_status_id":"2"
 			}
 	*/
     public function update(Request $request){
 		$request->validate([
+
 			"id"=>"exists:users,id",
             "role_id" => "present|nullable|numeric|min:1|max:2",
             "registration_status_id" => "present|nullable|numeric|min:1|max:2"
         ]);
 		if(auth()->user()->isAdmin()){
+
 			$user = User::find($request->id);
 			$user->update([
 				'registration_status_id' =>$request->registration_status_id,

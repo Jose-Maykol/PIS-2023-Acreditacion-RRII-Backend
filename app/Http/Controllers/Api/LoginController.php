@@ -5,8 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Http\Request;
+
 use App\Models\User;
-use App\Models\Estandar;
+use App\Models\StandardModel;
 use App\Models\RegistrationStatusModel;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\Hash;
@@ -16,15 +17,54 @@ class LoginController extends Controller
 {
 	//Login normal (correo y password)
 	/*
-		ruta(post): /api/auth/login
-		ruta(post): /api/auth/login
+		ruta(post): localhost:8000/api/2023/A/auth/login
+		ruta(post): localhost:8000/api/2023/A/auth/login
 		datos:
-		localhost:8000/api/users/profile
 			{
-				"email":"jpaniura@unsa.edu.pe",
-				"password":"null"
+				"email":"pfloresq@unsa.edu.pe",
+				"password":"12345"
 			}
 	*/
+	
+	public function login(Request $request)
+    {
+
+        $request->validate([
+            "email" => "required|email",
+            "password" => "required"
+        ]);
+
+        //$user = UserModel::where("email", "=", $request->email)->where("registration_status_id",true)->first();
+		$user = User::where("email", "=", $request->email)->where("registration_status_id",true)->first();
+
+        if (isset($user->id)) {
+            //if (Hash::check($request->password, $user->password)) {
+			if ($request->password == $user->password) {
+				$registrationStatusId = RegistrationStatusModel::select('id')->where('description', 'activo')->first()->id;
+
+				//$user = User::where("email", "=", $userProvider->email)->first();
+
+        //if (isset($user->id)) {
+        //    if (true) {//Hash::check($request->password, $user->password
+                $token = $user->createToken("auth_token")->plainTextToken;
+                return response()->json([
+                    "message" => "Usuario logueado",
+                    "access_token" => $token,
+                    "nombre" => $user->name,
+                    "apellido" => $user->lastname,
+                ], 200);
+            } else {
+                return response()->json([
+                    "message" => "Credenciales inválidas(password)",
+                ], 401);
+            }
+        } else {
+            return response()->json([
+                "status" => 0,
+                "message" => "Usuario no registrado o Usuario deshabilitado",
+            ], 404);
+        }
+    }
 	/*public function login(Request $request)
     {
 
@@ -32,6 +72,12 @@ class LoginController extends Controller
             "email" => "required|email",
             "password" => "required"
         ]);
+
+        $user = UserModel::where("email", "=", $request->email)->where("registration_status_id",true)->first();
+
+        if (isset($user->id)) {
+            //if (Hash::check($request->password, $user->password)) {
+			if ($request->password == $user->password) {
 
         $registrationStatusId = RegistrationStatusModel::select('id')->where('description', 'active')->first()->id;
 
@@ -160,13 +206,14 @@ class LoginController extends Controller
 		ruta(get): /api/auth/logout
 		datos:
 			{
-				"access_token": "5082e3108d0e4d8cdd948c42102aabd0768fe993b86240569aa5130e373f3b8a"
+				"access_token": "11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
 			}
 	*/
 	public function logout()
     {
         auth()->user()->tokens()->delete();
         return response()->json([
+			"status" => 1,
             "message" => "Sesion cerrada"
         ], 200);
     }

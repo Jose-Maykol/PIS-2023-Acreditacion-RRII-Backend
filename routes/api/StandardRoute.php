@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\Api\NarrativasController;
 use App\Http\Controllers\Api\StandardController;
 
@@ -11,6 +12,7 @@ Route::middleware("auth:sanctum")->prefix('standards')->group(function () {
    //Route::put('pruebas/{standard_id}', [StandardController::class, 'pruebas']);
 
     //rutas estandar
+
     Route::post('', [StandardController::class, 'createEstandar']);
     Route::get('', [StandardController::class, 'listEstandar']);
     Route::get('standard-values', [StandardController::class, 'listEstandarValores']);
@@ -29,8 +31,8 @@ Route::middleware("auth:sanctum")->prefix('standards')->group(function () {
         Route::get('{narrative_id}', [NarrativasController::class, 'show'])->where('narrative_id', '[0-9]+');
         Route::put('{narrative_id}', [NarrativasController::class, 'update'])->where('narrative_id', '[0-9]+');
         Route::delete('{narrative_id}', [NarrativasController::class, 'delete'])->where('narrative_id', '[0-9]+');
-        Route::get('', [NarrativasController::class, 'listNarrativas']);
-        Route::get('last/{narrative_id}', [NarrativasController::class, 'ultimaNarrativa'])->where('narrative_id', '[0-9]+');
+        Route::get('', [NarrativasController::class, 'listNarratives']);
+        Route::get('last/{narrative_id}', [NarrativasController::class, 'lastNarrative'])->where('narrative_id', '[0-9]+');
         
     })->where('standard_id','[0-9]+');
 

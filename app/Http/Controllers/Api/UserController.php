@@ -26,7 +26,7 @@ class UserController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|unique:users',
+            'email' => 'required|email|unique:users,email',
 			'rol'=> 'required|numeric|min:1|max:2'
         ]);
 
@@ -39,7 +39,7 @@ class UserController extends Controller
             $user->email = $request->email;
             $user->password = "null";
 			$user->registration_status_id = RegistrationStatusModel::registrationInactive();
-			$user->role_id = RoleModel::roleAdmin();
+			$user->role_id = $request->role_id;
             $user->save();
 
             return response()->json([
@@ -53,7 +53,6 @@ class UserController extends Controller
             ], 403);
         }
     }
-
 
 
     /*

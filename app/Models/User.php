@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+
 class User extends Authenticatable
 {
   use HasApiTokens, HasFactory, Notifiable;
@@ -61,11 +62,12 @@ class User extends Authenticatable
     return $this->hasMany(Provider::class, 'id_user');
   }
 
+
   public function isRole($role) {
     return $this->role()->where('name', $role)->exists();
   }
   public function isAdmin() {
-    return $this->role()->where('name', 'administrador')->exists();
+    return $this->role()->where('name', 'Admin')->exists();
   }
 
   public function isCreatorPlan($plan_id) {

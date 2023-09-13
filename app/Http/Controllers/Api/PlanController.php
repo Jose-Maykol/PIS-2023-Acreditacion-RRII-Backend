@@ -32,11 +32,16 @@ use App\Models\StandardModel;
 use App\Models\User;
 
 //plan::where(["id_user" => $id_user, "id" => $id])->exists()
+//$year, $semester, $plan_id, Request $request
 class PlanController extends Controller
 {
 
     public function permissions(Request $request) {
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> a69d6a307b0170b4ea24fd353858b09cc23127a1
         $data = User::find(1)->hasPermission('plan_update');
         $permisos = User::find(1)->role()->first()->permissions()->get()->makeHidden(["updated_at","created_at", "pivot"]);
         //$data = RoleModel::find(1)->permissions()->get();
@@ -58,7 +63,17 @@ class PlanController extends Controller
     }
 
     // Arreglar el formato de IDs
-    public function createPlan(Request $request, $year, $semester)
+    /*
+		ruta(post): localhost:8000/api/2023/A/plans/
+		ruta(post): localhost:8000/api/2023/A/plans/
+		datos:
+            {
+                "code":"OM05-04-2023",
+                "name":"Crear plan",
+                "standard_id":"1"
+            }
+	*/
+    public function createPlan($year, $semester, Request $request)
     {
         $request->validate([
             'code' => 'required',
@@ -91,7 +106,37 @@ class PlanController extends Controller
         ], 201);
     }
 
-    public function updatePlan(Request $request, $year, $semester, $plan_id)
+    /*
+		ruta(put): localhost:8000/api/2023/A/plans/{plan_id}
+		ruta(put): localhost:8000/api/2023/A/plans/1
+		datos:
+            {
+                "code": "OM-01-03:2023",
+                "name": "Mejora Campus",
+                "opportunity_for_improvement": "MEJORAR MEJORAR",
+                "semester_execution": "2023A",
+                "user_id": 1,
+                "date_id": 1,
+                "standard_id": 1,
+                "efficacy_evaluation": false,
+                "advance": 5,
+                "duration": 7,
+                "sources": [],
+                "problems_opportunities": [],
+                "root_causes": [],
+                "improvement_actions": [],
+                "resources": [],
+                "goals": [{ "id": 1,"description": "Meta10" }, { "description": "Meta15" },{ "description": "Meta14" }],
+                "responsibles": [],
+                "observations":[],
+                "plan_status_id": 2,
+                "registration_status_id": 1,
+                "updated_at": "2023-09-10T19:38:11.000000Z",
+                "created_at": "2023-09-10T19:38:11.000000Z",
+                "id": 3
+            }
+	*/
+    public function updatePlan($year, $semester, $plan_id, Request $request)
     {
         $request->validate([
             "id" => "required|integer",
@@ -624,9 +669,11 @@ class PlanController extends Controller
                 $plan->standard_id = $request->standard_id;
                 $plan->code = $request->code;
                 $plan->advance = 0;
-                $plan->plan_status = "Planificado";
-                $plan->nombre = $request->nombre;
-                $plan->evaluacion_eficacia = false;
+                $plan->plan_status_id = "1";
+                $plan->name = $request->name;
+                $plan->efficacy_evaluation = false;
+                $plan->date_id = 5;
+                $plan->registration_status_id = 1;
                 $plan->save();
                 return response([
                     "message" => "!Plan de mejora asignado exitosamente",
@@ -671,21 +718,21 @@ class PlanController extends Controller
 
 
 
-    public function deletePlan($plan_id)
+    public function deletePlan($year, $semester, $plan_id)
     {
         $user = auth()->user();
         $plan = PlanModel::find($plan_id);
         if (!$plan) {
             return response()->json([
                 "message" => "!No se encontro el plan",
-            ],404);
+            ], 404);
         }
 
         if ($user->isCreatorPlan($plan_id) or $user->isAdmin()) {
             $plan->deleteRegister();
             return response()->json([
                 "message" => "!Se elimino el plan",
-            ],204);
+            ], 204); //Sale 204 No Content, no devuelve message
         } else {
             return response()->json([
                 "message" => "!No esta autorizado par realizar esta accion",
@@ -694,7 +741,7 @@ class PlanController extends Controller
     }
 
     
-    public function showPlan($plan_id)
+    public function showPlan($year, $semester, $plan_id)
     {
 
         if (PlanModel::existsAndActive($plan_id)) {
@@ -788,7 +835,7 @@ class PlanController extends Controller
 
     /*$id_user = auth()->user()->id;*/
 
-    public function exportPlan($plan_id)
+    public function exportPlan($year, $semester, $plan_id)
     {
         if (PlanModel::where("id", $plan_id)->exists()) {
             $plan = PlanModel::find($plan_id);

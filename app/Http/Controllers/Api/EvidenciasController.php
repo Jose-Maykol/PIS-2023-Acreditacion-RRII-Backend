@@ -170,11 +170,6 @@ class EvidenciasController extends Controller
                     $zip->extractTo($extractedPath);
                     $zip->close();
                     $this->createEvidencesAndFolders($extractedPath, $userId, $standardId, $typeEvidenceId, $parentFolder, $planId, $dateId, $year, $semester);
-
-                    return response([
-                        "status" => 1,
-                        "message" => "Evidencia creada exitosamente",
-                    ]);
                 }
                 else 
                 {
@@ -212,12 +207,12 @@ class EvidenciasController extends Controller
                     'date_id' => $dateId,
                 ]);
                 $evidence->save();
-                return response([
-                    "status" => 1,
-                    "message" => "Evidencia creada exitosamente",
-                ]);
             }
         }
+        return response([
+            "status" => 1,
+            "message" => "Evidencia(s) creada exitosamente",
+        ]);
     }
 
     private function createEvidencesAndFolders($path, $userId, $standardId, $typeEvidenceId, $parentFolder = null, $planId, $dateId, $year, $semester)

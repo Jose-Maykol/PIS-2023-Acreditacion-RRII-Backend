@@ -256,80 +256,19 @@ class StandardController extends Controller
         ]);
     }
 
-    public function getEstandarStructure(Request $request, $id)
-    {
-        $estandarId = $id;
-        $id_tipo = $request->query('tipo');
-
-        return $this->getEstandarFiles($estandarId, $id_tipo);
-    }
-
-
-    public function getEstandarFiles($estandarId, $id_tipo = null)
-    {
-        $estandarFolderPath = 'evidencias/estandares/' . 'estandar' . $estandarId;
-        $fullPath = storage_path('app/' . $estandarFolderPath);
-
-        if (!Storage::exists($estandarFolderPath)) {
+    public function searchEvidence($year, $semester, $standard_id)
+    {   
+        if (StandardModel::where("id", $standard_id)->exists()) {
+            $evidences = Evidence::where('standard_id', $standard_id)->select('id', 'name', 'file', 'type') ->get();
             return response()->json([
                 "status" => 0,
-                "message" => "No se encontró la carpeta del estándar",
+                "data" => $evidences,
             ], 404);
-        }
-
-        if (!is_dir($fullPath)) {
+        } else {
             return response()->json([
                 "status" => 0,
-                "message" => "No se encontró la carpeta del estándar",
+                "message" => "No existe el estandar",
             ], 404);
         }
-
-        $structure = $this->getFolderStructure($fullPath, $id_tipo);
-
-        return response()->json([
-            "status" => 1,
-            "message" => "Estructura de archivos y carpetas del estándar obtenida correctamente",
-            "structure" => $structure,
-        ]);
-    }
-
-    private function getFolderStructure($folderPath, $id_tipo = null, $basePath = null)
-    {
-        if (!$basePath) {
-            $basePath = storage_path('app/');
-        }
-
-        $structure = [];
-        $files = glob($folderPath . '/*');
-
-        foreach ($files as $file) {
-            if (is_file($file)) {
-                $evidencia = Evidencias::where('adjunto', str_replace($basePath, '', $file))->first();
-                if (!$id_tipo || ($evidencia && $evidencia->id_tipo == $id_tipo)) {
-                    $user = $evidencia ? UserModel::find($evidencia->id_user) : null;
-                    $structure[] = [
-                        "type" => "file",
-                        "name" => pathinfo($file, PATHINFO_BASENAME),
-                        "path" => str_replace($basePath, '', $file),
-                        "id_tipo" => $evidencia ? $evidencia->id_tipo : null,
-                        "id" => $evidencia ? $evidencia->id : null,
-                        "created_at" => $evidencia ? $evidencia->created_at : null,
-                        "updated_at" => $evidencia ? $evidencia->updated_at : null,
-                        "user" => $user ? $user->name . ' ' . $user->lastname : null,
-                    ];
-                }
-            } elseif (is_dir($file)) {
-                $children = $this->getFolderStructure($file, $id_tipo, $basePath);
-                if (!empty($children)) {
-                    $structure[] = [
-                        "type" => "folder",
-                        "name" => pathinfo($file, PATHINFO_BASENAME),
-                        "path" => str_replace($basePath, '', $file),
-                        "children" => $children,
-                    ];
-                }
-            }
-        }
-        return $structure;
     }
 }

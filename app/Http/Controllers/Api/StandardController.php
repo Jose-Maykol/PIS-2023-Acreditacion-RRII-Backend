@@ -66,6 +66,7 @@ class StandardController extends Controller
     {
         $standards = StandardModel::where("date_id", DateModel::dateId($year, $semester))
             ->where('registration_status_id', RegistrationStatusModel::registrationActive())
+            ->orderBy('nro_standard', 'asc')
             ->get();
 
         if ($standards) {
@@ -101,7 +102,7 @@ class StandardController extends Controller
             )
             ->join('users_standards', 'users_standards.standard_id','=', 'standards.id')
             ->join('users', 'users_standards.user_id', '=', 'users.id')
-            ->orderBy('standards.id', 'asc')
+            ->orderBy('standards.nro_standard', 'asc')
             ->get();
         return response([
             "msg" => "!Lista de nombres de Estandares",

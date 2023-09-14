@@ -709,7 +709,7 @@ class PlanController extends Controller
             ->join('plan_status', 'plans.plan_status_id', '=', 'plan_status.id')
             ->orderBy('plans.id', 'asc');
 
-        if ($request->query('standard_id') == 8) {
+        if (StandardModel::find($request->query('standard_id'))->nro_standard == 8) {
             $planAll = $query->get();
         } else {
             $planAll = $query->where('plans.standard_id', $request->query('standard_id'))->get();

@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\LoginController;
+use App\Http\Controllers\Api\EvidenciasController;
 use App\Models\GoalModel;
 use App\Models\PlanModel;
 use App\Models\RegistrationStatusModel;
@@ -17,6 +18,8 @@ Route::prefix('auth')->group(function (){
     Route::get('login/{provider}/callback', [LoginController::class, 'handleProviderCallback']);
 
 });
+
+Route::get('{year}/{semester}/evidences/{evidence_id}/view', [EvidenciasController::class, 'view'])->where('evidence_id', '[0-9]+');
 
 Route::prefix('test')->group(function(){
         Route::get('log', function (Request $request){

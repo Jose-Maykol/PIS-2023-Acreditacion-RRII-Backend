@@ -6,26 +6,16 @@ use App\Http\Controllers\Controller;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use App\Models\PlanModel;
-use App\Models\AccionesMejoras;
-use App\Models\CausasRaices;
 use App\Models\DateModel;
 use App\Models\Evidencias;
-use App\Models\Fuentes;
 use App\Models\GoalModel;
 use App\Models\ImprovementActionModel;
-use App\Models\Metas;
-use App\Models\Observaciones;
 use App\Models\ObservationModel;
 use App\Models\PlanStatusModel;
-use App\Models\ProblemasOportunidades;
-use App\Models\ProblemOpportunitieModel;
 use App\Models\ProblemOpportunityModel;
-use App\Models\Recursos;
 use App\Models\RegistrationStatusModel;
 use App\Models\ResourceModel;
-use App\Models\Responsables;
 use App\Models\ResponsibleModel;
-use App\Models\RoleModel;
 use App\Models\RootCauseModel;
 use App\Models\SourceModel;
 use App\Models\StandardModel;
@@ -82,24 +72,30 @@ class PlanController extends Controller
                 "message" => "No existe Date"
             ], 404);
         }
-
         $user = auth()->user();
-        $plan = PlanModel::create([
-            'code' => $request->code,
-            'name' => $request->name,
-            'user_id' => $user->id,
-            'date_id' => DateModel::dateId($year,$semester),
-            'standard_id' => $request->standard_id,
-            'efficacy_evaluation' => false,
-            'advance' => 0,
-            'plan_status_id' => PlanStatusModel::planId('planificado'),
-            'registration_status_id' => RegistrationStatusModel::registrationId('activo')
-        ]);
+
+        if($user->isAssignStandard($request->standard_id) OR $user->isAdmin()){
+            $plan = PlanModel::create([
+                'code' => $request->code,
+                'name' => $request->name,
+                'user_id' => StandardModel::user($request->standard_id)->id,
+                'date_id' => DateModel::dateId($year,$semester),
+                'standard_id' => $request->standard_id,
+                'efficacy_evaluation' => false,
+                'advance' => 0,
+                'plan_status_id' => PlanStatusModel::planId('planificado'),
+                'registration_status_id' => RegistrationStatusModel::registrationId('activo')
+            ]);
+            
+            return response()->json([
+                "message" => "!Plan de mejora creado exitosamente",
+                "data" => $plan
+            ], 201);
+        }
         
         return response()->json([
-            "message" => "!Plan de mejora creado exitosamente",
-            "data" => $plan
-        ], 201);
+            "message" => "No estas autorizado"
+        ], 404);
     }
 
     /*

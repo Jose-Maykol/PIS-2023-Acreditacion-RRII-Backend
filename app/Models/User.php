@@ -76,6 +76,6 @@ class User extends Authenticatable
 
   public function isAssignStandard($standard_id)
   {
-    return $this->standards()->where('id', $standard_id)->first()->exists();
+    return $this->standards()->where('standards.id', $standard_id)->exists();
   }
 }

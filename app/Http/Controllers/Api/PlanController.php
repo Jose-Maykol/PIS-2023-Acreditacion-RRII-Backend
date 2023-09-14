@@ -704,7 +704,7 @@ class PlanController extends Controller
             unset($plan->user_id);
         }
         return response([
-            "message" => "!Lista de planes de mejora",
+            "message" => "!Lista de planes de mejora para el standard 8",
             "data" => $planAll,
         ], 200);
         }

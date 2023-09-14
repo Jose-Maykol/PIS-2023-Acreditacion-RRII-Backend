@@ -329,7 +329,7 @@ class StandardController extends Controller
             return response()->json([
                 "status" => 0,
                 "data" => $evidences,
-            ], 404);
+            ], 200);
         } else {
             return response()->json([
                 "status" => 0,

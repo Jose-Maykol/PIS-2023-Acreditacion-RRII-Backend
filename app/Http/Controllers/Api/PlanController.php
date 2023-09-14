@@ -684,10 +684,11 @@ class PlanController extends Controller
     }
 
     //confirmar los datos nesesarios
-    public function listPlan($year, $semester)
+    public function listPlan($year, $semester, Request $request)
     {
         $user = auth()->user();
-        $planAll = PlanModel::where('plans.date_id', 
+        if($request->standard_id == 8){
+            $planAll = PlanModel::where('plans.date_id', 
                         DateModel::dateId($year, $semester))
                         ->where('plans.registration_status_id', RegistrationStatusModel::registrationActive())
                         ->select('plans.id', 'plans.name', 'plans.code', 'plans.advance', 'plans.user_id', 
@@ -706,6 +707,29 @@ class PlanController extends Controller
             "message" => "!Lista de planes de mejora",
             "data" => $planAll,
         ], 200);
+        }
+        else{
+            $planAll = PlanModel::where('plans.date_id', 
+                        DateModel::dateId($year, $semester))
+                        ->where('plans.registration_status_id', RegistrationStatusModel::registrationActive())
+                        ->where('plans.standard_id', $request->standard_id)
+                        ->select('plans.id', 'plans.name', 'plans.code', 'plans.advance', 'plans.user_id', 
+                                    'standards.name as standard_name', 'users.name as user_name', 'plan_status.description as plan_status')
+            ->join('standards', 'plans.standard_id', '=', 'standards.id')
+            ->join('users', 'plans.user_id', '=', 'users.id')
+            ->join('plan_status', 'plans.plan_status_id', '=', 'plan_status.id')
+            ->orderBy('plans.id', 'asc')
+            ->get();
+
+        foreach ($planAll as $plan) {
+            $plan->isCreator = ($plan->user_id == $user->id) ? true : false;
+            unset($plan->user_id);
+        }
+        return response([
+            "message" => "!Lista de planes de mejora",
+            "data" => $planAll,
+        ], 200);
+        }
     }
 
 

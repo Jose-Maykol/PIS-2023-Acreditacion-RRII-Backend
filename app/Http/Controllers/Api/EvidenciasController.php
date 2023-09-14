@@ -384,12 +384,13 @@ class EvidenciasController extends Controller
             $extension = pathinfo($path, PATHINFO_EXTENSION);
             $contentType = $this->getContentType($extension);
             $fileContents = file_get_contents($path);
-            $base64Content = base64_encode($fileContents);
+            /*$base64Content = base64_encode($fileContents);
             return response([
                 "status" => 0,
                 "evidence_id" => $evidence_id,
                 "base64_content" => $base64Content,
-            ], 200)->header('Content-Type', 'application/json');
+            ], 200)->header('Content-Type', 'application/json');*/
+            return response($fileContents)->header('Content-Type', $contentType);
         } else {
             return response([
                 "status" => 0,

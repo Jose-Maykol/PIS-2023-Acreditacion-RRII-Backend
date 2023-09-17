@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('evidences', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name', 255);
             $table->string('path')->nullable();
             $table->string('file')->nullable();
             $table->string('type')->nullable();

@@ -15,11 +15,12 @@ return new class extends Migration
     {
         Schema::create('standards', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('factor');
-            $table->string('dimension');
-            $table->string('related_standards');
-            $table->unsignedInteger('nro_standard');
+            $table->string('name', 100);
+            $table->string('factor', 100);
+            $table->string('dimension', 100);
+            $table->string('related_standards', 255);
+            $table->unsignedTinyInteger('nro_standard',);
+            $table->mediumText('content');
             $table->timestamps();
             $table->foreignId('date_id')
                 ->constrained('date_semesters');

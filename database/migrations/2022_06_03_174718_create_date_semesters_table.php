@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('date_semesters', function (Blueprint $table) {
             $table->id();
             $table->year('year');// 1 - 2022 - A
-            $table->string('semester', 1);
+            $table->char('semester', 1);
             $table->timestamps();
         });
     }

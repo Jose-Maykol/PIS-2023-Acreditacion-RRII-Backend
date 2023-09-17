@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('registration_status', function (Blueprint $table) {
             $table->id();
-            $table->string('description');// active/ desactive
+            $table->string('description', 50);// active/ desactive
             $table->timestamps();
         });
     }

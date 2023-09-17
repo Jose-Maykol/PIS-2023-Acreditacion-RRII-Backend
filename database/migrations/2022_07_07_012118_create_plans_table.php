@@ -19,14 +19,15 @@ return new class extends Migration
     {
         Schema::create('plans', function (Blueprint $table) {
             $table->id();
-            $table->string('code', 13);
+            $table->string('code', 12);
             $table->string('name', 255)->nullable();
             $table->string('opportunity_for_improvement')->nullable();
             $table->string('semester_execution', 8)->nullable();
-            $table->integer('advance');
-            $table->integer('duration')->nullable();
-            $table->foreignId('plan_status_id')->constrained('plan_status');//
-            $table->boolean('efficacy_evaluation')->nullable();;
+            $table->unsignedTinyInteger('advance');
+            $table->unsignedTinyInteger('duration')->nullable();
+            $table->boolean('efficacy_evaluation')->nullable();
+            $table->foreignId('plan_status_id')
+                ->constrained('plan_status');//
             $table->foreignId('standard_id')
                 ->constrained('standards');
             $table->foreignId('user_id')

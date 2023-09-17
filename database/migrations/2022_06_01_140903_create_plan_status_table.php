@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('plan_status', function (Blueprint $table) {
             $table->id();
-            $table->string('description');
+            $table->string('description', 50);
             $table->foreignId('registration_status_id')
                 ->constrained('registration_status');
             $table->timestamps();

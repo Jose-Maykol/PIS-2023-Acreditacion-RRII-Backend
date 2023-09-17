@@ -16,22 +16,6 @@ class DateSeeder extends Seeder
     public function run()
     {
         DB::table('date_semesters')->insert([
-            'year' => 2021,
-            'semester' => 'A'
-        ]);
-        DB::table('date_semesters')->insert([
-            'year' => 2021,
-            'semester' => 'B'
-        ]);
-        DB::table('date_semesters')->insert([
-            'year' => 2022,
-            'semester' => 'A'
-        ]);
-        DB::table('date_semesters')->insert([
-            'year' => 2022,
-            'semester' => 'B'
-        ]);
-        DB::table('date_semesters')->insert([
             'year' => 2023,
             'semester' => 'A'
         ]);

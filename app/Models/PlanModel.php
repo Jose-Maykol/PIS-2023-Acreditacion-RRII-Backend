@@ -14,7 +14,7 @@ class PlanModel extends Model
     use RegistrationStatusTrait;
     public $timestamps = true;
 
-    protected $table ='plans';
+    protected $table = 'plans';
     protected $fillable = [
         'code',
         'name',
@@ -30,132 +30,139 @@ class PlanModel extends Model
         'registration_status_id',
     ];
 
-    public function date(): BelongsTo {
+    public function date(): BelongsTo
+    {
         return $this->belongsTo(DateModel::class, 'date_id');
-
     }
-    public function registrationStatus(): BelongsTo {
+    public function registrationStatus(): BelongsTo
+    {
         return $this->belongsTo(RegistrationStatus::class, 'registration_status_id');
     }
-    public function user(){
-        return $this->belongsTo(User::class,'user_id');
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
-    public function standard(){
-        return $this->belongsTo(StandardModel::class,'standard_id');
+    public function standard()
+    {
+        return $this->belongsTo(StandardModel::class, 'standard_id');
     }
-    public function planStatus(){
-        return $this->belongsTo(PlanStatusModel::class,'plan_status_id');
+    public function planStatus()
+    {
+        return $this->belongsTo(PlanStatusModel::class, 'plan_status_id');
     }
-    
-    public static function exists($plan_id){
+    public static function exists($plan_id)
+    {
         return self::where($plan_id)->exists();
     }
-    public function isActive(){
+    public function isActive()
+    {
         return $this->where('registration_status_id', RegistrationStatusModel::registrationActive())
-        ->exists();;
+            ->exists();
     }
-    public static function existsAndActive($plan_id){
-        return self::where('id',$plan_id)->where('registration_status_id', RegistrationStatusModel::registrationActive())
-                    ->exists();
-    }
-    public function sources(){
-        return $this->hasMany(SourceModel::class,'plan_id');
-    }
-    public function sourcesActive(){
-        return $this->sources()
-                    ->whereHas('registrationStatus', function($query){
-                        $query->where('description', 'activo');
-                    })->get();
+    public static function existsAndActive($plan_id)
+    {
+        return self::where('id', $plan_id)->where('registration_status_id', RegistrationStatusModel::registrationActive())
+            ->exists();
     }
 
-    /*public function sourcesClean($existingIds){
+    public function sources()
+    {
+        return $this->hasMany(SourceModel::class, 'plan_id');
+    }
+    public function sourcesActive()
+    {
         return $this->sources()
-                    ->whereHas('registrationStatus', function($query){
-                        $query->where('description', 'activo');
-                    })
-                    ->whereNotIn('id', $existingIds->toArray())
-                    ->get();
-    }*/
-    public function problemsOpportunities(){   
-        return $this->hasMany(ProblemOpportunityModel::class,'plan_id');
+            ->whereHas('registrationStatus', function ($query) {
+                $query->where('description', 'activo');
+            })->get();
     }
-    public function problemsOpportunitiesActive(){   
+
+    public function problemsOpportunities()
+    {
+        return $this->hasMany(ProblemOpportunityModel::class, 'plan_id');
+    }
+    public function problemsOpportunitiesActive()
+    {
         return $this->problemsOpportunities()
-                    ->whereHas('registrationStatus', function($query){
-                        $query->where('description', 'activo');
-                    })->get();
+            ->whereHas('registrationStatus', function ($query) {
+                $query->where('description', 'activo');
+            })->get();
     }
-    public function goals(){
-        return $this->hasMany(GoalModel::class,'plan_id');
+    public function goals()
+    {
+        return $this->hasMany(GoalModel::class, 'plan_id');
     }
-    public function goalsActive(){
-        return $this->goals()->whereHas('registrationStatus', function($query){
+    public function goalsActive()
+    {
+        return $this->goals()->whereHas('registrationStatus', function ($query) {
             $query->where('description', 'activo');
         })->get();
     }
-    /*public function goalsActive(){
-        /*return $this->goals()->whereHas('registrationStatus', function(Builder $query){
-            $query->onlyActive();
-        }); 
-        return $this->hasMany(GoalModel::class,'plan_id')
-                    ->whereHas('registrationStatus', function($query){
-                        $query->where('description', 'activo');
-                    })->get();
-    }*/
-    public function resources(){
-        return $this->hasMany(ResourceModel::class,'plan_id');
+    public function resources()
+    {
+        return $this->hasMany(ResourceModel::class, 'plan_id');
     }
-    public function resourcesActive(){
+    public function resourcesActive()
+    {
         return $this->resources()
-                    ->whereHas('registrationStatus', function($query){
-                        $query->where('description', 'activo');
-                    })->get();
+            ->whereHas('registrationStatus', function ($query) {
+                $query->where('description', 'activo');
+            })->get();
     }
-    public function observations(){
-        return $this->hasMany(ObservationModel::class,'plan_id');
+    public function observations()
+    {
+        return $this->hasMany(ObservationModel::class, 'plan_id');
     }
-    public function observationsActive(){
+    public function observationsActive()
+    {
         return $this->observations()
-                    ->whereHas('registrationStatus', function($query){
-                        $query->where('description', 'activo');
-                    })->get();
+            ->whereHas('registrationStatus', function ($query) {
+                $query->where('description', 'activo');
+            })->get();
     }
-    
-    public function improvementActions(){
-        return $this->hasMany(ImprovementActionModel::class,'plan_id');
+
+    public function improvementActions()
+    {
+        return $this->hasMany(ImprovementActionModel::class, 'plan_id');
     }
-    public function improvementActionsActive(){
+    public function improvementActionsActive()
+    {
         return $this->improvementActions()
-                    ->whereHas('registrationStatus', function($query){
-                        $query->where('description', 'activo');
-                    })->get();
+            ->whereHas('registrationStatus', function ($query) {
+                $query->where('description', 'activo');
+            })->get();
     }
-    public function rootCauses(){
-        return $this->hasMany(RootCauseModel::class,'plan_id');
+    public function rootCauses()
+    {
+        return $this->hasMany(RootCauseModel::class, 'plan_id');
     }
-    public function rootCausesActive(){
+    public function rootCausesActive()
+    {
         return $this->rootCauses()
-                    ->whereHas('registrationStatus', function($query){
-                        $query->where('description', 'activo');
-                    })->get();
+            ->whereHas('registrationStatus', function ($query) {
+                $query->where('description', 'activo');
+            })->get();
     }
-    public function responsibles(){
-        return $this->hasMany(ResponsibleModel::class,'plan_id');
+    public function responsibles()
+    {
+        return $this->hasMany(ResponsibleModel::class, 'plan_id');
     }
-    public function responsiblesActive(){
+    public function responsiblesActive()
+    {
         return $this->responsibles()
-                    ->whereHas('registrationStatus', function($query){
-                        $query->where('description', 'activo');
-                    })->get();
+            ->whereHas('registrationStatus', function ($query) {
+                $query->where('description', 'activo');
+            })->get();
     }
-    public function isDate($year, $semester){
+    public function isDate($year, $semester)
+    {
         return $this->date()->where('year', $year)->where('semester', $semester)->exists();
     }
 
-    public function deleteRegister(){
+    public function deleteRegister()
+    {
         return $this->update([
             'registration_status_id' => RegistrationStatusModel::registrationDelete()
         ]);
     }
-    
 }

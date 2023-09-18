@@ -18,29 +18,12 @@ class DatabaseSeeder extends Seeder
 		
       $this->call([
          RegistrationStatusSeeder::class,
-         UserSeeder::class,
          DateSeeder::class,
-         StandardSeeder::class,
-         //ActasSeeder::class,
          EvidenceTypeSeeder::class,
          PlanStatusSeeder::class,
-         //PlanSeeder::class,
-         //FolderSeeder::class,
-         //EvidencesSeeder::class,
-         //GoalsSeeder::class,
-         //ImprovementActionsSeeder::class,
-         //ObservationsSeeder::class,
-         //ProblemsOpportunitiesSeeder::class,
-         //ResourcesSeeder::class,
-         //ResponsiblesSeeder::class,
-         //RootCausesSeeder::class,
-         //SourcesSeeder::class,
-         PermissionsSeeder::class,
-         RolesPermissionsSeeder::class,        
-         //ResponsiblesValuesSeeder::class,
-         //SourcesValuesSeeder::class,
-         //StatusValuesSeeder::class,
-         UsersStandardsSeeder::class,
+         RolesPermissionsSeeder::class,
+         StandardSeeder::class,        
+         UserSeeder::class,
       ]);
     }
 }

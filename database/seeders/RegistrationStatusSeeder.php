@@ -24,7 +24,7 @@ class RegistrationStatusSeeder extends Seeder
             'description' => "inactivo"
         ]);
         DB::table('registration_status')->insert([
-            'description' => "borrado"
+            'description' => "pendiente de autenticación"
         ]);
         
     }

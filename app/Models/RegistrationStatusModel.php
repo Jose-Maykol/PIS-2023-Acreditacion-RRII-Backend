@@ -14,25 +14,16 @@ class RegistrationStatusModel extends Model
     protected $fillable = [
         'description'
     ];
-    public static function registrationDelete(){
-        return self::where('description', 'borrado')->value('id');
-    }
     public static function registrationActive(){
         return self::where('description', 'activo')->value('id');
     }
     public static function registrationInactive(){
         return self::where('description', 'inactivo')->value('id');
     }
-    public static function registrationBeforeDelete(){
-        return self::where('description', 'antes_de_borrar')->value('id');
-    }
-    public static function registrationNoHabilitado(){
-        return self::where('description', 'no habilitado')->value('id');
+    public static function registrationAuthenticationPending(){
+        return self::where('description', 'pendiente de autenticación')->value('id');
     }
     public static function registrationId($registration){
         return self::where('description', $registration)->value('id');
     }
-    public function isActive(){
-        return $this->where('description','activo');
-    }
-}//2023/A
+}

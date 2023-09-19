@@ -25,7 +25,7 @@ class LoginController extends Controller
 				"password":"12345"
 			}
 	*/
-	/*
+	
 	public function login(Request $request)
     {
 
@@ -35,12 +35,14 @@ class LoginController extends Controller
         ]);
 
         //$user = UserModel::where("email", "=", $request->email)->where("registration_status_id",true)->first();
-		$user = User::where("email", "=", $request->email)->where("registration_status_id",true)->first();
+		$user = User::where("email", "=", $request->email)
+					->where("registration_status_id", RegistrationStatusModel::registrationActive())
+					->first();
 
         if (isset($user->id)) {
             //if (Hash::check($request->password, $user->password)) {
 			if ($request->password == $user->password) {
-				$registrationStatusId = RegistrationStatusModel::select('id')->where('description', 'activo')->first()->id;
+				//$registrationStatusId = RegistrationStatusModel::select('id')->where('description', 'activo')->first()->id;
 
 				//$user = User::where("email", "=", $userProvider->email)->first();
 
@@ -64,7 +66,7 @@ class LoginController extends Controller
                 "message" => "Usuario no registrado o Usuario deshabilitado",
             ], 404);
         }
-    }*/
+    }
 	/*public function login(Request $request)
     {
 

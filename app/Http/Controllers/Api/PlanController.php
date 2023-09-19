@@ -642,7 +642,7 @@ class PlanController extends Controller
         }
     }
 
-
+/*
     public function assignPlan(Request $request)
     {
         $user_id = auth()->user()->id;
@@ -687,7 +687,7 @@ class PlanController extends Controller
             ], 403);
         }
     }
-
+*/
     //confirmar los datos nesesarios
     public function listPlan($year, $semester, Request $request)
     {

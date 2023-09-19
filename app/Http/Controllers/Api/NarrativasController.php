@@ -28,12 +28,10 @@ class NarrativasController extends Controller
             } 
         */
         $user = auth()->user();
-        if ($user->isAdmin()) {
+        if ($user->isAdmin() or $user->isAssignStandard($standard_id)) {
             $validator = Validator::make($request->all(), [
                 "standard_id" => "required|integer|exists:standards,id",
                 "content" => "required",
-                "semester" => "required"
-
             ]);
 
             if ($validator->fails()) {
@@ -42,16 +40,12 @@ class NarrativasController extends Controller
                 ], 500); //el servidor no pudo interpretar la solicitud dada una sintaxis inválida.
             }
 
-            $narrative = new NarrativeModel();
-            $narrative->standard_id = $request->standard_id;
-            $narrative->date_id = DateModel::dateId($year, $semester);
-            $narrative->content = $request->content;
-            $narrative->registration_status_id = RegistrationStatusModel::registrationActive();
-
-            $narrative->save();
+            $standard = StandardModel::find($standard_id);
+            $standard->content = $request->content;
+            $standard->save();
             return response([
                 "message" => "!Narrativa creada exitosamente",
-                "data" => $narrative,
+                "data" => $standard,
             ], 201); //Recurso creado
         } else {
             return response([
@@ -61,7 +55,7 @@ class NarrativasController extends Controller
         }
     }
 
-    public function update($year, $semester, $standard_id, $narrative_id, Request $request)
+    public function update($year, $semester, $standard_id, Request $request)
     {
         /*
             ruta(put): /api/standards/{standard_id}/narratives/{narrative_id}
@@ -73,15 +67,17 @@ class NarrativasController extends Controller
             }
         */
         $request->validate([
-            "id" => "required|exists:narratives,id",
             "content" => "required",
         ]);
-        if (NarrativeModel::where("id", $narrative_id)->exists()) {
-            $narrative = NarrativeModel::find($narrative_id);
-            $narrative->update([
+        if (StandardModel::where("id", $standard_id)->exists()) {
+            $standard = StandardModel::find($standard_id);
+            $standard->update([
                 "content" => $request->content,
             ]);
-            return response()->json($narrative, 200);
+            return response()->json([
+                "message" => 'Narrativa correctamente actualizada',
+                "standard" => $standard
+            ], 200);
         } else {
             return response([
                 "message" => "!No se encontro la narrativa",
@@ -89,16 +85,18 @@ class NarrativasController extends Controller
         }
     }
 
-    public function delete($year, $semester, $standard_id, $narrative_id)
+    public function delete($year, $semester, $standard_id)
     {
         /*
             ruta(delete): /api/standard/{standard}/narratives/{narrative}
             ruta(delete): /api/standard/1/narratives/2
             datos: {json con los datos qué nos mandan}
         */
-        if (NarrativeModel::where("id", $narrative_id)->exists()) {
-            $narrative = NarrativeModel::find($narrative_id);
-            $narrative->deleteRegister();
+        if (StandardModel::where("id", $standard_id)->exists()) {
+            $standard = StandardModel::find($standard_id);
+            $standard->update([
+                "content" => ""
+            ]);
             return response([
                 "message" => "!Narrativa eliminada",
             ], 204); //Sale 204 No Content, no devuelve message
@@ -108,20 +106,20 @@ class NarrativasController extends Controller
             ], 404);
         }
     }
-
-    public function show($year, $semester, $standard_id, $narrative_id)
+/*
+    public function show($year, $semester, $standard_id)
     {
-        /*
+        
             ruta(get): /api/standards/{standard_id}/narratives/{narrative_id}
             ruta(get): /api/standards/1/narratives/1
             datos: {json con los datos qué nos mandan}
-        */
-        if (NarrativeModel::where("id", $narrative_id)->exists()) {
-            $narrative = NarrativeModel::find($narrative_id);
+        
+        if (StandardModel::where("id", $standard_id)->exists()) {
+            $standard = StandardModel::find($standard_id);
             return response([
                 "message" => "!Narrativa encontrada",
-                "data" => $narrative,
-            ],200);
+                "data" => $standard,
+            ], 200);
         } else {
             return response([
                 "message" => "!No se encontro la narrativa",
@@ -131,32 +129,32 @@ class NarrativasController extends Controller
 
     public function listNarratives()
     {
-        /*
+        
             ruta(get): /api/standard/{standard}/narratives
             ruta(get): /api/standard/1/narratives
             datos: {json con los datos qué nos mandan}
-        */
+        
         $narratives = NarrativeModel::all();
         return response([
             "message" => "!Lista de narrativas",
             "data" => $narratives,
-        ],200);
+        ], 200);
     }
 
     public function lastNarrative($year, $semester, $standard_id, $narrative_id)
     {
-        /*
+        
             ruta(get): /api/standard/{standard}/narratives/last
             ruta(get): /api/standard/1/narratives/last/1
             datos: {json con los datos qué nos mandan}
-        */
-        /*$request->validate([
+        
+        $request->validate([
             "standard_id" => 'required|exists:App\Models\Standard,id',
-        ]);*/
+        ]);
         $narrative = NarrativeModel::where("standard_id", $standard_id)->latest()->first();
         return response([
             "message" => "!Ultima Narrativa del estandar " . $standard_id,
             "data" => $narrative,
         ], 200);
-    }
+    }*/
 }

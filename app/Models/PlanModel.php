@@ -162,7 +162,7 @@ class PlanModel extends Model
     public function deleteRegister()
     {
         return $this->update([
-            'registration_status_id' => RegistrationStatusModel::registrationDelete()
+            'registration_status_id' => RegistrationStatusModel::registrationInactive()
         ]);
     }
 }

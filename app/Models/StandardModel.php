@@ -20,6 +20,7 @@ class StandardModel extends Model
         'factor',
         'dimension',
         'related_standards',
+        'content',
         'nro_standard',
 		'date_id',
         'registration_status_id'
@@ -35,9 +36,6 @@ class StandardModel extends Model
     
     public function plans(){
         return $this->hasMany(PlanModel::class,'standard_id');
-    }
-	public function narratives(){
-        return $this->hasMany(NarrativeModel::class,'standard_id');
     }
     public static function exists($standard_id){
         return self::where('id', $standard_id)->exists();

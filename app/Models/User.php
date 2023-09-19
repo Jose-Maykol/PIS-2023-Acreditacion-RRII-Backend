@@ -22,7 +22,6 @@ class User extends Authenticatable
     'lastname',
     'email',
     'password',
-    'role_id',
 	  'registration_status_id',
   ];
 
@@ -34,21 +33,6 @@ class User extends Authenticatable
   public function standard($user_id) {
     return User::find($user_id)->standards()->first();
   }
-
-  public function role()
-  {
-    return $this->belongsTo(RoleModel::class, 'role_id');
-  }
-
-  public function hasPermission2($permission){
-
-    return $this->role()->first()->permissions()->where('name', $permission)->exists();
-  }
-  public function hasPermission($permission){
-
-    return $this->role()->first()->permissions()->where('name', $permission)->exists();
-  }
-
   public function plans()
   {
     return $this->hasMany(PlanModel::class, 'user_id');
@@ -61,13 +45,8 @@ class User extends Authenticatable
   {
     return $this->hasMany(Provider::class, 'id_user');
   }
-
-
-  public function isRole($role) {
-    return $this->role()->where('name', $role)->exists();
-  }
   public function isAdmin() {
-    return $this->role()->where('name', 'administrador')->exists();
+    return $this->hasRole('administrador');
   }
 
   public function isCreatorPlan($plan_id) {

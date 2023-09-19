@@ -25,7 +25,7 @@ class LoginController extends Controller
 				"password":"12345"
 			}
 	*/
-	
+	/*
 	public function login(Request $request)
     {
 
@@ -64,7 +64,7 @@ class LoginController extends Controller
                 "message" => "Usuario no registrado o Usuario deshabilitado",
             ], 404);
         }
-    }
+    }*/
 	/*public function login(Request $request)
     {
 

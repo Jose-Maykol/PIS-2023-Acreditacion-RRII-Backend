@@ -26,7 +26,7 @@ class UserController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-			'role_id'=> 'required|numeric|min:1|max:2',
+			'role'=> 'required',
             'email' => 'required|email|unique:users,email'
         ]);
 
@@ -40,10 +40,11 @@ class UserController extends Controller
             $user->email = $request->email;
             $user->password = "null";
 			$user->registration_status_id = RegistrationStatusModel::registrationInactive();
-			$user->role_id = $request->role_id;
             $user->save();
+			$user->assignRole($request->role);
 
             return response()->json([
+				'status' => 1,
                 'message' => 'Correo registrado exitosamente',
                 'user' => $user,
             ], 201);
@@ -67,6 +68,7 @@ class UserController extends Controller
     public function userProfile()
     {
         return response()->json([
+			"status" => 1,
             "message" => "Perfil de usuario obtenido exitosamente",
             "data" => auth()->user(),
         ], 200);
@@ -83,7 +85,7 @@ class UserController extends Controller
     public function listUser(){
 		$users = User::all();
 		foreach ($users as $user) {
-			$user->role = RoleModel::where('id', $user->role_id)->value('name');
+			$user->role = $user->getRoleNames();
 			$user->status = RegistrationStatusModel::where('id', $user->registration_status_id)->value('description');
 		}
         return response([
@@ -106,7 +108,7 @@ class UserController extends Controller
 					->where("registration_status_id",RegistrationStatusModel::registrationActive())
 					->get();
 		foreach ($users as $user) {
-			$user->role = RoleModel::where('id', $user->role_id)->value('name');
+			$user->role = $user->getRoleNames();
 		}
         return response([
             "msg" => "Lista de usuarios no nulos y habilitados obtenida exitosamente",
@@ -129,7 +131,7 @@ class UserController extends Controller
 		$request->validate([
 
 			"id"=>"exists:users,id",
-            "role_id" => "present|nullable|numeric|min:1|max:2",
+            "role" => "present|nullable",
             "registration_status_id" => "present|nullable|numeric|min:1|max:2"
         ]);
 		if(auth()->user()->isAdmin()){
@@ -137,10 +139,14 @@ class UserController extends Controller
 			$user = User::find($request->id);
 			$user->update([
 				'registration_status_id' =>$request->registration_status_id,
-				'role_id' => $request->role_id
 			]);
+			if($request->role != null){
+				$user->syncRoles([]);
+				$user->assignRole($request->role);
+			}
+			
 			return response([
-	            "msg" => "Usuario actualizado exitosamente",
+	            "message" => "Usuario actualizado exitosamente",
 	            "data" => $user,
 	        ], 200);
 		}

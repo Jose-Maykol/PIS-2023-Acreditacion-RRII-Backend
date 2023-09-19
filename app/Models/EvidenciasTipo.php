@@ -11,8 +11,8 @@ class EvidenciasTipo extends Model
 
     public $timestamps = true;
 
-    protected $table ='evidencias_tipo';
+    protected $table ='evidence_types';
     protected $fillable = [
-        'tipo',
+        'description',
     ];
 }

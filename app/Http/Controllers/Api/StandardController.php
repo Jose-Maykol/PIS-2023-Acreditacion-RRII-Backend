@@ -13,17 +13,13 @@ use App\Models\Evidence;
 use Illuminate\Support\Facades\DB;
 use App\Models\Evidencias;
 use App\Models\RegistrationStatusModel;
-use App\Models\UserModel;
-use App\Models\UserStandardModel;
-use PhpParser\PrettyPrinter\Standard;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 
 class StandardController extends Controller
 {
 
     public function pruebas(Request $request, $year, $semester, $standard_id)
     {
-       
-        
     }
     public function createEstandar($year, $semester, Request $request)
     {
@@ -64,10 +60,10 @@ class StandardController extends Controller
 
     public function listPartialStandard($year, $semester)
     {
-        $standards = StandardModel::select('id', 'name', 'nro_standard')
-            ->where("date_id", DateModel::dateId($year, $semester))
-            ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
-            ->orderBy('nro_standard', 'asc')
+        $standards = StandardModel::where("standards.date_id", DateModel::dateId($year, $semester))
+            ->where('standards.registration_status_id', RegistrationStatusModel::registrationActiveId())
+            ->select('standards.id', 'standards.name', 'standards.nro_standard')
+            ->orderBy('standards.nro_standard', 'asc')
             ->get();
 
         if ($standards) {
@@ -107,26 +103,25 @@ class StandardController extends Controller
 				"access_token":"11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
 			}
 	*/
-    public function listStandardsAssignment($year, $semester){
+    public function listStandardsAssignment($year, $semester)
+    {
         $standardslist = StandardModel::where('standards.date_id', DateModel::dateId($year, $semester))
             ->select(
-                'standards.name',
                 'standards.id',
-                'users_standards.user_id',
+                'standards.name',
                 'standards.nro_standard',
-                'users.name as user_name',
-                'users.lastname as user_lastname',
-                'users.email as user_email'
             )
-            ->leftJoin('users_standards', 'users_standards.standard_id','=', 'standards.id')
-            ->leftJoin('users', 'users_standards.user_id', '=', 'users.id')
             ->orderBy('standards.nro_standard', 'asc')
+            ->with(['users' => function (Builder $query) {
+                $query->select('users.id', 'users.name', 'users.lastname', 'users.email');
+            }])
             ->get();
-        return response([
+        return response()->json([
             "msg" => "!Lista de nombres de Estandares",
             "data" => $standardslist,
         ], 200);
     }
+
     public function changeStandardAssignment($year, $semester, $standard_id, Request $request)
     {
         $request->validate([
@@ -135,24 +130,22 @@ class StandardController extends Controller
         ]);
 
         $user = auth()->user();
-        if($user->isAdmin()){
+        if ($user->isAdmin()) {
             $standard = StandardModel::find($standard_id);
-            if($standard){
+            if ($standard) {
                 $standard->users()->sync($request->users);
 
                 return response([
                     "status" => 1,
                     "msg" => "!Asignación de estándar cambiada",
                 ], 200);
-            }
-            else{
+            } else {
                 return response([
                     "status" => 0,
                     "msg" => "!No existe el estándar",
                 ], 404);
             }
-        }
-        else{
+        } else {
             return response([
                 "status" => 0,
                 "msg" => "!No está autorizado",
@@ -209,7 +202,7 @@ class StandardController extends Controller
     public function updateEstandar($year, $semester, $standard_id, Request $request)
     {
         $user = auth()->user();
-        
+
         if ($user->isAssignStandard($standard_id) or $user->isAdmin()) {
             $standard = StandardModel::find($standard_id);
             $standard->name = isset($request->name) ? $request->name : $standard->name;
@@ -221,7 +214,7 @@ class StandardController extends Controller
             $standard->save();
 
             $user_id = isset($request->user_id) ? $request->user_id : $standard->users()->first()->id;
-            try{
+            try {
                 $standard = StandardModel::find($standard_id);
                 $user_standard = User::find($standard->users()->first()->id);
                 $standard->users()->detach($user_standard);
@@ -230,24 +223,20 @@ class StandardController extends Controller
                     "msg" => "!Estandar actualizado",
                     "data" => $standard,
                 ], 200);
-            }
-            catch(\Exception $e){
+            } catch (\Exception $e) {
                 return response([
                     "msg" => "!Error en la Base de datos",
                 ], 500);
             }
-           
-            
         } else {
             return response([
                 "status" => 0,
                 "msg" => "!No se encontro el estandar o no esta autorizado",
             ], 404);
         }
-        
     }
 
-    public function updateUserStandard($year, $semester, $standard_id,Request $request)
+    public function updateUserStandard($year, $semester, $standard_id, Request $request)
     {
         $request->validate([
             "user_id" => "required|integer",
@@ -257,7 +246,7 @@ class StandardController extends Controller
         if ($user->isAdmin()) {
             $standard = StandardModel::find($standard_id);
             $user_id = isset($request->user_id) ? $request->user_id : $standard->users()->first()->id;
-            try{
+            try {
                 $user_standard = User::find($standard->users()->first()->id);
                 $standard->users()->detach($user_standard);
                 $standard->users()->attach(User::find($user_id));
@@ -265,21 +254,17 @@ class StandardController extends Controller
                     "msg" => "!Estandar actualizado",
                     "data" => $standard,
                 ], 200);
-            }
-            catch(\Exception $e){
+            } catch (\Exception $e) {
                 return response([
                     "msg" => "!Error en la Base de datos",
                 ], 500);
             }
-           
-            
         } else {
             return response([
                 "status" => 0,
                 "msg" => "!No se encontro el estandar o no esta autorizado",
             ], 404);
         }
-        
     }
     /*
 		ruta(delete): localhost:8000/api/2023/A/standards/{standard_id}
@@ -322,7 +307,7 @@ class StandardController extends Controller
 
     public function getStandardEvidences(Request $request, $year, $semester, $standard_id, $evidence_type_id)
     {
-        
+
         $request->validate([
             'parent_id' => 'nullable|integer',
         ]);
@@ -374,9 +359,9 @@ class StandardController extends Controller
     }
 
     public function searchEvidence($year, $semester, $standard_id)
-    {   
+    {
         if (StandardModel::where("id", $standard_id)->exists()) {
-            $evidences = Evidence::where('standard_id', $standard_id)->select('id', 'name', 'file', 'type') ->get();
+            $evidences = Evidence::where('standard_id', $standard_id)->select('id', 'name', 'file', 'type')->get();
             return response()->json([
                 "status" => 0,
                 "data" => $evidences,

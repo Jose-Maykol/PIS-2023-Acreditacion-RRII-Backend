@@ -36,7 +36,7 @@ class LoginController extends Controller
 
         //$user = UserModel::where("email", "=", $request->email)->where("registration_status_id",true)->first();
 		$user = User::where("email", "=", $request->email)
-					->where("registration_status_id", RegistrationStatusModel::registrationActive())
+					->where("registration_status_id", RegistrationStatusModel::registrationActiveId())
 					->first();
 
         if (isset($user->id)) {

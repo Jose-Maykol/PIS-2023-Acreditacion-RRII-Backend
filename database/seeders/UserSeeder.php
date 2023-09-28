@@ -23,7 +23,7 @@ class UserSeeder extends Seeder
             'lastname' => 'CANAZA CUADROS',
             'email'=> 'acanazacua@unsa.edu.pe',
             'password' => 'null',
-            'registration_status_id' => RegistrationStatusModel::registrationActive()
+            'registration_status_id' => RegistrationStatusModel::registrationActiveId()
         ]);
 
         $user->assignRole(RoleModel::findByName('administrador'));
@@ -33,7 +33,7 @@ class UserSeeder extends Seeder
             'lastname' => 'PANIURA HUAMANI',
             'email'=> 'jpaniura@unsa.edu.pe',
             'password' => 'null',
-            'registration_status_id' => RegistrationStatusModel::registrationActive()
+            'registration_status_id' => RegistrationStatusModel::registrationActiveId()
         ]);
 
         DB::table('users')->insert([
@@ -41,7 +41,7 @@ class UserSeeder extends Seeder
             'lastname' => 'ZEVALLOS APAZA',
             'email'=> 'azevallosa@unsa.edu.pe',
             'password' => 'null',
-            'registration_status_id' => RegistrationStatusModel::registrationActive()
+            'registration_status_id' => RegistrationStatusModel::registrationActiveId()
         ]);
 
         DB::table('users')->insert([
@@ -49,7 +49,7 @@ class UserSeeder extends Seeder
             'lastname' => 'ONQUE GARATE',
             'email'=> 'sonque@unsa.edu.pe',
             'password' => 'null',
-            'registration_status_id' => RegistrationStatusModel::registrationActive()
+            'registration_status_id' => RegistrationStatusModel::registrationActiveId()
         ]);
 
         DB::table('users')->insert([
@@ -57,7 +57,7 @@ class UserSeeder extends Seeder
             'lastname' => 'FLORES QUISPE',
             'email'=> 'pfloresq@unsa.edu.pe',
             'password' => 'null',
-            'registration_status_id' => RegistrationStatusModel::registrationActive()
+            'registration_status_id' => RegistrationStatusModel::registrationActiveId()
         ]);
 
         DB::table('users')->insert([
@@ -65,7 +65,7 @@ class UserSeeder extends Seeder
             'lastname' => 'CHOQUENEIRA CCASA',
             'email'=> 'pchoqueneira@unsa.edu.pe',
             'password' => 'null',
-            'registration_status_id' => RegistrationStatusModel::registrationActive()
+            'registration_status_id' => RegistrationStatusModel::registrationActiveId()
         ]);
 
         DB::table('users')->insert([
@@ -73,7 +73,7 @@ class UserSeeder extends Seeder
             'lastname' => 'TURPO COILA',
             'email'=> 'aturpoco@unsa.edu.pe',
             'password' => 'null',
-            'registration_status_id' => RegistrationStatusModel::registrationActive()
+            'registration_status_id' => RegistrationStatusModel::registrationActiveId()
         ]);
 
         DB::table('users')->insert([
@@ -81,7 +81,7 @@ class UserSeeder extends Seeder
             'lastname' => 'HUARACHA CONDORI',
             'email'=> 'whuaracha@unsa.edu.pe',
             'password' => 'null',
-            'registration_status_id' => RegistrationStatusModel::registrationActive()
+            'registration_status_id' => RegistrationStatusModel::registrationActiveId()
         ]);
     }
 }

@@ -30,9 +30,10 @@ class StandardModel extends Model
         return $this->belongsToMany(User::class, 'users_standards', 'standard_id', 'user_id')
         ->using(UserStandardModel::class);
     }
+    /*
     public static function user($standard_id){
-        return StandardModel::find($standard_id)->users()->first();
-    }
+        return StandardModel::find($standard_id)->users();
+    }*/
     
     public function plans(){
         return $this->hasMany(PlanModel::class,'standard_id');
@@ -41,7 +42,9 @@ class StandardModel extends Model
         return self::where('id', $standard_id)->exists();
     }
     public static function isActive($standard_id){
-        return self::where('id', $standard_id)->exists();
+        return self::where('id', $standard_id)
+                    ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
+                    ->exists();
     }
     public static function existsAndActive($standard_id){
         return self::exists($standard_id) and self::isActive($standard_id);

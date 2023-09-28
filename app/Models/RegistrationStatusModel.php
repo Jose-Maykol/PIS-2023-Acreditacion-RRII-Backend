@@ -14,10 +14,10 @@ class RegistrationStatusModel extends Model
     protected $fillable = [
         'description'
     ];
-    public static function registrationActive(){
+    public static function registrationActiveId(){
         return self::where('description', 'activo')->value('id');
     }
-    public static function registrationInactive(){
+    public static function registrationInactiveId(){
         return self::where('description', 'inactivo')->value('id');
     }
     public static function registrationAuthenticationPending(){

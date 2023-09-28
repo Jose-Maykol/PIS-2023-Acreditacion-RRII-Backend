@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('dimension', 100);
             $table->string('related_standards', 510);
             $table->unsignedTinyInteger('nro_standard',);
-            $table->mediumText('content')->nullable();
+            $table->mediumText('narrative')->nullable();
             $table->timestamps();
             $table->foreignId('date_id')
                 ->constrained('date_semesters');

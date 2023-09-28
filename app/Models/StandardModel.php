@@ -20,7 +20,7 @@ class StandardModel extends Model
         'factor',
         'dimension',
         'related_standards',
-        'content',
+        'narrative',
         'nro_standard',
 		'date_id',
         'registration_status_id'

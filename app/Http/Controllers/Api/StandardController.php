@@ -62,10 +62,29 @@ class StandardController extends Controller
 			}
 	*/
 
-    public function listEstandar($year, $semester)
+    public function listPartialStandard($year, $semester)
+    {
+        $standards = StandardModel::select('id', 'name', 'nro_standard')
+            ->where("date_id", DateModel::dateId($year, $semester))
+            ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
+            ->orderBy('nro_standard', 'asc')
+            ->get();
+
+        if ($standards) {
+            return response([
+                "msg" => "!Lista parcial de Estandares",
+                "data" => $standards,
+            ], 200);
+        } else {
+            return response([
+                "msg" => "!No hay lista de Estandares",
+            ], 404);
+        }
+    }
+    public function listStandard($year, $semester)
     {
         $standards = StandardModel::where("date_id", DateModel::dateId($year, $semester))
-            ->where('registration_status_id', RegistrationStatusModel::registrationActive())
+            ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
             ->orderBy('nro_standard', 'asc')
             ->get();
 
@@ -80,7 +99,6 @@ class StandardController extends Controller
             ], 404);
         }
     }
-
     /*
 		ruta(get): localhost:8000/api/2023/A/standards/standard-values
 		ruta(get): localhost:8000/api/2023/A/standards/4

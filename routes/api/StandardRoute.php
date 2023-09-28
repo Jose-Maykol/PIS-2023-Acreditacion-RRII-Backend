@@ -16,6 +16,8 @@ Route::middleware("auth:sanctum")->prefix('standards')->group(function () {
     Route::post('', [StandardController::class, 'createEstandar']);
     Route::get('', [StandardController::class, 'listStandard']);
     Route::get('partial', [StandardController::class], 'listPartialStandard');
+    Route::get('users', [StandardController::class], 'listStandardsAssignment');
+    Route::put('{standard_id}', [StandardController::class], 'changeStandardAssignment')->where('standard_id', '[0-9]+');
     Route::get('standard-values', [StandardController::class, 'listEstandarValores']);
     Route::get('{standard_id}', [StandardController::class, 'showEstandar'])->where('standard_id', '[0-9]+');
     Route::put('{standard_id}/users', [StandardController::class, 'updateUserStandard'])->where('standard_id', '[0-9]+');

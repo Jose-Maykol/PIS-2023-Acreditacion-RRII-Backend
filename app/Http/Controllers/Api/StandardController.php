@@ -107,25 +107,57 @@ class StandardController extends Controller
 				"access_token":"11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
 			}
 	*/
-    public function listEstandarValores($year, $semester){
+    public function listStandardsAssignment($year, $semester){
         $standardslist = StandardModel::where('standards.date_id', DateModel::dateId($year, $semester))
             ->select(
                 'standards.name',
                 'standards.id',
-                "users_standards.user_id",
-                "standards.nro_standard",
-                "users.name as user_name",
-                "users.lastname as user_lastname",
-                "users.email as user_email"
+                'users_standards.user_id',
+                'standards.nro_standard',
+                'users.name as user_name',
+                'users.lastname as user_lastname',
+                'users.email as user_email'
             )
-            ->join('users_standards', 'users_standards.standard_id','=', 'standards.id')
-            ->join('users', 'users_standards.user_id', '=', 'users.id')
+            ->leftJoin('users_standards', 'users_standards.standard_id','=', 'standards.id')
+            ->leftJoin('users', 'users_standards.user_id', '=', 'users.id')
             ->orderBy('standards.nro_standard', 'asc')
             ->get();
         return response([
             "msg" => "!Lista de nombres de Estandares",
             "data" => $standardslist,
         ], 200);
+    }
+    public function changeStandardAssignment($year, $semester, $standard_id, Request $request)
+    {
+        $request->validate([
+            'users' => 'required|array',
+            'users.*' => 'exists:users,id'
+        ]);
+
+        $user = auth()->user();
+        if($user->isAdmin()){
+            $standard = StandardModel::find($standard_id);
+            if($standard){
+                $standard->users()->sync($request->users);
+
+                return response([
+                    "status" => 1,
+                    "msg" => "!Asignación de estándar cambiada",
+                ], 200);
+            }
+            else{
+                return response([
+                    "status" => 0,
+                    "msg" => "!No existe el estándar",
+                ], 404);
+            }
+        }
+        else{
+            return response([
+                "status" => 0,
+                "msg" => "!No está autorizado",
+            ], 403);
+        }
     }
 
     /*

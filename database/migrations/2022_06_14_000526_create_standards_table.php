@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('name', 100);
             $table->string('factor', 100);
             $table->string('dimension', 100);
-            $table->string('related_standards', 510);
+            $table->string('related_standards', 550);
             $table->unsignedTinyInteger('nro_standard',);
             $table->mediumText('narrative')->nullable();
             $table->timestamps();

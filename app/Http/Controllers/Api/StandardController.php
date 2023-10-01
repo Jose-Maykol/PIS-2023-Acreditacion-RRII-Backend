@@ -18,10 +18,7 @@ use Illuminate\Contracts\Database\Eloquent\Builder;
 class StandardController extends Controller
 {
 
-    public function pruebas(Request $request, $year, $semester, $standard_id)
-    {
-    }
-    public function createEstandar($year, $semester, Request $request)
+    public function createStandard($year, $semester, Request $request)
     {
         $request->validate([
             "name" => "required",
@@ -77,6 +74,8 @@ class StandardController extends Controller
             ], 404);
         }
     }
+
+
     public function listStandard($year, $semester)
     {
         $standards = StandardModel::where("date_id", DateModel::dateId($year, $semester))
@@ -161,7 +160,7 @@ class StandardController extends Controller
 				"access_token":"11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
 			}
 	*/
-    public function showEstandar($year, $semester, $standard_id, Request $request)
+    public function showStandard($year, $semester, $standard_id, Request $request)
     {
 
         if (StandardModel::where("id", $standard_id)
@@ -199,7 +198,7 @@ class StandardController extends Controller
 	*/
 
 
-    public function updateEstandar($year, $semester, $standard_id, Request $request)
+    public function updateStandard($year, $semester, $standard_id, Request $request)
     {
         $user = auth()->user();
 

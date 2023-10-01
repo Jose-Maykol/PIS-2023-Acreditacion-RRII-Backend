@@ -19,8 +19,6 @@ return new class extends Migration
             $table->string('description');
             $table->foreignId('plan_id')
                   ->constrained('plans');
-            $table->foreignId('registration_status_id')
-                  ->constrained('registration_status');
         });
     }
 

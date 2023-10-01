@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
          DateSeeder::class,
          EvidenceTypeSeeder::class,
          PlanStatusSeeder::class,
+         StandardStatusSeeder::class,
          RolesPermissionsSeeder::class,
          StandardSeeder::class,        
          UserSeeder::class,

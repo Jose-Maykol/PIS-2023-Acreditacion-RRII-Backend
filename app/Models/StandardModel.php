@@ -23,6 +23,7 @@ class StandardModel extends Model
         'narrative',
         'nro_standard',
 		'date_id',
+        'standard_status_id',
         'registration_status_id'
     ];
 

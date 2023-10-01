@@ -164,7 +164,7 @@ class StandardController extends Controller
     {
 
         if (StandardModel::where("id", $standard_id)
-            ->where('registration_status_id', RegistrationStatusModel::registrationActive())
+            ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
             ->exists()
         ) {
             $standard = StandardModel::find($standard_id);

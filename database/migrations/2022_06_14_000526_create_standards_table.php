@@ -24,6 +24,8 @@ return new class extends Migration
             $table->timestamps();
             $table->foreignId('date_id')
                 ->constrained('date_semesters');
+            $table->foreignId('standard_status_id')
+                ->constrained('standard_status');
             $table->foreignId('registration_status_id')
                 ->constrained('registration_status');
         });

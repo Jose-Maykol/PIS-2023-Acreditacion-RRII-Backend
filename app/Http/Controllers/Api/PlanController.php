@@ -20,6 +20,7 @@ use App\Models\RootCauseModel;
 use App\Models\SourceModel;
 use App\Models\StandardModel;
 use App\Models\User;
+use PhpParser\PrettyPrinter\Standard;
 
 //plan::where(["id_user" => $id_user, "id" => $id])->exists()
 //$year, $semester, $plan_id, Request $request
@@ -40,10 +41,6 @@ class PlanController extends Controller
         ], 201);
     }
 
-    public function pruebas($year, $semester)
-    {
-    }
-
     // Arreglar el formato de IDs
     /*
 		ruta(post): localhost:8000/api/2023/A/plans/
@@ -57,41 +54,178 @@ class PlanController extends Controller
 	*/
     public function createPlan($year, $semester, Request $request)
     {
-        $request->validate([
-            'code' => 'required',
-            'name' => 'present|max:255',
-            'standard_id' => 'exists:standards,id'
-        ]);
+        try{
+            $request->validate([
+                'code' => [
+                    'required','string',
+                    function ($attribute, $value, $fail) {
+                        if (!preg_match('/^OM\d{2}-\d{2}-\d{4}$/', $value)) {
+                            $fail('El formato del código no es válido. Debe ser OMxx-zz-yyyy');
+                        }
+                    }
+                ],
+                "name" => "present||string|max:255",
+                "opportunity_for_improvement" => "present|string|max:255",
+                "semester_execution" => "present|string|max:8", //aaaa-A/B/C/AB
+                "advance" => "present|integer",
+                "duration" => "present|integer",
+                "efficacy_evaluation" => "present|boolean",
+                "standard_id" => "required|integer",
+                "plan_status_id" => "required|integer",
+                "sources" => "present|array|min:1",
+                "sources.*.description" => "required|string|min:1",
+                "problems_opportunities" => "present|array|min:1",
+                "problems_opportunities.*.description" => "required|string|min:1",
+                "root_causes" => "present|array|min:1",
+                "root_causes.*.description" => "required|string|min:1",
+                "improvement_actions" => "present|array|min:1",
+                "improvement_actions.*.description" => "required|string|min:1",
+                "resources" => "present|array|min:1",
+                "resources.*.description" => "required|string|min:1",
+                "goals" => "present|array|min:1",
+                "goals.*.description" => "required|string|min:1",
+                "responsibles" => "present|array|min:1",
+                "responsibles.*.description" => "required|string|min:1",
+                "observations" => "present|array|min:1",
+                "observations.*.description" => "required|string|min:1"
+            ]);
+        }
+        catch(\Illuminate\Validation\ValidationException $e){
+            return response()->json(['errors' => $e->errors()], 400);
+        }
+        //Lógica de negocio
 
         if (!DateModel::exists($year, $semester)) {
             return response()->json([
                 "message" => "No existe Date"
             ], 404);
         }
+        if(PlanModel::where('code', $request->code)->where('standard_id', $request->standard_id)->exists()){
+            return response()->json([
+                "message" => "Ya existe un plan de mejora con este código: ". $request->code
+            ], 422);
+        }
+
         $user = auth()->user();
 
-        if ($user->isAssignStandard($request->standard_id) or $user->isAdmin()) {
-            $plan = PlanModel::create([
-                'code' => $request->code,
-                'name' => $request->name,
-                'user_id' => StandardModel::user($request->standard_id)->id,
-                'date_id' => DateModel::dateId($year, $semester),
-                'standard_id' => $request->standard_id,
-                'efficacy_evaluation' => false,
-                'advance' => 0,
-                'plan_status_id' => PlanStatusModel::planId('planificado'),
-                'registration_status_id' => RegistrationStatusModel::registrationId('activo')
-            ]);
+        if (
+            $user->isAssignStandard($request->standard_id)
+            or $user->isAdmin()
+        ) {
+            $plan = new PlanModel();
+            $plan->code = $request->code;
+            $plan->name = $request->name;
+            $plan->opportunity_for_improvement = $request->opportunity_for_improvement;
+            $plan->semester_execution = $request->semester_execution;
+            $plan->advance = $request->advance;
+            $plan->duration = $request->duration;
+            $plan->efficacy_evaluation = $request->efficacy_evaluation;
+            $plan->plan_status_id = $request->plan_status_id;
+            $plan->standard_id = $request->standard_id;
+            $plan->user_id = $user->id;
+            $plan->date_id = DateModel::dateId($year, $semester);
+            $plan->registration_status_id = RegistrationStatusModel::registrationActiveId();
 
+            $plan->save();
+
+            /*-------------------------------Fuentes------------------------------*/
+
+            $sources = $request->sources;
+
+            if (isset($sources)) {
+                foreach ($sources as $source) {
+                    $plan->sources()->create([
+                        'description' => $source['description']
+                    ]);
+                }
+            }
+            /*----------------------------Problemas-------------------------------*/
+
+            $problems = $request->problems;
+
+            if (isset($problems)) {
+                foreach ($problems as $problem) {
+                    $plan->problemsOpportunities()->create([
+                        'description' => $problem['description'],
+                    ]);
+                }
+            }
+            /*--------------------------------Causas-------------------------------*/
+
+            $root_causes = $request->root_causes;
+
+            if (isset($root_causes)) {
+                foreach ($root_causes as $root_cause) {
+                    $plan->rootCauses()->create([
+                        'description' => $root_cause['description'],
+                    ]);
+                }
+            }
+            /*------------------------------Acciones-------------------------------*/
+
+            $actions = $request->actions;
+
+            if (isset($actions)) {
+                foreach ($actions as $action) {
+                    $plan->improvementActions()->create([
+                        'description' => $action['description'],
+                    ]);
+                }
+            }
+            /*------------------------------Recursos-------------------------------*/
+
+            $resources = $request->resources;
+
+            if (isset($resources)) {
+                foreach ($resources as $resource) {
+                    $plan->resources()->create([
+                        'description' => $resource['description'],
+                    ]);
+                }
+            }
+            /*--------------------------------Metas-------------------------------*/
+
+            $goals = $request->goals;
+
+            if (isset($goals)) {
+                foreach ($goals as $goal) {
+                    $plan->goals()->create([
+                        'description' => $goal['description'],
+                    ]);
+                }
+            }
+            /*---------------------------Responsables-------------------------------*/
+
+            $responsibles = $request->responsibles;
+
+            if (isset($responsibles)) {
+                foreach ($responsibles as $responsible) {
+                    $plan->responsibles()->create([
+                        'description' => $responsible['description'],
+                    ]);
+                }
+            }
+            /*--------------------------Observaciones-------------------------------*/
+
+            $observations = $request->observations;
+
+            if (isset($observations)) {
+                foreach ($observations as $observation) {
+                    $plan->observations()->create([
+                        'description' => $observation['description'],
+                    ]);
+                }
+            }
             return response()->json([
                 "message" => "!Plan de mejora creado exitosamente",
                 "data" => $plan
             ], 201);
+        } else {
+            return response([
+                "status" => 0,
+                "message" => "!No se encontro el plan o no esta autorizado",
+            ], 404);
         }
-
-        return response()->json([
-            "message" => "No estas autorizado"
-        ], 404);
     }
 
     /*
@@ -642,7 +776,7 @@ class PlanController extends Controller
         }
     }
 
-/*
+    /*
     public function assignPlan(Request $request)
     {
         $user_id = auth()->user()->id;

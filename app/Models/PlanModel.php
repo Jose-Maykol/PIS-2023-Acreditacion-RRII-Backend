@@ -22,8 +22,8 @@ class PlanModel extends Model
         'semester_execution',
         'advance',
         'duration',
-        'plan_status_id',
         'efficacy_evaluation',
+        'plan_status_id',
         'standard_id',
         'user_id',
         'date_id',
@@ -56,12 +56,12 @@ class PlanModel extends Model
     }
     public function isActive()
     {
-        return $this->where('registration_status_id', RegistrationStatusModel::registrationActive())
+        return $this->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
             ->exists();
     }
     public static function existsAndActive($plan_id)
     {
-        return self::where('id', $plan_id)->where('registration_status_id', RegistrationStatusModel::registrationActive())
+        return self::where('id', $plan_id)->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
             ->exists();
     }
 
@@ -162,7 +162,7 @@ class PlanModel extends Model
     public function deleteRegister()
     {
         return $this->update([
-            'registration_status_id' => RegistrationStatusModel::registrationInactive()
+            'registration_status_id' => RegistrationStatusModel::registrationInactiveId()
         ]);
     }
 }

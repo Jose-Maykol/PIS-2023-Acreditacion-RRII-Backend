@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\RegistrationStatusModel;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -17,11 +18,13 @@ class DateSeeder extends Seeder
     {
         DB::table('date_semesters')->insert([
             'year' => 2023,
-            'semester' => 'A'
+            'semester' => 'A',
+            'registration_status_id' => RegistrationStatusModel::registrationActiveId(),
         ]);
         DB::table('date_semesters')->insert([
             'year' => 2023,
-            'semester' => 'B'
+            'semester' => 'B',
+            'registration_status_id' => RegistrationStatusModel::registrationActiveId(),
         ]);
     }
 }

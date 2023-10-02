@@ -59,6 +59,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 2 (Participación de los grupos de interés) Estándar 5 (Pertinencia del perfil de egreso)",
             'nro_standard' => 1,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #2
@@ -69,6 +70,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 1 (Propósitos del programa) Estándar 3 (Revisión periódica y participativa de las políticas y objetivos) Estándar 5 (Pertinencia del perfil de egreso) Estándar 6 (Revisión del perfil de egreso) Estándar 8 (Planes de mejora) Estándar 22 (Gestión y calidad de la I+D+i realizada por docentes) Estándar 25 (Responsabilidad social) Estándar 34 (Seguimiento a egresados y objetivos educacionales)",
             'nro_standard' => 2,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #3
@@ -79,6 +81,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 2 (Participación de los grupos de interés)",
             'nro_standard' => 3,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #4
@@ -89,6 +92,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 3 (Revisión periódica y participativa de las políticas y objetivos) Estándar 28 (Equipamiento y uso de la infraestructura) Estándar 31 (Centros de información y referencia) Estándar 32 (Recursos Humanos para la gestión del programa de estudios)",
             'nro_standard' => 4,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #5
@@ -99,6 +103,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 1 (Propósitos articulados) Estándar 2 (Participación de los grupos de interés) Estándar 9 (Plan de estudios) Estándar 10 (Características del plan de estudios) Estándar 11 (Enfoque por competencias)",
             'nro_standard' => 5,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #6
@@ -109,6 +114,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 2 (Participación de los grupos de interés) Estándar 5 (Pertinencia del perfil de egreso) Estándar 7 (Sistema de gestión de calidad-SGC) Estándar 9 (Plan de estudios) Estándar 11 (Enfoque por competencias) Estándar 33 (Logro de competencias)",
             'nro_standard' => 6,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #7
@@ -119,6 +125,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 8 (Planes de mejora) Estándar 30 (Sistema de información y comunicación)",
             'nro_standard' => 7,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #8
@@ -129,6 +136,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 7 (Sistema de gestión de la calidad)",
             'nro_standard' => 8,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #9
@@ -139,6 +147,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 5 (Pertinencia del perfil de egreso) Estándar 6 (Revisión del perfil de egreso) Estándar 11 (Enfoque por competencias) Estándar 34 (Seguimiento a egresados y objetivos educacionales)",
             'nro_standard' => 9,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #10
@@ -149,6 +158,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 5 (Pertinencia del perfil de egreso) Estándar 11 (Enfoque por Competencias) Estándar 12 (Articulación con I+D+i y responsabilidad social) Estándar 20 (Seguimiento al desempeño de los estudiantes) Estándar 34 (Seguimiento a egresados y objetivos educacionales)",
             'nro_standard' => 10,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #11
@@ -159,6 +169,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 7 (Sistema de gestión de calidad) Estándar 9 (Plan de estudios) Estándar 14 (Selección, evaluación, capacitación y perfeccionamiento) Estándar 20 (Seguimiento al desempeño de los estudiantes) Estándar 33 (Logro de competencias)",
             'nro_standard' => 11,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #12
@@ -169,6 +180,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 10 (Características del plan de estudios) Estándar 11 (Enfoque por competencias) Estándar 11 (Enfoque por competencias) Estándar 16 (Reconocimiento de las actividades de labor docente) Estándar 33 (Logro de competencias)",
             'nro_standard' => 12,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #13
@@ -179,6 +191,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 15 (Plana docente adecuada) Estándar 33 (Logro de competencias)",
             'nro_standard' => 13,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #14
@@ -189,6 +202,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 10 (Características del plan de estudios) Estándar 15 (Plana docente adecuada)",
             'nro_standard' => 14,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #15
@@ -199,6 +213,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 1 (Propósitos articulados) Estándar 10 (Características del plan de estudios) Estándar 14 (Selección, evaluación, capacitación y perfeccionamiento)",
             'nro_standard' => 15,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #16
@@ -209,6 +224,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 14 (Selección, evaluación, capacitación y perfeccionamiento) Estándar 15 (Plana docente adecuada)",
             'nro_standard' => 16,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #17
@@ -219,6 +235,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 4 (Sostenibilidad) Estándar 14 (Selección, evaluación, capacitación y perfeccionamiento) Estándar 15 (Plana docente adecuada) Estándar 22 (Gestión y calidad de la I+D+i realizada por docentes) Estándar 23 (I+D+i para la obtención del grado y título) Estándar 33 (Logro de competencias)",
             'nro_standard' => 17,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #18
@@ -229,6 +246,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 6 (Revisión del perfil de egreso) Estándar 19 (Nivelación de ingresantes) Estándar 33 (Logro de competencias)",
             'nro_standard' => 18,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #19
@@ -239,6 +257,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 18 (Admisión al programa de estudios) Estándar 20 (Seguimiento al desempeño de los estudiantes) Estándar 21 (Actividades extracurriculares) Estándar 33 (Logro de competencias)",
             'nro_standard' => 19,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #20
@@ -249,6 +268,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 18 (Admisión al programa de estudios) Estándar 19 (Nivelación de ingresantes) Estándar 21 (Actividades extracurriculares) Estándar 23 (I+D+i para la obtención del grado y el título) Estándar 27 (Bienestar) Estándar 33 (Logro de competencias)",
             'nro_standard' => 20,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #21
@@ -259,6 +279,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 5 (Pertinencia del perfil de egreso) Estándar 20 (Seguimiento al desempeño de los estudiantes) Estándar 33 (Logro de competencias) Estándar 27 (Bienestar) Estándar 25 (Responsabilidad social)",
             'nro_standard' => 21,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #22
@@ -269,6 +290,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 1 (Propósitos articulados) Estándar 3 (Revisión periódica y participativa de las políticas y objetivos) Estándar 4 (Sostenibilidad) Estándar 12 (Articulación con I+D+i y responsabilidad social) Estándar 15 (Plana docente adecuada)",
             'nro_standard' => 22,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #23
@@ -279,6 +301,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 1 (Propósitos articulados) Estándar 3 (Revisión periódica y participativa de las políticas y objetivos) Estándar 10 (Características del plan de estudios) Estándar 12 (Articulación con I+D+i y responsabilidad social) Estándar 31 (Centros de información y referencia)",
             'nro_standard' => 23,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #24
@@ -289,6 +312,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 12 (Articulación con I+D+i y responsabilidad social) Estándar 22 (Gestión y calidad de la I+D+i realizada por docentes) Estándar 23 (I+D+i para la obtención del grado y el título) Estándar 31 (Centros de información y referencia)",
             'nro_standard' => 24,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #25
@@ -299,6 +323,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 2 (Participación de los grupos de interés) Estándar 4 (Sostenibilidad) Estándar 11(Enfoque por competencias) Estándar 12 (Articulación con I+D+i y responsabilidad social) Estándar 22 (Gestión y calidad de la I+D+i realizada por docentes) Estándar 26 (Implementación de políticas ambientales)",
             'nro_standard' => 25,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #26
@@ -309,6 +334,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 3 (Revisión periódica y participativa de las políticas y objetivos) Estándar 25 (Responsabilidad social)",
             'nro_standard' => 26,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
 
@@ -320,6 +346,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 4 (Sostenibilidad)",
             'nro_standard' => 27,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #28
@@ -330,6 +357,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 4 (Sostenibilidad) Estándar 29 (Mantenimiento de la infraestructura)",
             'nro_standard' => 28,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #29
@@ -340,6 +368,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 4 (Sostenibilidad)",
             'nro_standard' => 29,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #30
@@ -350,6 +379,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 7 (Sistema de gestión de la calidad) Estándar 18 (Admisión al programa de estudios) Estándar 19 (Nivelación de ingresantes) Estándar 20 (Seguimiento al desempeño de los estudiantes)",
             'nro_standard' => 30,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #31
@@ -360,6 +390,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 9 (Plan de estudios)",
             'nro_standard' => 31,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #32
@@ -370,6 +401,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 1 (Propósitos articulados) Estándar 14 (Selección, evaluación, capacitación y perfeccionamiento) Estándar 15 (Plana docente adecuada) Estándar 17 (Plan de desarrollo académico del docente)",
             'nro_standard' => 32,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #33
@@ -380,6 +412,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 5 (Pertinencia del perfil de egreso) Estándar 6 (Revisión del perfil de egreso) Estándar 10 (Características del plan de estudios) Estándar 11 (Enfoque por competencias)",
             'nro_standard' => 33,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
         //Standard #34
@@ -390,6 +423,7 @@ class StandardModel extends Model
             'related_standards' => "Estándar 10 (Características del plan de estudios) Estándar 33 (Logro de competencias)",
             'nro_standard' => 34,
             'date_id' => DateModel::dateId($year, $semester),
+            'standard_status_id' => StandardStatusModel::standardStatusId('no logrado'),
             'registration_status_id' =>   RegistrationStatusModel::registrationActiveId()
         ]);
     }

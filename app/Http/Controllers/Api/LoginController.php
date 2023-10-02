@@ -149,11 +149,11 @@ class LoginController extends Controller
 			return response()->json(['error' => 'Credenciales de google invalidas.'], 422);
 		}
 
-		$registrationStatusId = RegistrationStatusModel::registrationActive();
-
 		$user = User::where("email", "=", $userProvider->email)
+				->where("registration_status_id", RegistrationStatusModel::registrationActiveId())
 				->first();
 		if (isset($user)) {
+			$registrationStatusId = RegistrationStatusModel::registrationActiveId();
 			$userCreated = User::updateOrCreate(
 				[
 					'email' => $userProvider->email

@@ -137,7 +137,7 @@ class LoginController extends Controller
 				"id_provider":"114480000560878434027"
 			}
 	*/
-	public function handleProviderCallback($provider){
+	public function handleProviderCallback($provider, Request $request){
 		$validated = $this->validateProvider($provider);
 		if (!is_null($validated)) {
 			return $validated;

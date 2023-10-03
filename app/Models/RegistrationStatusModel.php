@@ -20,6 +20,9 @@ class RegistrationStatusModel extends Model
     public static function registrationInactiveId(){
         return self::where('description', 'inactivo')->value('id');
     }
+    public static function registrationDelete(){
+        return self::where('description', 'inactivo')->value('id');
+    }
     public static function registrationAuthenticationPending(){
         return self::where('description', 'pendiente de autenticación')->value('id');
     }

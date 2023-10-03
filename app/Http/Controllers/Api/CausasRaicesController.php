@@ -9,6 +9,8 @@ use App\Models\RootCauseModel;
 use App\Models\PlanModel;
 use Illuminate\Http\Request;
 
+use App\Models\RegistrationStatusModel;
+
 class CausasRaicesController extends Controller
 {
     /*

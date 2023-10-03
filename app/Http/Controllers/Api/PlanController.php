@@ -41,15 +41,34 @@ class PlanController extends Controller
         ], 201);
     }
 
-    // Arreglar el formato de IDs
     /*
 		ruta(post): localhost:8000/api/2023/A/plans/
 		ruta(post): localhost:8000/api/2023/A/plans/
-		datos:
+        datos:
             {
-                "code":"OM05-04-2023",
+                "code":"OM82-04-2023",
                 "name":"Crear plan",
-                "standard_id":"1"
+                "opportunity_for_improvement": "MEJORAR MEJORAR",
+                "semester_execution": "2023A",
+                "user_id": 1,
+                "date_id": 1,
+                "standard_id": 1,
+                "efficacy_evaluation": false,
+                "advance": 5,
+                "duration": 7,
+                "sources": [{"description": "Description for source 1"}],
+                "problems_opportunities": [{"description": "Description for problem/opportunity 1"}],
+                "root_causes": [{"description": "Description for root cause 1"}],
+                "improvement_actions": [{"description": "Description for improvement action 1"}],
+                "resources": [{"description": "Description for resource 1"}],
+                "goals": [{ "id": 1,"description": "Meta10" }, { "description": "Meta15" },{ "description": "Meta14" }],
+                "responsibles": [{"description": "Description for responsible 1"}],
+                "observations":[{"description": "Description for observation 1"}],
+                "plan_status_id": 2,
+                "registration_status_id": 1,
+                "updated_at": "2023-09-10T19:38:11.000000Z",
+                "created_at": "2023-09-10T19:38:11.000000Z",
+                "id": 3
             }
 	*/
     public function createPlan($year, $semester, Request $request)
@@ -135,7 +154,8 @@ class PlanController extends Controller
             if (isset($sources)) {
                 foreach ($sources as $source) {
                     $plan->sources()->create([
-                        'description' => $source['description']
+                        'description' => $source['description'],
+                        'registration_status_id' => 1
                     ]);
                 }
             }
@@ -147,6 +167,7 @@ class PlanController extends Controller
                 foreach ($problems as $problem) {
                     $plan->problemsOpportunities()->create([
                         'description' => $problem['description'],
+                        'registration_status_id' => 1
                     ]);
                 }
             }
@@ -158,6 +179,7 @@ class PlanController extends Controller
                 foreach ($root_causes as $root_cause) {
                     $plan->rootCauses()->create([
                         'description' => $root_cause['description'],
+                        'registration_status_id' => 1
                     ]);
                 }
             }
@@ -169,6 +191,7 @@ class PlanController extends Controller
                 foreach ($actions as $action) {
                     $plan->improvementActions()->create([
                         'description' => $action['description'],
+                        'registration_status_id' => 1
                     ]);
                 }
             }
@@ -180,6 +203,7 @@ class PlanController extends Controller
                 foreach ($resources as $resource) {
                     $plan->resources()->create([
                         'description' => $resource['description'],
+                        'registration_status_id' => 1
                     ]);
                 }
             }
@@ -191,6 +215,7 @@ class PlanController extends Controller
                 foreach ($goals as $goal) {
                     $plan->goals()->create([
                         'description' => $goal['description'],
+                        'registration_status_id' => 1
                     ]);
                 }
             }
@@ -202,6 +227,7 @@ class PlanController extends Controller
                 foreach ($responsibles as $responsible) {
                     $plan->responsibles()->create([
                         'description' => $responsible['description'],
+                        'registration_status_id' => 1
                     ]);
                 }
             }
@@ -213,6 +239,7 @@ class PlanController extends Controller
                 foreach ($observations as $observation) {
                     $plan->observations()->create([
                         'description' => $observation['description'],
+                        'registration_status_id' => 1
                     ]);
                 }
             }
@@ -230,39 +257,38 @@ class PlanController extends Controller
 
     /*
 		ruta(put): localhost:8000/api/2023/A/plans/{plan_id}
-		ruta(put): localhost:8000/api/2023/A/plans/1
+		ruta(put): localhost:8000/api/2023/A/plans/28
 		datos:
             {
-                "code": "OM-01-03:2023",
-                "name": "Mejora Campus",
+                "id": 28,
+                "code": "OM23-04-2023",
+                "name": "Modificar plan",
                 "opportunity_for_improvement": "MEJORAR MEJORAR",
                 "semester_execution": "2023A",
-                "user_id": 1,
-                "date_id": 1,
-                "standard_id": 1,
-                "efficacy_evaluation": false,
                 "advance": 5,
                 "duration": 7,
-                "sources": [],
-                "problems_opportunities": [],
-                "root_causes": [],
-                "improvement_actions": [],
-                "resources": [],
-                "goals": [{ "id": 1,"description": "Meta10" }, { "description": "Meta15" },{ "description": "Meta14" }],
-                "responsibles": [],
-                "observations":[],
-                "plan_status_id": 2,
-                "registration_status_id": 1,
-                "updated_at": "2023-09-10T19:38:11.000000Z",
-                "created_at": "2023-09-10T19:38:11.000000Z",
-                "id": 3
+                "efficacy_evaluation": false,
+                "standard_id": 1,
+                "plan_status_id": 1,
+                "sources": [{"id": 1, "description": "Description for source 1"}],
+                "problems_opportunities": [{"id": 1, "description": "Description for problem/opportunity 1"}],
+                "root_causes": [{"id": 1, "description": "Description for root cause 1"}],
+                "improvement_actions": [{"id": 1, "description": "Description for improvement action 1"}],
+                "resources": [{"id": 1, "description": "Description for resource 1"}],
+                "goals": [
+                    { "id": 1, "description": "Meta10" },
+                    { "id": 2, "description": "Meta15" },
+                    { "id": 3, "description": "Meta14" }
+                ],
+                "responsibles": [{"id": 1, "description": "Description for responsible 1"}],
+                "observations": [{"id": 1, "description": "Description for observation 1"}]
             }
 	*/
     public function updatePlan($year, $semester, $plan_id, Request $request)
     {
         $request->validate([
             "id" => "required|integer",
-            'code' => 'required',
+            "code" => "required",
             "name" => "present|max:255",
             "opportunity_for_improvement" => "present|max:255",
             "semester_execution" => "present|max:8", //aaaa-A/B/C/AB
@@ -321,20 +347,20 @@ class PlanController extends Controller
             if (isset($sources)) {
                 foreach ($sources as $source) {
                     if (isset($source['id'])) {
-                        $plan->sources()->updateOrCreate(
+                        $plan->sources()->update(
                             [
                                 "id" => $source['id']
                             ],
                             [
                                 "description" => $source['description'],
-                                "registration_status_id" => RegistrationStatusModel::registrationActive(),
+                                "registration_status_id" => RegistrationStatusModel::registrationActiveId(),
                                 //"id_plan" => $plan->id
                             ]
                         );
                     } else {
                         $plan->sources()->create([
                             'description' => $source['description'],
-                            "registration_status_id" => RegistrationStatusModel::registrationActive()
+                            "registration_status_id" => RegistrationStatusModel::registrationActiveId()
                         ]);
                     }
                 }
@@ -359,14 +385,14 @@ class PlanController extends Controller
                             ],
                             [
                                 "description" => $problem['description'],
-                                "registration_status_id" => RegistrationStatusModel::registrationActive(),
+                                "registration_status_id" => RegistrationStatusModel::registrationActiveId(),
                                 //"id_plan" => $plan->id
                             ]
                         );
                     } else {
                         $plan->problemsOpportunities()->create([
                             'description' => $problem['description'],
-                            "registration_status_id" => RegistrationStatusModel::registrationActive()
+                            "registration_status_id" => RegistrationStatusModel::registrationActiveId()
                         ]);
                     }
                 }
@@ -389,14 +415,14 @@ class PlanController extends Controller
                             ],
                             [
                                 "description" => $root_cause['description'],
-                                "registration_status_id" => RegistrationStatusModel::registrationActive(),
+                                "registration_status_id" => RegistrationStatusModel::registrationActiveId(),
                                 //"id_plan" => $plan->id
                             ]
                         );
                     } else {
                         $plan->rootCauses()->create([
                             'description' => $root_cause['description'],
-                            "registration_status_id" => RegistrationStatusModel::registrationActive()
+                            "registration_status_id" => RegistrationStatusModel::registrationActiveId()
                         ]);
                     }
                 }
@@ -419,14 +445,14 @@ class PlanController extends Controller
                             ],
                             [
                                 "description" => $action['description'],
-                                "registration_status_id" => RegistrationStatusModel::registrationActive(),
+                                "registration_status_id" => RegistrationStatusModel::registrationActiveId(),
                                 //"id_plan" => $plan->id
                             ]
                         );
                     } else {
                         $plan->improvementActions()->create([
                             'description' => $action['description'],
-                            "registration_status_id" => RegistrationStatusModel::registrationActive()
+                            "registration_status_id" => RegistrationStatusModel::registrationActiveId()
                         ]);
                     }
                 }
@@ -449,14 +475,14 @@ class PlanController extends Controller
                             ],
                             [
                                 "description" => $resource['description'],
-                                "registration_status_id" => RegistrationStatusModel::registrationActive(),
+                                "registration_status_id" => RegistrationStatusModel::registrationActiveId(),
                                 //"id_plan" => $plan->id
                             ]
                         );
                     } else {
                         $plan->resources()->create([
                             'description' => $resource['description'],
-                            "registration_status_id" => RegistrationStatusModel::registrationActive()
+                            "registration_status_id" => RegistrationStatusModel::registrationActiveId()
                         ]);
                     }
                 }
@@ -480,14 +506,14 @@ class PlanController extends Controller
                             ],
                             [
                                 "description" => $goal['description'],
-                                "registration_status_id" => RegistrationStatusModel::registrationActive(),
+                                "registration_status_id" => RegistrationStatusModel::registrationActiveId(),
                                 //"id_plan" => $plan->id
                             ]
                         );
                     } else {
                         $plan->goals()->create([
                             'description' => $goal['description'],
-                            "registration_status_id" => RegistrationStatusModel::registrationActive()
+                            "registration_status_id" => RegistrationStatusModel::registrationActiveId()
                         ]);
                     }
                 }
@@ -510,14 +536,14 @@ class PlanController extends Controller
                             ],
                             [
                                 "description" => $responsible['description'],
-                                "registration_status_id" => RegistrationStatusModel::registrationActive(),
+                                "registration_status_id" => RegistrationStatusModel::registrationActiveId(),
                                 //"id_plan" => $plan->id
                             ]
                         );
                     } else {
                         $plan->responsibles()->create([
                             'description' => $responsible['description'],
-                            "registration_status_id" => RegistrationStatusModel::registrationActive()
+                            "registration_status_id" => RegistrationStatusModel::registrationActiveId()
                         ]);
                     }
                 }
@@ -542,14 +568,14 @@ class PlanController extends Controller
                             ],
                             [
                                 "description" => $observation['description'],
-                                "registration_status_id" => RegistrationStatusModel::registrationActive(),
+                                "registration_status_id" => RegistrationStatusModel::registrationActiveId(),
                                 //"id_plan" => $plan->id
                             ]
                         );
                     } else {
                         $plan->observations()->create([
                             'description' => $observation['description'],
-                            "registration_status_id" => RegistrationStatusModel::registrationActive()
+                            "registration_status_id" => RegistrationStatusModel::registrationActiveId()
                         ]);
                     }
                 }

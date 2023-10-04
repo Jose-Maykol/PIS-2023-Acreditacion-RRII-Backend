@@ -42,7 +42,7 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path('routes/api.php'));
             
             Route::middleware('cors')
-                ->middleware(['api'])
+                ->middleware('api')
                 ->prefix('api/{year}/{semester}')
                 ->group(function(){
                     require base_path('routes/api/EvidenceRoute.php');
@@ -51,7 +51,7 @@ class RouteServiceProvider extends ServiceProvider
                     require base_path('routes/api/ValuesRoute.php');
                 });
             Route::middleware('cors')
-                ->middleware(['api'])//   /api/
+                ->middleware('api')//   /api/
                 ->prefix('api')
                 ->group(function(){
                     require base_path('routes/api/AuthRoute.php');

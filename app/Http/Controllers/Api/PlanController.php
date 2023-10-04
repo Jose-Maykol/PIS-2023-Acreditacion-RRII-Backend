@@ -83,7 +83,7 @@ class PlanController extends Controller
                         }
                     }
                 ],
-                "name" => "present||string|max:255",
+                "name" => "present|string|max:255",
                 "opportunity_for_improvement" => "present|string|max:255",
                 "semester_execution" => "present|string|max:8", //aaaa-A/B/C/AB
                 "advance" => "present|integer",
@@ -155,7 +155,6 @@ class PlanController extends Controller
                 foreach ($sources as $source) {
                     $plan->sources()->create([
                         'description' => $source['description'],
-                        'registration_status_id' => 1
                     ]);
                 }
             }
@@ -167,7 +166,6 @@ class PlanController extends Controller
                 foreach ($problems as $problem) {
                     $plan->problemsOpportunities()->create([
                         'description' => $problem['description'],
-                        'registration_status_id' => 1
                     ]);
                 }
             }
@@ -179,7 +177,6 @@ class PlanController extends Controller
                 foreach ($root_causes as $root_cause) {
                     $plan->rootCauses()->create([
                         'description' => $root_cause['description'],
-                        'registration_status_id' => 1
                     ]);
                 }
             }
@@ -191,7 +188,6 @@ class PlanController extends Controller
                 foreach ($actions as $action) {
                     $plan->improvementActions()->create([
                         'description' => $action['description'],
-                        'registration_status_id' => 1
                     ]);
                 }
             }
@@ -203,7 +199,6 @@ class PlanController extends Controller
                 foreach ($resources as $resource) {
                     $plan->resources()->create([
                         'description' => $resource['description'],
-                        'registration_status_id' => 1
                     ]);
                 }
             }
@@ -215,7 +210,6 @@ class PlanController extends Controller
                 foreach ($goals as $goal) {
                     $plan->goals()->create([
                         'description' => $goal['description'],
-                        'registration_status_id' => 1
                     ]);
                 }
             }
@@ -227,7 +221,6 @@ class PlanController extends Controller
                 foreach ($responsibles as $responsible) {
                     $plan->responsibles()->create([
                         'description' => $responsible['description'],
-                        'registration_status_id' => 1
                     ]);
                 }
             }
@@ -239,7 +232,6 @@ class PlanController extends Controller
                 foreach ($observations as $observation) {
                     $plan->observations()->create([
                         'description' => $observation['description'],
-                        'registration_status_id' => 1
                     ]);
                 }
             }

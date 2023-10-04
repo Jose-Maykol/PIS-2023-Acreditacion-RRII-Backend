@@ -13,7 +13,8 @@ class DateModel extends Model
     protected $table ='date_semesters';
     protected $fillable = [
         'year',
-        'semester'
+        'semester',
+        'registration_status_id'
     ];
     public static function dateId($year, $semester){
         return self::where('year', $year)->where('semester', $semester)->value('id');

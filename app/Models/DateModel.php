@@ -13,12 +13,18 @@ class DateModel extends Model
     protected $table ='date_semesters';
     protected $fillable = [
         'year',
-        'semester'
+        'semester',
+        'registration_status_id',
     ];
     public static function dateId($year, $semester){
         return self::where('year', $year)->where('semester', $semester)->value('id');
     }
     public static function exists($year, $semester){
         return self::where('year', $year)->where('semester', $semester)->exists();
+    }
+    public function deleteRegister(){
+        return $this->update([
+            'registration_status_id' => RegistrationStatusModel::registrationDelete()
+        ]);
     }
 }

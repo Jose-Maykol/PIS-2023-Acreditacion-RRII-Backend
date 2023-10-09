@@ -278,34 +278,40 @@ class PlanController extends Controller
 	*/
     public function updatePlan($year, $semester, $plan_id, Request $request)
     {
-        $request->validate([
-            "id" => "required|integer",
-            "code" => "required",
-            "name" => "present|max:255",
-            "opportunity_for_improvement" => "present|max:255",
-            "semester_execution" => "present|max:8", //aaaa-A/B/C/AB
-            "advance" => "present|integer",
-            "duration" => "present|integer",
-            "efficacy_evaluation" => "present|boolean",
-            "standard_id" => "required|integer",
-            "plan_status_id" => "required|integer",
-            "sources" => "present",
-            "sources.*.description" => "required",
-            "problems_opportunities" => "present",
-            "problems_opportunities.*.description" => "required",
-            "root_causes" => "present",
-            "root_causes.*.description" => "required",
-            "improvement_actions" => "present",
-            "improvement_actions.*.description" => "required",
-            "resources" => "present",
-            "resources.*.description" => "required",
-            "goals" => "present",
-            "goals.*.description" => "required",
-            "responsibles" => "present",
-            "responsibles.*.description" => "required",
-            "observations" => "present",
-            "observations.*.description" => "required"
-        ]);
+        try {
+            $request->validate([
+                "id" => "required|integer",
+                "code" => "required",
+                "name" => "present|max:255",
+                "opportunity_for_improvement" => "present|max:255",
+                "semester_execution" => "present|max:8", //aaaa-A/B/C/AB
+                "advance" => "present|integer",
+                "duration" => "present|integer",
+                "efficacy_evaluation" => "present|boolean",
+                "standard_id" => "required|integer",
+                "plan_status_id" => "required|integer",
+                "sources" => "present",
+                "sources.*.description" => "required",
+                "problems_opportunities" => "present",
+                "problems_opportunities.*.description" => "required",
+                "root_causes" => "present",
+                "root_causes.*.description" => "required",
+                "improvement_actions" => "present",
+                "improvement_actions.*.description" => "required",
+                "resources" => "present",
+                "resources.*.description" => "required",
+                "goals" => "present",
+                "goals.*.description" => "required",
+                "responsibles" => "present",
+                "responsibles.*.description" => "required",
+                "observations" => "present",
+                "observations.*.description" => "required"
+            ]);
+        }
+        catch(\Illuminate\Validation\ValidationException $e){
+            return response()->json(['errors' => $e->errors()], 400);
+        }
+        
         $user = auth()->user();
         if (
             PlanModel::existsAndActive($plan_id) and $user->isCreatorPlan($plan_id)
@@ -345,14 +351,14 @@ class PlanController extends Controller
                             ],
                             [
                                 "description" => $source['description'],
-                                "registration_status_id" => RegistrationStatusModel::registrationActiveId(),
+                                //"registration_status_id" => RegistrationStatusModel::registrationActiveId(),
                                 //"id_plan" => $plan->id
                             ]
                         );
                     } else {
                         $plan->sources()->create([
                             'description' => $source['description'],
-                            "registration_status_id" => RegistrationStatusModel::registrationActiveId()
+                            //"registration_status_id" => RegistrationStatusModel::registrationActiveId()
                         ]);
                     }
                 }
@@ -377,14 +383,14 @@ class PlanController extends Controller
                             ],
                             [
                                 "description" => $problem['description'],
-                                "registration_status_id" => RegistrationStatusModel::registrationActiveId(),
+                                //"registration_status_id" => RegistrationStatusModel::registrationActiveId(),
                                 //"id_plan" => $plan->id
                             ]
                         );
                     } else {
                         $plan->problemsOpportunities()->create([
                             'description' => $problem['description'],
-                            "registration_status_id" => RegistrationStatusModel::registrationActiveId()
+                            //"registration_status_id" => RegistrationStatusModel::registrationActiveId()
                         ]);
                     }
                 }
@@ -407,14 +413,14 @@ class PlanController extends Controller
                             ],
                             [
                                 "description" => $root_cause['description'],
-                                "registration_status_id" => RegistrationStatusModel::registrationActiveId(),
+                                //"registration_status_id" => RegistrationStatusModel::registrationActiveId(),
                                 //"id_plan" => $plan->id
                             ]
                         );
                     } else {
                         $plan->rootCauses()->create([
                             'description' => $root_cause['description'],
-                            "registration_status_id" => RegistrationStatusModel::registrationActiveId()
+                            //"registration_status_id" => RegistrationStatusModel::registrationActiveId()
                         ]);
                     }
                 }
@@ -437,14 +443,14 @@ class PlanController extends Controller
                             ],
                             [
                                 "description" => $action['description'],
-                                "registration_status_id" => RegistrationStatusModel::registrationActiveId(),
+                                //"registration_status_id" => RegistrationStatusModel::registrationActiveId(),
                                 //"id_plan" => $plan->id
                             ]
                         );
                     } else {
                         $plan->improvementActions()->create([
                             'description' => $action['description'],
-                            "registration_status_id" => RegistrationStatusModel::registrationActiveId()
+                            //"registration_status_id" => RegistrationStatusModel::registrationActiveId()
                         ]);
                     }
                 }
@@ -467,14 +473,14 @@ class PlanController extends Controller
                             ],
                             [
                                 "description" => $resource['description'],
-                                "registration_status_id" => RegistrationStatusModel::registrationActiveId(),
+                                //"registration_status_id" => RegistrationStatusModel::registrationActiveId(),
                                 //"id_plan" => $plan->id
                             ]
                         );
                     } else {
                         $plan->resources()->create([
                             'description' => $resource['description'],
-                            "registration_status_id" => RegistrationStatusModel::registrationActiveId()
+                            //"registration_status_id" => RegistrationStatusModel::registrationActiveId()
                         ]);
                     }
                 }
@@ -498,14 +504,14 @@ class PlanController extends Controller
                             ],
                             [
                                 "description" => $goal['description'],
-                                "registration_status_id" => RegistrationStatusModel::registrationActiveId(),
+                                //"registration_status_id" => RegistrationStatusModel::registrationActiveId(),
                                 //"id_plan" => $plan->id
                             ]
                         );
                     } else {
                         $plan->goals()->create([
                             'description' => $goal['description'],
-                            "registration_status_id" => RegistrationStatusModel::registrationActiveId()
+                            //"registration_status_id" => RegistrationStatusModel::registrationActiveId()
                         ]);
                     }
                 }
@@ -528,14 +534,14 @@ class PlanController extends Controller
                             ],
                             [
                                 "description" => $responsible['description'],
-                                "registration_status_id" => RegistrationStatusModel::registrationActiveId(),
+                                //"registration_status_id" => RegistrationStatusModel::registrationActiveId(),
                                 //"id_plan" => $plan->id
                             ]
                         );
                     } else {
                         $plan->responsibles()->create([
                             'description' => $responsible['description'],
-                            "registration_status_id" => RegistrationStatusModel::registrationActiveId()
+                            //"registration_status_id" => RegistrationStatusModel::registrationActiveId()
                         ]);
                     }
                 }
@@ -560,14 +566,14 @@ class PlanController extends Controller
                             ],
                             [
                                 "description" => $observation['description'],
-                                "registration_status_id" => RegistrationStatusModel::registrationActiveId(),
+                                //"registration_status_id" => RegistrationStatusModel::registrationActiveId(),
                                 //"id_plan" => $plan->id
                             ]
                         );
                     } else {
                         $plan->observations()->create([
                             'description' => $observation['description'],
-                            "registration_status_id" => RegistrationStatusModel::registrationActiveId()
+                            //"registration_status_id" => RegistrationStatusModel::registrationActiveId()
                         ]);
                     }
                 }

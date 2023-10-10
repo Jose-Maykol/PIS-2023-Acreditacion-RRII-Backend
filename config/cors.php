@@ -17,11 +17,11 @@ return [
 
     'paths' => ['api/*','/*', 'sanctum/csrf-cookie','oauth/*'],
 
-    'allowed_methods' => ['*'],
+    'allowed_methods' => ['GET', 'POST', 'PUT', 'DELETE'],
 
-    'allowed_origins' => ['*','http://localhost:3000/','http://127.0.0.1:3000/', 'https://acreditacion-rrii.braincraft.cloud/'],
+    'allowed_origins' => ['http://localhost:3000/','http://127.0.0.1:3000/', 'https://acreditacion-rrii.braincraft.cloud/'],
 
-    'allowed_origins_patterns' =>  ['content-type', 'accept', 'x-custom-header', 'Access-Control-Allow-Origin'],
+    'allowed_origins_patterns' =>  [],
 
     'allowed_headers' => ['*'],
 
@@ -29,6 +29,6 @@ return [
 
     'max_age' => 0,
 
-    'supports_credentials' => false,
+    'supports_credentials' => true,
 
 ];

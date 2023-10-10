@@ -17,7 +17,7 @@ return [
 
     'paths' => ['api/*','/*', 'sanctum/csrf-cookie','oauth/*'],
 
-    'allowed_methods' => ['GET', 'POST', 'PUT', 'DELETE'],
+    'allowed_methods' => ['*'],
 
     'allowed_origins' => ['*','http://localhost:3000/','http://127.0.0.1:3000/', 'https://acreditacion-rrii.braincraft.cloud/'],
 

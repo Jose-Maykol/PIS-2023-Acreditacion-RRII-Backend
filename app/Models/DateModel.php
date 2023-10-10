@@ -22,4 +22,9 @@ class DateModel extends Model
     public static function exists($year, $semester){
         return self::where('year', $year)->where('semester', $semester)->exists();
     }
+    public function deleteRegister(){
+        return $this->update([
+            'registration_status_id' => RegistrationStatusModel::registrationDelete()
+        ]);
+    }
 }

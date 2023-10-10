@@ -368,7 +368,24 @@ class StandardController extends Controller
         } else {
             return response()->json([
                 "status" => 0,
-                "message" => "No existe el estandar",
+                "message" => "No existe el estándar",
+            ], 404);
+        }
+    }
+
+    public function headerStandard($year, $semester, $standard_id)
+    {
+        if (StandardModel::where("id", $standard_id)->exists()) {
+            $standard = StandardModel::where('id', $standard_id)
+                ->select('name', 'factor', 'dimension', 'related_standards', 'nro_standard')->get();
+            return response([
+                "status" => 1,
+                "data" => $standard,
+            ], 200);
+        } else {
+            return response([
+                "status" => 0,
+                "message" => "No existe el estándar",
             ], 404);
         }
     }

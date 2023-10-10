@@ -278,34 +278,40 @@ class PlanController extends Controller
 	*/
     public function updatePlan($year, $semester, $plan_id, Request $request)
     {
-        $request->validate([
-            "id" => "required|integer",
-            "code" => "required",
-            "name" => "present|max:255",
-            "opportunity_for_improvement" => "present|max:255",
-            "semester_execution" => "present|max:8", //aaaa-A/B/C/AB
-            "advance" => "present|integer",
-            "duration" => "present|integer",
-            "efficacy_evaluation" => "present|boolean",
-            "standard_id" => "required|integer",
-            "plan_status_id" => "required|integer",
-            "sources" => "present",
-            "sources.*.description" => "required",
-            "problems_opportunities" => "present",
-            "problems_opportunities.*.description" => "required",
-            "root_causes" => "present",
-            "root_causes.*.description" => "required",
-            "improvement_actions" => "present",
-            "improvement_actions.*.description" => "required",
-            "resources" => "present",
-            "resources.*.description" => "required",
-            "goals" => "present",
-            "goals.*.description" => "required",
-            "responsibles" => "present",
-            "responsibles.*.description" => "required",
-            "observations" => "present",
-            "observations.*.description" => "required"
-        ]);
+        try {
+            $request->validate([
+                "id" => "required|integer",
+                "code" => "required",
+                "name" => "present|max:255",
+                "opportunity_for_improvement" => "present|max:255",
+                "semester_execution" => "present|max:8", //aaaa-A/B/C/AB
+                "advance" => "present|integer",
+                "duration" => "present|integer",
+                "efficacy_evaluation" => "present|boolean",
+                "standard_id" => "required|integer",
+                "plan_status_id" => "required|integer",
+                "sources" => "present",
+                "sources.*.description" => "required",
+                "problems_opportunities" => "present",
+                "problems_opportunities.*.description" => "required",
+                "root_causes" => "present",
+                "root_causes.*.description" => "required",
+                "improvement_actions" => "present",
+                "improvement_actions.*.description" => "required",
+                "resources" => "present",
+                "resources.*.description" => "required",
+                "goals" => "present",
+                "goals.*.description" => "required",
+                "responsibles" => "present",
+                "responsibles.*.description" => "required",
+                "observations" => "present",
+                "observations.*.description" => "required"
+            ]);
+        }
+        catch(\Illuminate\Validation\ValidationException $e){
+            return response()->json(['errors' => $e->errors()], 400);
+        }
+        
         $user = auth()->user();
         if (
             PlanModel::existsAndActive($plan_id) and $user->isCreatorPlan($plan_id)
@@ -345,14 +351,14 @@ class PlanController extends Controller
                             ],
                             [
                                 "description" => $source['description'],
-                                "registration_status_id" => RegistrationStatusModel::registrationActiveId(),
+                                //"registration_status_id" => RegistrationStatusModel::registrationActiveId(),
                                 //"id_plan" => $plan->id
                             ]
                         );
                     } else {
                         $plan->sources()->create([
                             'description' => $source['description'],
-                            "registration_status_id" => RegistrationStatusModel::registrationActiveId()
+                            //"registration_status_id" => RegistrationStatusModel::registrationActiveId()
                         ]);
                     }
                 }
@@ -377,14 +383,14 @@ class PlanController extends Controller
                             ],
                             [
                                 "description" => $problem['description'],
-                                "registration_status_id" => RegistrationStatusModel::registrationActiveId(),
+                                //"registration_status_id" => RegistrationStatusModel::registrationActiveId(),
                                 //"id_plan" => $plan->id
                             ]
                         );
                     } else {
                         $plan->problemsOpportunities()->create([
                             'description' => $problem['description'],
-                            "registration_status_id" => RegistrationStatusModel::registrationActiveId()
+                            //"registration_status_id" => RegistrationStatusModel::registrationActiveId()
                         ]);
                     }
                 }
@@ -407,14 +413,14 @@ class PlanController extends Controller
                             ],
                             [
                                 "description" => $root_cause['description'],
-                                "registration_status_id" => RegistrationStatusModel::registrationActiveId(),
+                                //"registration_status_id" => RegistrationStatusModel::registrationActiveId(),
                                 //"id_plan" => $plan->id
                             ]
                         );
                     } else {
                         $plan->rootCauses()->create([
                             'description' => $root_cause['description'],
-                            "registration_status_id" => RegistrationStatusModel::registrationActiveId()
+                            //"registration_status_id" => RegistrationStatusModel::registrationActiveId()
                         ]);
                     }
                 }
@@ -437,14 +443,14 @@ class PlanController extends Controller
                             ],
                             [
                                 "description" => $action['description'],
-                                "registration_status_id" => RegistrationStatusModel::registrationActiveId(),
+                                //"registration_status_id" => RegistrationStatusModel::registrationActiveId(),
                                 //"id_plan" => $plan->id
                             ]
                         );
                     } else {
                         $plan->improvementActions()->create([
                             'description' => $action['description'],
-                            "registration_status_id" => RegistrationStatusModel::registrationActiveId()
+                            //"registration_status_id" => RegistrationStatusModel::registrationActiveId()
                         ]);
                     }
                 }
@@ -467,14 +473,14 @@ class PlanController extends Controller
                             ],
                             [
                                 "description" => $resource['description'],
-                                "registration_status_id" => RegistrationStatusModel::registrationActiveId(),
+                                //"registration_status_id" => RegistrationStatusModel::registrationActiveId(),
                                 //"id_plan" => $plan->id
                             ]
                         );
                     } else {
                         $plan->resources()->create([
                             'description' => $resource['description'],
-                            "registration_status_id" => RegistrationStatusModel::registrationActiveId()
+                            //"registration_status_id" => RegistrationStatusModel::registrationActiveId()
                         ]);
                     }
                 }
@@ -498,14 +504,14 @@ class PlanController extends Controller
                             ],
                             [
                                 "description" => $goal['description'],
-                                "registration_status_id" => RegistrationStatusModel::registrationActiveId(),
+                                //"registration_status_id" => RegistrationStatusModel::registrationActiveId(),
                                 //"id_plan" => $plan->id
                             ]
                         );
                     } else {
                         $plan->goals()->create([
                             'description' => $goal['description'],
-                            "registration_status_id" => RegistrationStatusModel::registrationActiveId()
+                            //"registration_status_id" => RegistrationStatusModel::registrationActiveId()
                         ]);
                     }
                 }
@@ -528,14 +534,14 @@ class PlanController extends Controller
                             ],
                             [
                                 "description" => $responsible['description'],
-                                "registration_status_id" => RegistrationStatusModel::registrationActiveId(),
+                                //"registration_status_id" => RegistrationStatusModel::registrationActiveId(),
                                 //"id_plan" => $plan->id
                             ]
                         );
                     } else {
                         $plan->responsibles()->create([
                             'description' => $responsible['description'],
-                            "registration_status_id" => RegistrationStatusModel::registrationActiveId()
+                            //"registration_status_id" => RegistrationStatusModel::registrationActiveId()
                         ]);
                     }
                 }
@@ -560,14 +566,14 @@ class PlanController extends Controller
                             ],
                             [
                                 "description" => $observation['description'],
-                                "registration_status_id" => RegistrationStatusModel::registrationActiveId(),
+                                //"registration_status_id" => RegistrationStatusModel::registrationActiveId(),
                                 //"id_plan" => $plan->id
                             ]
                         );
                     } else {
                         $plan->observations()->create([
                             'description' => $observation['description'],
-                            "registration_status_id" => RegistrationStatusModel::registrationActiveId()
+                            //"registration_status_id" => RegistrationStatusModel::registrationActiveId()
                         ]);
                     }
                 }
@@ -843,9 +849,16 @@ class PlanController extends Controller
     //confirmar los datos nesesarios
     public function listPlan($year, $semester, Request $request)
     {
+        
+        if (!$request->query('standard_id')) {
+            $request->query->add(['standard_id' => 8]);
+        }
+
         $user = auth()->user();
+        $standardId = intval($request->query('standard_id'));
+
         $query = PlanModel::where('plans.date_id', DateModel::dateId($year, $semester))
-            ->where('plans.registration_status_id', RegistrationStatusModel::registrationActive())
+            ->where('plans.registration_status_id', RegistrationStatusModel::registrationActiveId())
             ->select(
                 'plans.id',
                 'plans.name',
@@ -861,24 +874,22 @@ class PlanController extends Controller
             ->join('plan_status', 'plans.plan_status_id', '=', 'plan_status.id')
             ->orderBy('plans.id', 'asc');
 
-        if (StandardModel::find($request->query('standard_id'))->nro_standard == 8) {
-            $planAll = $query->get();
+        if (StandardModel::find($standardId)->nro_standard == 8) {
+            $plans = $query->get();
         } else {
-            $planAll = $query->where('plans.standard_id', $request->query('standard_id'))->get();
+            $plans = $query->where('plans.standard_id', $standardId)->get();
         }
 
-        foreach ($planAll as $plan) {
+        foreach ($plans as $plan) {
             $plan->isCreator = ($plan->user_id == $user->id);
             unset($plan->user_id);
         }
 
         return response([
-            "message" => "Lista de planes de mejora",
-            "data" => $planAll,
+            "status" => 1,
+            "data" => $plans,
         ], 200);
     }
-
-
 
     public function deletePlan($year, $semester, $plan_id)
     {
@@ -905,41 +916,32 @@ class PlanController extends Controller
 
     public function showPlan($year, $semester, $plan_id)
     {
-
         if (PlanModel::existsAndActive($plan_id)) {
             $plan = PlanModel::find($plan_id);
             $plan->sources = SourceModel::where("plan_id", $plan_id)
-                ->where('registration_status_id', RegistrationStatusModel::registrationActive())
                 ->get(['id', 'description']);
             $plan->problems_opportunities = ProblemOpportunityModel::where("plan_id", $plan_id)
-                ->where('registration_status_id', RegistrationStatusModel::registrationActive())
                 ->get(['id', 'description']);
             $plan->root_causes = RootCauseModel::where("plan_id", $plan_id)
-                ->where('registration_status_id', RegistrationStatusModel::registrationActive())
                 ->get(['id', 'description']);
             $plan->improvement_actions = ImprovementActionModel::where("plan_id", $plan_id)
-                ->where('registration_status_id', RegistrationStatusModel::registrationActive())
                 ->get(['id', 'description']);
             $plan->resources = ResourceModel::where("plan_id", $plan_id)
-                ->where('registration_status_id', RegistrationStatusModel::registrationActive())
                 ->get(['id', 'description']);
             $plan->goals = GoalModel::where("plan_id", $plan_id)
-                ->where('registration_status_id', RegistrationStatusModel::registrationActive())
                 ->get(['id', 'description']);
             $plan->observations = ObservationModel::where("plan_id", $plan_id)
-                ->where('registration_status_id', RegistrationStatusModel::registrationActive())
                 ->get(['id', 'description']);
             $plan->responsibles = ResponsibleModel::where("plan_id", $plan_id)
-                ->where('registration_status_id', RegistrationStatusModel::registrationActive())
                 ->get(['id', 'description']);
-            //$plan->evidences = Evidencias::where("id_plan", $plan_id)->get();
             return response([
-                "message" => "!Plan de mejora encontrado",
+                "status" => 1,
                 "data" => $plan,
             ], 200);
         } else {
             return response([
-                "message" => "!No se encontro el plan de mejora",
+                "status" => 0,
+                "message" => "No se encontro el plan de mejora",
             ], 404);
         }
     }
@@ -966,9 +968,9 @@ class PlanController extends Controller
     public function listPlanUser($year, $semester)
     {
         $user = auth()->user();
-        $planAll = PlanModel::where('plans.registration_status_id', RegistrationStatusModel::registrationActive())
+        $userPlans = PlanModel::where('plans.registration_status_id', RegistrationStatusModel::registrationActiveId())
             ->where('plans.date_id', DateModel::dateId($year, $semester))
-            ->where("plans.user_id", $user->id)
+            ->where("user_id", $user->id)
             ->select(
                 'plans.id',
                 'plans.name',
@@ -985,20 +987,20 @@ class PlanController extends Controller
             ->orderBy('plans.id', 'asc')
             ->get();
 
-        foreach ($planAll as $plan) {
+        foreach ($userPlans as $plan) {
             $plan->isCreator = ($plan->user_id == $user->id) ? true : false;
             unset($plan->user_id);
         }
 
-        if ($planAll->count() > 0) {
+        if ($userPlans->count() > 0) {
             return response([
-                "message" => "!Lista de planes de mejora",
-                "data" => $planAll,
+                "status" => 1,
+                "data" => $userPlans,
             ], 200);
         } else {
             return response([
-                "message" => "!No tienes planes de mejora",
-                "data" => [],
+                "status" => 1,
+                "message" => "No tienes planes de mejora",
             ], 404);
         }
     }

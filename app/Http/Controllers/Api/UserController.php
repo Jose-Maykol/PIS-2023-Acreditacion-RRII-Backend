@@ -157,4 +157,51 @@ class UserController extends Controller
 			], 403);
 		}
 	}
+
+	/*
+		ruta(put): localhost:8000/api/users/updateRole/{user_id}
+		ruta(put): localhost:8000/api/users/updateRole/8
+		datos:
+			{
+				"id":"8",
+				"role_id":"2",
+				"registration_status_id":"1"
+			}
+	*/
+    public function updateRole($user_id, Request $request){
+		$request->validate([
+			"id"=>"exists:users,id",
+            "role_id" => "present|nullable|numeric|min:1|max:2",
+            "registration_status_id" => "present|nullable|numeric|min:1|max:2"
+        ]);
+		if(auth()->user()->isAdmin()){
+
+			$user = User::find($user_id);
+			$user->update([
+				'registration_status_id' =>$request->registration_status_id,
+			]);
+
+			$user->assignRole($request->role_id);
+
+			/*$user->update([
+				'role_id' =>$request->role_id,
+			]);*/
+
+			/*if($request->role_id != null){
+				$user->syncRoles([]);
+				$user->assignRole($request->role_id);
+			}*/
+			
+			return response([
+	            "message" => "Usuario actualizado exitosamente",
+	            "data" => $user,
+	        ], 200);
+		}
+		else{
+			return response()->json([
+				"status" => 0,
+				"message" => "No tienes permisos de administrador",
+			], 403);
+		}
+	}
 }

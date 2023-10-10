@@ -16,18 +16,9 @@ class ImprovementActionModel extends Model
     protected $table ='improvement_actions';
     protected $fillable = [
         'description',
-        'plan_id',
-        'registration_status_id'
+        'plan_id'
     ];
     public function plan(): BelongsTo {
         return $this->belongsTo(PlanModel::class,'plan_id');
-    }
-    public function registrationStatus(): BelongsTo{
-        return $this->belongsTo(RegistrationStatusModel::class, 'registration_status_id');
-    }
-    public function deleteRegister(){
-        return $this->update([
-            'registration_status_id' => RegistrationStatusModel::registrationDelete()
-        ]);
     }
 }

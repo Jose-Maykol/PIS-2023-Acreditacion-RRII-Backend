@@ -137,7 +137,7 @@ class LoginController extends Controller
 				"id_provider":"114480000560878434027"
 			}
 	*/
-	public function handleProviderCallback($provider, Request $request){
+	public function handleProviderCallback($provider){
 		$validated = $this->validateProvider($provider);
 		if (!is_null($validated)) {
 			return $validated;
@@ -181,7 +181,7 @@ class LoginController extends Controller
 				"message" => "Usuario ha iniciado sesion",
 				"user" =>  $userCreated,
 				"image" =>  $userProvider->getAvatar(),
-				//"role" => ($userCreated->role->name == 'administrador') ? 'Admin' : 'Docente',
+				"role" => $userCreated->hasRole('administrador') ? 'administrador' : 'docente',
 				"access_token" => $token
 			], 200);
 		} else {

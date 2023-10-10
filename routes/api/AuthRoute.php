@@ -28,13 +28,9 @@ Route::prefix('test')->group(function () {
     });*/
     Route::get('goal', function (Request $request) {
 
-        //$goal = PlanModel::find(2)->goalsActive();
-        $goal = PlanModel::isActived(2);
-        //$goal = GoalModel::all()->where('registration_status_id',RegistrationStatusModel::registrationActivo());
-        if ($goal) {
-            return PlanModel::find(2)->goalsActive();
-        }
-        return $goal;
+        $user = User::find(2);
+        $role = $user->hasRole('administrador') ? 'administrador' : 'docente';
+        return $role;
     }); //->where(['year' => '\d{4}']);
 });
 

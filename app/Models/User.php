@@ -10,6 +10,8 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
+use App\Models\UserRoles;
+
 class User extends Authenticatable
 {
   use HasApiTokens, HasFactory, Notifiable, HasRoles;
@@ -22,6 +24,7 @@ class User extends Authenticatable
     'lastname',
     'email',
     'password',
+    'role_id',
 	  'registration_status_id',
   ];
 
@@ -46,9 +49,12 @@ class User extends Authenticatable
     return $this->hasMany(Provider::class, 'id_user');
   }
   public function isAdmin() {
-    return $this->hasRole('administrador');
+    return $this->hasRole('Admin');
   }
-
+  public function rolesType(){
+    return $this->belongsTo(UserRoles::class,'role_id');
+  }
+  
   public function isCreatorPlan($plan_id) {
     return $this->plans()->where('id', $plan_id)->exists();
   }

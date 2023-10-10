@@ -919,28 +919,20 @@ class PlanController extends Controller
         if (PlanModel::existsAndActive($plan_id)) {
             $plan = PlanModel::find($plan_id);
             $plan->sources = SourceModel::where("plan_id", $plan_id)
-                ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
                 ->get(['id', 'description']);
             $plan->problems_opportunities = ProblemOpportunityModel::where("plan_id", $plan_id)
-                ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
                 ->get(['id', 'description']);
             $plan->root_causes = RootCauseModel::where("plan_id", $plan_id)
-                ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
                 ->get(['id', 'description']);
             $plan->improvement_actions = ImprovementActionModel::where("plan_id", $plan_id)
-                ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
                 ->get(['id', 'description']);
             $plan->resources = ResourceModel::where("plan_id", $plan_id)
-                ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
                 ->get(['id', 'description']);
             $plan->goals = GoalModel::where("plan_id", $plan_id)
-                ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
                 ->get(['id', 'description']);
             $plan->observations = ObservationModel::where("plan_id", $plan_id)
-                ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
                 ->get(['id', 'description']);
             $plan->responsibles = ResponsibleModel::where("plan_id", $plan_id)
-                ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
                 ->get(['id', 'description']);
             return response([
                 "status" => 1,

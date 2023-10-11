@@ -13,6 +13,7 @@ use App\Models\Evidence;
 use Illuminate\Support\Facades\DB;
 use App\Models\Evidencias;
 use App\Models\RegistrationStatusModel;
+use App\Models\StandardStatusModel;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 
 class StandardController extends Controller
@@ -427,6 +428,51 @@ class StandardController extends Controller
                     "msg" => "!Usted no puede editar la cabecera del estándar",
                 ], 403);
             }
+        } else {
+            return response([
+                "status" => 0,
+                "message" => "No existe el estándar",
+            ], 404);
+        }
+    }
+
+    public function StatusStandard($year, $semester, $standard_id)
+    {
+        if (StandardModel::where('id', $standard_id)->exists()) {
+            $status_standard = StandardModel::where('id', $standard_id)->select('standard_status_id')->get();
+            $standard_status_list = StandardStatusModel::select('id', 'description')->get();
+            return response([
+                "msg" => "Estado de estandar y listado",
+                "data" => [$status_standard, $standard_status_list]
+            ], 200);
+        } else {
+            return response([
+                "status" => 0,
+                "message" => "No existe el estándar",
+            ], 404);
+        }
+    }
+
+    public function UpdateStatusStandard($year, $semester, $standard_id, Request $request)
+    {
+        if (StandardModel::where('id', $standard_id)->exists()) {
+            try {
+                $request->validate([
+                    "standard_status_id" => "required|max:1",
+                ]);
+            }
+            catch(\Illuminate\Validation\ValidationException $e){
+                return response()->json(['errors' => $e->errors()], 400);
+            }
+            $standard = StandardModel::where('id', $standard_id)->first();
+            $standard->standard_status_id = $request->standard_status_id;
+            $standard->save();
+
+            $status_standard = StandardModel::where('id', $standard_id)->select('standard_status_id')->get();
+            return response([
+                "msg" => "Estado de estandar actualizado",
+                "data" => $status_standard
+            ], 200);
         } else {
             return response([
                 "status" => 0,

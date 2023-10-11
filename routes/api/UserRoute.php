@@ -11,7 +11,7 @@ Route::middleware("auth:sanctum")->prefix('users')->group(function () {
     Route::get('profile', [UserController::class, 'userProfile']);
     Route::put('', [UserController::class, 'update']);
     Route::put('updateRole/{user_id}', [UserController::class, 'updateRole']);
-    Route::post('register', [UserController::class, 'register']);
+    Route::post('', [UserController::class, 'register']);
     Route::get('', [UserController::class, 'listUser']);
     Route::get('enabled_users', [UserController::class, 'listUserHabilitados']);
 

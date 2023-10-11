@@ -49,7 +49,7 @@ class User extends Authenticatable
     return $this->hasMany(Provider::class, 'id_user');
   }
   public function isAdmin() {
-    return $this->hasRole('Admin');
+    return $this->hasRole('administrador');
   }
   public function rolesType(){
     return $this->belongsTo(UserRoles::class,'role_id');

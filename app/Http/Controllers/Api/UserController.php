@@ -26,20 +26,26 @@ class UserController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-			'role'=> 'required',
-            'email' => 'required|email|unique:users,email'
+			'role'=> 'required|string',
+            'email' => 'required|email'
         ]);
 
+		if(User::where('email', $request->email)->exists()){
+			return response()->json([
+				'status' => 1,
+                'message' => 'Correo existente',
+            ], 422);
+		}
 
 		$userAuth = auth()->user();
 
         if ($userAuth->isAdmin()) {
             $user = new User();
-            $user->name = "null";
-            $user->lastname = "null";
+            $user->name = "NOMBRES";
+            $user->lastname = "APELLIDOS";
             $user->email = $request->email;
             $user->password = "null";
-			$user->registration_status_id = RegistrationStatusModel::registrationInactive();
+			$user->registration_status_id = RegistrationStatusModel::registrationAuthenticationPendingId();
             $user->save();
 			$user->assignRole($request->role);
 

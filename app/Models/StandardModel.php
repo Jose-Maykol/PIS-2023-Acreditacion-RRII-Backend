@@ -17,6 +17,7 @@ class StandardModel extends Model
     protected $table ='standards';
     protected $fillable = [
         'name',
+        'description',
         'factor',
         'dimension',
         'related_standards',
@@ -54,6 +55,7 @@ class StandardModel extends Model
         //Standard #1
         DB::table('standards')->insert([
             'name' => "Propósitos Articulados",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 1: PLANIFICACIÓN DEL PROGRAMA DE ESTUDIOS",
             'dimension' => "DIMENSIÓN 1: GESTIÓN ESTRATÉGICA",
             'related_standards' => "Estándar 2 (Participación de los grupos de interés) Estándar 5 (Pertinencia del perfil de egreso)",
@@ -65,6 +67,7 @@ class StandardModel extends Model
         //Standard #2
         DB::table('standards')->insert([
             'name' => "Participación de grupos de interés",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 1: PLANIFICACIÓN DEL PROGRAMA DE ESTUDIOS",
             'dimension' => "DIMENSIÓN 1: GESTIÓN ESTRATÉGICA",
             'related_standards' => "Estándar 1 (Propósitos del programa) Estándar 3 (Revisión periódica y participativa de las políticas y objetivos) Estándar 5 (Pertinencia del perfil de egreso) Estándar 6 (Revisión del perfil de egreso) Estándar 8 (Planes de mejora) Estándar 22 (Gestión y calidad de la I+D+i realizada por docentes) Estándar 25 (Responsabilidad social) Estándar 34 (Seguimiento a egresados y objetivos educacionales)",
@@ -76,6 +79,7 @@ class StandardModel extends Model
         //Standard #3
         DB::table('standards')->insert([
             'name' => "Revisión periódica y participativa de las políticas y objetivos",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 1: PLANIFICACIÓN DEL PROGRAMA DE ESTUDIOS",
             'dimension' => "DIMENSIÓN 1: GESTIÓN ESTRATÉGICA",
             'related_standards' => "Estándar 2 (Participación de los grupos de interés)",
@@ -87,6 +91,7 @@ class StandardModel extends Model
         //Standard #4
         DB::table('standards')->insert([
             'name' => "Sostenibilidad",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 1: PLANIFICACIÓN DEL PROGRAMA DE ESTUDIOS",
             'dimension' => "DIMENSIÓN 1: GESTIÓN ESTRATÉGICA",
             'related_standards' => "Estándar 3 (Revisión periódica y participativa de las políticas y objetivos) Estándar 28 (Equipamiento y uso de la infraestructura) Estándar 31 (Centros de información y referencia) Estándar 32 (Recursos Humanos para la gestión del programa de estudios)",
@@ -98,6 +103,7 @@ class StandardModel extends Model
         //Standard #5
         DB::table('standards')->insert([
             'name' => "Pertinencia del perfil de egreso",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 2: GESTIÓN DEL PERFIL DE EGRESO",
             'dimension' => "DIMENSIÓN 1: GESTIÓN ESTRATÉGICA",
             'related_standards' => "Estándar 1 (Propósitos articulados) Estándar 2 (Participación de los grupos de interés) Estándar 9 (Plan de estudios) Estándar 10 (Características del plan de estudios) Estándar 11 (Enfoque por competencias)",
@@ -109,6 +115,7 @@ class StandardModel extends Model
         //Standard #6
         DB::table('standards')->insert([
             'name' => "Revisión del perfil de egreso",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 2: GESTIÓN DEL PERFIL DE EGRESO",
             'dimension' => "DIMENSIÓN 1: GESTIÓN ESTRATÉGICA",
             'related_standards' => "Estándar 2 (Participación de los grupos de interés) Estándar 5 (Pertinencia del perfil de egreso) Estándar 7 (Sistema de gestión de calidad-SGC) Estándar 9 (Plan de estudios) Estándar 11 (Enfoque por competencias) Estándar 33 (Logro de competencias)",
@@ -120,6 +127,7 @@ class StandardModel extends Model
         //Standard #7
         DB::table('standards')->insert([
             'name' => "Sistema de Gestión de la Calidad",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 3: ASEGURAMIENTO DE LA CALIDAD",
             'dimension' => "DIMENSIÓN 1: GESTIÓN ESTRATÉGICA",
             'related_standards' => "Estándar 8 (Planes de mejora) Estándar 30 (Sistema de información y comunicación)",
@@ -131,6 +139,7 @@ class StandardModel extends Model
         //Standard #8
         DB::table('standards')->insert([
             'name' => "Planes de mejoras",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 3: ASEGURAMIENTO DE LA CALIDAD",
             'dimension' => "DIMENSIÓN 1: GESTIÓN ESTRATÉGICA",
             'related_standards' => "Estándar 7 (Sistema de gestión de la calidad)",
@@ -142,6 +151,7 @@ class StandardModel extends Model
         //Standard #9
         DB::table('standards')->insert([
             'name' => "Plan de estudios",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 4: PROCESO ENSEÑANZA-APRENDIZAJE",
             'dimension' => "DIMENSIÓN 2: FORMACIÓN INTEGRAL",
             'related_standards' => "Estándar 5 (Pertinencia del perfil de egreso) Estándar 6 (Revisión del perfil de egreso) Estándar 11 (Enfoque por competencias) Estándar 34 (Seguimiento a egresados y objetivos educacionales)",
@@ -153,6 +163,7 @@ class StandardModel extends Model
         //Standard #10
         DB::table('standards')->insert([
             'name' => "Características del plan de estudios",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 4: PROCESO ENSEÑANZA-APRENDIZAJE",
             'dimension' => "DIMENSIÓN 2: FORMACIÓN INTEGRAL",
             'related_standards' => "Estándar 5 (Pertinencia del perfil de egreso) Estándar 11 (Enfoque por Competencias) Estándar 12 (Articulación con I+D+i y responsabilidad social) Estándar 20 (Seguimiento al desempeño de los estudiantes) Estándar 34 (Seguimiento a egresados y objetivos educacionales)",
@@ -164,6 +175,7 @@ class StandardModel extends Model
         //Standard #11
         DB::table('standards')->insert([
             'name' => "Enfoque por competencias",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 4: PROCESO ENSEÑANZA-APRENDIZAJE",
             'dimension' => "DIMENSIÓN 2: FORMACIÓN INTEGRAL",
             'related_standards' => "Estándar 7 (Sistema de gestión de calidad) Estándar 9 (Plan de estudios) Estándar 14 (Selección, evaluación, capacitación y perfeccionamiento) Estándar 20 (Seguimiento al desempeño de los estudiantes) Estándar 33 (Logro de competencias)",
@@ -175,6 +187,7 @@ class StandardModel extends Model
         //Standard #12
         DB::table('standards')->insert([
             'name' => "Articulación con I+D+i y responsabilidad social",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 4: PROCESO ENSEÑANZA-APRENDIZAJE",
             'dimension' => "DIMENSIÓN 2: FORMACIÓN INTEGRAL",
             'related_standards' => "Estándar 10 (Características del plan de estudios) Estándar 11 (Enfoque por competencias) Estándar 11 (Enfoque por competencias) Estándar 16 (Reconocimiento de las actividades de labor docente) Estándar 33 (Logro de competencias)",
@@ -186,6 +199,7 @@ class StandardModel extends Model
         //Standard #13
         DB::table('standards')->insert([
             'name' => "Movilidad",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 4: PROCESO ENSEÑANZA-APRENDIZAJE",
             'dimension' => "DIMENSIÓN 2: FORMACIÓN INTEGRAL",
             'related_standards' => "Estándar 15 (Plana docente adecuada) Estándar 33 (Logro de competencias)",
@@ -197,6 +211,7 @@ class StandardModel extends Model
         //Standard #14
         DB::table('standards')->insert([
             'name' => "Selección, evaluación, capacitación y perfeccionamiento",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 5: GESTIÓN DE LOS DOCENTES",
             'dimension' => "DIMENSIÓN 2: FORMACIÓN INTEGRAL",
             'related_standards' => "Estándar 10 (Características del plan de estudios) Estándar 15 (Plana docente adecuada)",
@@ -208,6 +223,7 @@ class StandardModel extends Model
         //Standard #15
         DB::table('standards')->insert([
             'name' => "Plana docente adecuada",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 5: GESTIÓN DE LOS DOCENTES",
             'dimension' => "DIMENSIÓN 2: FORMACIÓN INTEGRAL",
             'related_standards' => "Estándar 1 (Propósitos articulados) Estándar 10 (Características del plan de estudios) Estándar 14 (Selección, evaluación, capacitación y perfeccionamiento)",
@@ -219,6 +235,7 @@ class StandardModel extends Model
         //Standard #16
         DB::table('standards')->insert([
             'name' => "Reconocimiento de las actividades de labor docente",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 5: GESTIÓN DE LOS DOCENTES",
             'dimension' => "DIMENSIÓN 2: FORMACIÓN INTEGRAL",
             'related_standards' => "Estándar 14 (Selección, evaluación, capacitación y perfeccionamiento) Estándar 15 (Plana docente adecuada)",
@@ -230,6 +247,7 @@ class StandardModel extends Model
         //Standard #17
         DB::table('standards')->insert([
             'name' => "Plan de desarrollo académico del docente",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 5: GESTIÓN DE LOS DOCENTES",
             'dimension' => "DIMENSIÓN 2: FORMACIÓN INTEGRAL",
             'related_standards' => "Estándar 4 (Sostenibilidad) Estándar 14 (Selección, evaluación, capacitación y perfeccionamiento) Estándar 15 (Plana docente adecuada) Estándar 22 (Gestión y calidad de la I+D+i realizada por docentes) Estándar 23 (I+D+i para la obtención del grado y título) Estándar 33 (Logro de competencias)",
@@ -241,6 +259,7 @@ class StandardModel extends Model
         //Standard #18
         DB::table('standards')->insert([
             'name' => "Admisión al programa de estudios",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 6: SEGUIMIENTO A ESTUDIANTES",
             'dimension' => "DIMENSIÓN 2: FORMACIÓN INTEGRAL",
             'related_standards' => "Estándar 6 (Revisión del perfil de egreso) Estándar 19 (Nivelación de ingresantes) Estándar 33 (Logro de competencias)",
@@ -252,6 +271,7 @@ class StandardModel extends Model
         //Standard #19
         DB::table('standards')->insert([
             'name' => "Nivelación de ingresantes",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 6: SEGUIMIENTO A ESTUDIANTES",
             'dimension' => "DIMENSIÓN 2: FORMACIÓN INTEGRAL",
             'related_standards' => "Estándar 18 (Admisión al programa de estudios) Estándar 20 (Seguimiento al desempeño de los estudiantes) Estándar 21 (Actividades extracurriculares) Estándar 33 (Logro de competencias)",
@@ -263,6 +283,7 @@ class StandardModel extends Model
         //Standard #20
         DB::table('standards')->insert([
             'name' => "Seguimiento al desempeño de los estudiantes",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 6: SEGUIMIENTO A ESTUDIANTES",
             'dimension' => "DIMENSIÓN 2: FORMACIÓN INTEGRAL",
             'related_standards' => "Estándar 18 (Admisión al programa de estudios) Estándar 19 (Nivelación de ingresantes) Estándar 21 (Actividades extracurriculares) Estándar 23 (I+D+i para la obtención del grado y el título) Estándar 27 (Bienestar) Estándar 33 (Logro de competencias)",
@@ -274,6 +295,7 @@ class StandardModel extends Model
         //Standard #21
         DB::table('standards')->insert([
             'name' => "Actividades extracurriculares",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 6: SEGUIMIENTO A ESTUDIANTES",
             'dimension' => "DIMENSIÓN 2: FORMACIÓN INTEGRAL",
             'related_standards' => "Estándar 5 (Pertinencia del perfil de egreso) Estándar 20 (Seguimiento al desempeño de los estudiantes) Estándar 33 (Logro de competencias) Estándar 27 (Bienestar) Estándar 25 (Responsabilidad social)",
@@ -285,6 +307,7 @@ class StandardModel extends Model
         //Standard #22
         DB::table('standards')->insert([
             'name' => "Gestión y calidad de la I+D+i realizada por docentes",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 7: INVESTIGACIÓN, DESARROLLO TECNOLÓGICO E INNOVACIÓN",
             'dimension' => "DIMENSIÓN 2: FORMACIÓN INTEGRAL",
             'related_standards' => "Estándar 1 (Propósitos articulados) Estándar 3 (Revisión periódica y participativa de las políticas y objetivos) Estándar 4 (Sostenibilidad) Estándar 12 (Articulación con I+D+i y responsabilidad social) Estándar 15 (Plana docente adecuada)",
@@ -296,6 +319,7 @@ class StandardModel extends Model
         //Standard #23
         DB::table('standards')->insert([
             'name' => "I+D+i para la obtención del grado y el título",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 7: INVESTIGACIÓN, DESARROLLO TECNOLÓGICO E INNOVACIÓN",
             'dimension' => "DIMENSIÓN 2: FORMACIÓN INTEGRAL",
             'related_standards' => "Estándar 1 (Propósitos articulados) Estándar 3 (Revisión periódica y participativa de las políticas y objetivos) Estándar 10 (Características del plan de estudios) Estándar 12 (Articulación con I+D+i y responsabilidad social) Estándar 31 (Centros de información y referencia)",
@@ -307,6 +331,7 @@ class StandardModel extends Model
         //Standard #24
         DB::table('standards')->insert([
             'name' => "Publicaciones de los resultados de I+D+i",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 7: INVESTIGACIÓN, DESARROLLO TECNOLÓGICO E INNOVACIÓN",
             'dimension' => "DIMENSIÓN 2: FORMACIÓN INTEGRAL",
             'related_standards' => "Estándar 12 (Articulación con I+D+i y responsabilidad social) Estándar 22 (Gestión y calidad de la I+D+i realizada por docentes) Estándar 23 (I+D+i para la obtención del grado y el título) Estándar 31 (Centros de información y referencia)",
@@ -318,6 +343,7 @@ class StandardModel extends Model
         //Standard #25
         DB::table('standards')->insert([
             'name' => "Responsabilidad social",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 8: RESPONSABILIDAD SOCIAL UNIVERSITARIA",
             'dimension' => "DIMENSIÓN 2: FORMACIÓN INTEGRAL",
             'related_standards' => "Estándar 2 (Participación de los grupos de interés) Estándar 4 (Sostenibilidad) Estándar 11(Enfoque por competencias) Estándar 12 (Articulación con I+D+i y responsabilidad social) Estándar 22 (Gestión y calidad de la I+D+i realizada por docentes) Estándar 26 (Implementación de políticas ambientales)",
@@ -329,6 +355,7 @@ class StandardModel extends Model
         //Standard #26
         DB::table('standards')->insert([
             'name' => "Implementación de políticas ambientales",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 8: RESPONSABILIDAD SOCIAL UNIVERSITARIA",
             'dimension' => "DIMENSIÓN 2: FORMACIÓN INTEGRAL",
             'related_standards' => "Estándar 3 (Revisión periódica y participativa de las políticas y objetivos) Estándar 25 (Responsabilidad social)",
@@ -341,6 +368,7 @@ class StandardModel extends Model
         //Standard #27
         DB::table('standards')->insert([
             'name' => "Bienestar",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 9: SERVICIOS DE BIENESTAR",
             'dimension' => "DIMENSIÓN 3: SOPORTE INSTITUCIONAL",
             'related_standards' => "Estándar 4 (Sostenibilidad)",
@@ -352,6 +380,7 @@ class StandardModel extends Model
         //Standard #28
         DB::table('standards')->insert([
             'name' => "Equipamiento y uso de la infraestructura",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 10: INFRAESTRUCTURA Y SOPORTE",
             'dimension' => "DIMENSIÓN 3: SOPORTE INSTITUCIONAL",
             'related_standards' => "Estándar 4 (Sostenibilidad) Estándar 29 (Mantenimiento de la infraestructura)",
@@ -363,6 +392,7 @@ class StandardModel extends Model
         //Standard #29
         DB::table('standards')->insert([
             'name' => "Mantenimiento de la infraestructura",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 10: INFRAESTRUCTURA Y SOPORTE",
             'dimension' => "DIMENSIÓN 3: SOPORTE INSTITUCIONAL",
             'related_standards' => "Estándar 4 (Sostenibilidad)",
@@ -374,6 +404,7 @@ class StandardModel extends Model
         //Standard #30
         DB::table('standards')->insert([
             'name' => "Sistema de información y comunicación",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 10: INFRAESTRUCTURA Y SOPORTE",
             'dimension' => "DIMENSIÓN 3: SOPORTE INSTITUCIONAL",
             'related_standards' => "Estándar 7 (Sistema de gestión de la calidad) Estándar 18 (Admisión al programa de estudios) Estándar 19 (Nivelación de ingresantes) Estándar 20 (Seguimiento al desempeño de los estudiantes)",
@@ -385,6 +416,7 @@ class StandardModel extends Model
         //Standard #31
         DB::table('standards')->insert([
             'name' => "Centros de información y referencia",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 10: INFRAESTRUCTURA Y SOPORTE",
             'dimension' => "DIMENSIÓN 3: SOPORTE INSTITUCIONAL",
             'related_standards' => "Estándar 9 (Plan de estudios)",
@@ -396,6 +428,7 @@ class StandardModel extends Model
         //Standard #32
         DB::table('standards')->insert([
             'name' => "Recursos humanos para la gestión del programa de estudios",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 11: RECURSOS HUMANOS",
             'dimension' => "DIMENSIÓN 3: SOPORTE INSTITUCIONAL",
             'related_standards' => "Estándar 1 (Propósitos articulados) Estándar 14 (Selección, evaluación, capacitación y perfeccionamiento) Estándar 15 (Plana docente adecuada) Estándar 17 (Plan de desarrollo académico del docente)",
@@ -407,6 +440,7 @@ class StandardModel extends Model
         //Standard #33
         DB::table('standards')->insert([
             'name' => "Logro de competencias",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 12: VERIFICACIÓN DEL PERFIL DE EGRESO",
             'dimension' => "DIMENSIÓN 4: RESULTADOS",
             'related_standards' => "Estándar 5 (Pertinencia del perfil de egreso) Estándar 6 (Revisión del perfil de egreso) Estándar 10 (Características del plan de estudios) Estándar 11 (Enfoque por competencias)",
@@ -418,6 +452,7 @@ class StandardModel extends Model
         //Standard #34
         DB::table('standards')->insert([
             'name' => "Seguimiento a egresados y objetivos educacionales",
+            'description' => "Esta es a descripción del estándar",
             'factor' => "FACTOR 12: VERIFICACIÓN DEL PERFIL DE EGRESO",
             'dimension' => "DIMENSIÓN 4: RESULTADOS",
             'related_standards' => "Estándar 10 (Características del plan de estudios) Estándar 33 (Logro de competencias)",

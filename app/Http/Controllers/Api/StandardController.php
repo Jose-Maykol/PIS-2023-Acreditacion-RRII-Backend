@@ -377,11 +377,56 @@ class StandardController extends Controller
     {
         if (StandardModel::where("id", $standard_id)->exists()) {
             $standard = StandardModel::where('id', $standard_id)
-                ->select('name', 'factor', 'dimension', 'related_standards', 'nro_standard')->get();
+                ->select('name', 'description', 'factor', 'dimension', 'related_standards', 'nro_standard')->get();
             return response([
                 "status" => 1,
                 "data" => $standard,
             ], 200);
+        } else {
+            return response([
+                "status" => 0,
+                "message" => "No existe el estándar",
+            ], 404);
+        }
+    }
+
+    public function UpdateHeaderStandard($year, $semester, $standard_id, Request $request)
+    {
+        if (StandardModel::where('id', $standard_id)->exists()) {
+            try {
+                $request->validate([
+                    "name" => "required|max:255",
+                    "description" => "required|max:255",
+                    "factor" => "required|max:255",
+                    "dimension" => "required|max:255", 
+                    "related_standards" => "required|max:550",
+                ]);
+            }
+            catch(\Illuminate\Validation\ValidationException $e){
+                return response()->json(['errors' => $e->errors()], 400);
+            }
+            
+            $standard = StandardModel::where('id', $standard_id)->first();
+            $user = auth()->user();
+            if($user->isAdmin() or $user->isAssignStandard($standard_id)){
+                $standard->name =$request->name;
+                $standard->description =$request->description;
+                $standard->factor = $request->factor;
+                $standard->dimension = $request->dimension;
+                $standard->related_standards = $request->related_standards;
+                $standard->save();
+                $standard = StandardModel::where('id', $standard_id)
+                ->select('name', 'description', 'factor', 'dimension', 'related_standards')->get();
+                return response([
+                    "msg" => "!Cabecera de estandar actualizado",
+                    "data" => $standard,
+                ], 200);
+            } else{
+                return response([
+                    "status" => 0,
+                    "msg" => "!Usted no puede editar la cabecera del estándar",
+                ], 403);
+            }
         } else {
             return response([
                 "status" => 0,

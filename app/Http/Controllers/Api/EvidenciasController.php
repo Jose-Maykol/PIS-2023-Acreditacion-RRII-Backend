@@ -22,6 +22,7 @@ use ZipArchive;
 
 class EvidenciasController extends Controller
 {
+    /* Deprecated */
     public function create(Request $request)
     {
         $request->validate([
@@ -74,7 +75,7 @@ class EvidenciasController extends Controller
     public function show($id)
     {
         if (Evidencias::where("id", $id)->exists()) {
-            $evidencia = Evidencias::find($id);
+            $evidencia = Evidencias::find($id); 
             //Para retornar nombre de user
             /*$user = User::find($evidencia->id_user);
 			$evidencia->id_user = $user->name;*/
@@ -99,7 +100,7 @@ class EvidenciasController extends Controller
             "plan_id" => "integer",
             "files" => "required|array",
             "files.*" => "file",
-            "path" => "nullable|string",
+            "path" => "string",
         ]);
 
         $userId = auth()->user()->id;
@@ -109,7 +110,7 @@ class EvidenciasController extends Controller
         $standardId = $request->standard_id;
         $typeEvidenceId = $request->type_evidence_id;
         $planId = $request->has('plan_id')? $request->plan_id : null;
-        $generalPath = $request->has('path') ? $request->path : null;
+        $generalPath = $request->has('path') ? $request->path : '/';
         $parentFolder = null;
 
         $standardBelongsSemester = StandardModel::where('date_id', $dateId)->where('id', $standardId)->exists();
@@ -121,10 +122,12 @@ class EvidenciasController extends Controller
             ], 404);
         }
         
+        // Consulta si existe el folder padre, si no existe lo crea
         $folder = Folder::where('path', $generalPath)->where('standard_id', $standardId)->where('evidence_type_id', $typeEvidenceId)->first();
-        if (!$folder) {
+
+        if (!$folder && $generalPath == '/') {
             $folder = new Folder([
-                'name' => $generalPath == '' ? 'root' : $generalPath,
+                'name' => $generalPath == '/' ? 'root' : $generalPath,
                 'user_id' => $userId,
                 'path' => $generalPath,
                 'standard_id' => $standardId,
@@ -132,8 +135,13 @@ class EvidenciasController extends Controller
                 'date_id' => $dateId,
             ]);
             $folder->save();
-        } else {
+        } else if ($folder) {
             $parentFolder = $folder->id;
+        } else {
+            return response([
+                "status" => 0,
+                "message" => "No existe el path",
+            ], 404);
         }
 
         foreach ($request->file('files') as $file) {
@@ -142,11 +150,11 @@ class EvidenciasController extends Controller
                 $zip = new ZipArchive;
                 if ($zip->open($file) === TRUE) 
                 {
-                    $extractedPath = storage_path('app/evidencias/'. $year . '/' . $semester . '/' . 'estandar_' . $standardId . '/tipo_evidencia_'. $typeEvidenceId) . '/' . $generalPath;
+                    $extractedPath = storage_path('app/evidencias/'. $year . '/' . $semester . '/' . 'estandar_' . $standardId . '/tipo_evidencia_'. $typeEvidenceId) . $generalPath;
                     for ($i = 0; $i < $zip->numFiles; $i++) 
                     {
                         $fileInfo = $zip->statIndex($i);
-                        $fileName = $generalPath == null ? '/' . trim($fileInfo['name'], '/') : $generalPath . '/' . trim($fileInfo['name'], '/');
+                        $fileName = $generalPath == '/' ? $generalPath . trim($fileInfo['name'], '/') : $generalPath . '/' . trim($fileInfo['name'], '/');
                         $isDirectory = substr($fileName, -1) === '/';
                         if ($isDirectory) {
                             if (Folder::where('path', $fileName)->where('standard_id', $standardId)->where('evidence_type_id', $typeEvidenceId)->exists()) {
@@ -178,10 +186,9 @@ class EvidenciasController extends Controller
                         "message" => "Error al descomprimir el archivo ZIP",
                     ], 404);
                 }
-            } 
-            else 
+            } else 
             {
-                $relativePath = $generalPath == null ? '/' . $file->getClientOriginalName() : $generalPath . '/' . $file->getClientOriginalName();
+                $relativePath = $generalPath == '/' ? $generalPath . $file->getClientOriginalName() : $generalPath . '/' . $file->getClientOriginalName();
 
                 if (Evidence::where('path', $relativePath)->where('standard_id', $standardId)->where('evidence_type_id', $typeEvidenceId)->exists()) {
                     return response([
@@ -191,7 +198,7 @@ class EvidenciasController extends Controller
                     ], 404);
                 }
 
-                $path = $file->storeAs('evidencias/'. $year . '/' . $semester . '/' .'estandar_' . $standardId . '/tipo_evidencia_'. $typeEvidenceId . '/' . $generalPath, $file->getClientOriginalName());
+                $path = $file->storeAs('evidencias/'. $year . '/' . $semester . '/' .'estandar_' . $standardId . '/tipo_evidencia_'. $typeEvidenceId . $generalPath, $file->getClientOriginalName());
 
                 $evidence = new Evidence([
                     'name' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
@@ -384,13 +391,12 @@ class EvidenciasController extends Controller
             $extension = pathinfo($path, PATHINFO_EXTENSION);
             $contentType = $this->getContentType($extension);
             $fileContents = file_get_contents($path);
-            /*$base64Content = base64_encode($fileContents);
+            $base64Content = base64_encode($fileContents);
             return response([
                 "status" => 0,
                 "evidence_id" => $evidence_id,
                 "base64_content" => $base64Content,
-            ], 200)->header('Content-Type', 'application/json');*/
-            return response($fileContents)->header('Content-Type', $contentType);
+            ], 200)->header('Content-Type', 'application/json');
         } else {
             return response([
                 "status" => 0,

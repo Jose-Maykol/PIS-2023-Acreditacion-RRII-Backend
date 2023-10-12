@@ -336,10 +336,10 @@ class PlanController extends Controller
             //Eliminar fuentes que no esten en el Request
             $existingsIds = collect($sources)->pluck('id')->filter();
             //$sources_delete = $plan->sources()->whereNotIn('id', $existingsIds->toArray())->get();
-            $sources_delete = $plan->sourcesActive()->whereNotIn('id', $existingsIds);
+            $sources_delete = $plan->sources()->whereNotIn('id', $existingsIds)->get();
             //Actualizar fuentes de estandar
             foreach ($sources_delete as $source_delete) {
-                $source_delete->deleteRegister();
+                $source_delete->delete();
             }
 
             if (isset($sources)) {
@@ -367,17 +367,17 @@ class PlanController extends Controller
             $problems = $request->problems;
             //Eliminar problemas que no esten en el Request
             $existingsIds = collect($problems)->pluck('id')->filter();
-            $problems_delete = $plan->problemsOpportunitiesActive()->whereNotIn('id', $existingsIds);
+            $problems_delete = $plan->problemsOpportunities()->whereNotIn('id', $existingsIds)->get();
 
             foreach ($problems_delete as $problem_delete) {
-                $problem_delete->deleteRegister();
+                $problem_delete->delete();
             }
 
             //Actualizar problemas de estandar
             if (isset($problems)) {
                 foreach ($problems as $problem) {
                     if (isset($problem['id'])) {
-                        $plan->problemsOpportunities()->updateOrCreate(
+                        $plan->problemsOpportunities()->update(
                             [
                                 "id" => $problem['id']
                             ],
@@ -399,15 +399,15 @@ class PlanController extends Controller
             $root_causes = $request->root_causes;
             //Eliminar causas que no esten en el Request
             $existingsIds = collect($root_causes)->pluck('id')->filter();
-            $root_causes_delete = $plan->rootCausesActive()->whereNotIn('id', $existingsIds);
+            $root_causes_delete = $plan->rootCauses()->whereNotIn('id', $existingsIds)->get();
             foreach ($root_causes_delete as $root_cause_delete) {
-                $root_cause_delete->deleteRegister();
+                $root_cause_delete->delete();
             }
             //Actualizar causas de estandar
             if (isset($root_causes)) {
                 foreach ($root_causes as $root_cause) {
                     if (isset($root_cause['id'])) {
-                        $plan->rootCauses()->updateOrCreate(
+                        $plan->rootCauses()->update(
                             [
                                 "id" => $root_cause['id']
                             ],
@@ -429,15 +429,15 @@ class PlanController extends Controller
             $actions = $request->actions;
             //Eliminar acciones que no esten en el Request
             $existingsIds = collect($actions)->pluck('id')->filter();
-            $actions_delete = $plan->improvementActionsActive()->whereNotIn('id', $existingsIds);
+            $actions_delete = $plan->improvementActions()->whereNotIn('id', $existingsIds)->get();
             foreach ($actions_delete as $action_delete) {
-                $action_delete->deleteRegister();
+                $action_delete->delete();
             }
             //Actualizar acciones de estandar
             if (isset($actions)) {
                 foreach ($actions as $action) {
                     if (isset($action['id'])) {
-                        $plan->improvementActions()->updateOrCreate(
+                        $plan->improvementActions()->update(
                             [
                                 "id" => $action['id']
                             ],
@@ -459,15 +459,15 @@ class PlanController extends Controller
             $resources = $request->resources;
             //Eliminar recursos que no esten en el Request
             $existingsIds = collect($resources)->pluck('id')->filter();
-            $resources_delete = $plan->resourcesActive()->whereNotIn('id', $existingsIds);
+            $resources_delete = $plan->resources()->whereNotIn('id', $existingsIds)->get();
             foreach ($resources_delete as $resource_delete) {
-                $resource_delete->deleteRegister();
+                $resource_delete->delete();
             }
             //Actualizar recursos de estandar
             if (isset($resources)) {
                 foreach ($resources as $resource) {
                     if (isset($resource['id'])) {
-                        $plan->resources()->updateOrCreate(
+                        $plan->resources()->update(
                             [
                                 "id" => $resource['id']
                             ],
@@ -489,16 +489,16 @@ class PlanController extends Controller
             $goals = $request->goals;
             //Eliminar metas que no esten en el Request
             $existingsIds = collect($goals)->pluck('id')->filter();
-            $goals_delete = $plan->goalsActive()->whereNotIn('id', $existingsIds);
+            $goals_delete = $plan->goals()->whereNotIn('id', $existingsIds)->get();
             foreach ($goals_delete as $goal_delete) {
-                $goal_delete->deleteRegister();
+                $goal_delete->delete();
             }
 
             //Actualizar metas de estandar
             if (isset($goals)) {
                 foreach ($goals as $goal) {
                     if (isset($goal['id'])) {
-                        $plan->goals()->updateOrCreate(
+                        $plan->goals()->update(
                             [
                                 "id" => $goal['id']
                             ],
@@ -520,15 +520,15 @@ class PlanController extends Controller
             $responsibles = $request->responsibles;
             //Eliminar responsables que no esten en el Request
             $existingsIds = collect($responsibles)->pluck('id')->filter();
-            $responsibles_delete = $plan->responsiblesActive()->whereNotIn('id', $existingsIds);
+            $responsibles_delete = $plan->responsibles()->whereNotIn('id', $existingsIds)->get();
             foreach ($responsibles_delete as $responsible_delete) {
-                $responsible_delete->deleteRegister();
+                $responsible_delete->delete();
             }
             //Actualizar responsables de estandar
             if (isset($responsibles)) {
                 foreach ($responsibles as $responsible) {
                     if (isset($responsible['id'])) {
-                        $plan->responsibles()->updateOrCreate(
+                        $plan->responsibles()->update(
                             [
                                 "id" => $responsible['id']
                             ],
@@ -550,17 +550,17 @@ class PlanController extends Controller
             $observations = $request->observations;
             //Eliminar observaciones que no esten en el Request
             $existingsIds = collect($observations)->pluck('id')->filter();
-            $observations_delete = $plan->observationsActive()->whereNotIn('id', $existingsIds);
+            $observations_delete = $plan->observations()->whereNotIn('id', $existingsIds)->get();
 
             foreach ($observations_delete as $observation_delete) {
-                $observation_delete->deleteRegister();
+                $observation_delete->delete();
             }
             //Actualizar observaciones de estandar
 
             if (isset($observations)) {
                 foreach ($observations as $observation) {
                     if (isset($observation['id'])) {
-                        $plan->observations()->updateOrCreate(
+                        $plan->observations()->update(
                             [
                                 "id" => $observation['id']
                             ],

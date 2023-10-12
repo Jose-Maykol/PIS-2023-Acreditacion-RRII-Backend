@@ -112,9 +112,13 @@ class UserController extends Controller
 
 		$users = User::whereNotIn("name",["null"])
 					->where("registration_status_id",RegistrationStatusModel::registrationActiveId())
+					->join('registration_status', 'users.registration_status_id', '=', 'registration_status.id')
+    			->select("users.id", "users.name", "users.lastname", "users.email", "registration_status.description as status")
 					->get();
 		foreach ($users as $user) {
-			$user->role = $user->getRoleNames();
+			$roles = $user->getRoleNames();
+    	$user->role = $roles->isNotEmpty() ? $roles[0] : null;
+    	$user->unsetRelation('roles'); 
 		}
         return response([
 						"status" => 1,

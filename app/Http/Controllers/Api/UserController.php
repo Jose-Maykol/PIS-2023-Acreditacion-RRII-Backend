@@ -26,13 +26,14 @@ class UserController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-			'role'=> 'required|string',
+			'role'=> 'required|string|in:administrador,docente',
             'email' => 'required|email'
         ]);
 
-		if(User::where('email', $request->email)->exists()){
+		if(User::where('email', $request->email)->exists())
+		{
 			return response()->json([
-				'status' => 1,
+				'status' => 0,
                 'message' => 'Correo existente',
             ], 422);
 		}
@@ -52,7 +53,6 @@ class UserController extends Controller
             return response()->json([
 				'status' => 1,
                 'message' => 'Correo registrado exitosamente',
-                'user' => $user,
             ], 201);
         } else {
             return response()->json([

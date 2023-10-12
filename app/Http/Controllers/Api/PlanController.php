@@ -897,14 +897,14 @@ class PlanController extends Controller
 
     public function deletePlan($year, $semester, $plan_id)
     {
-        $user = auth()->user();
         $plan = PlanModel::find($plan_id);
-        if (!$plan) {
+        if (!PlanModel::where("id", $plan_id)->exists()) {
             return response()->json([
                 "message" => "!No se encontro el plan",
             ], 404);
         }
-
+        
+        $user = auth()->user();
         if ($user->isCreatorPlan($plan_id) or $user->isAdmin()) {
             $plan->deleteRegister();
             return response()->json([

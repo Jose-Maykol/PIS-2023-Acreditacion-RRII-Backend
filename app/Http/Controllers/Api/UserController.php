@@ -108,16 +108,16 @@ class UserController extends Controller
 				"access_token": "11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
 			}
 	*/
-    public function listUserHabilitados(){
+    public function listEnabledUsers(){
 
 		$users = User::whereNotIn("name",["null"])
-					->where("registration_status_id",RegistrationStatusModel::registrationActive())
+					->where("registration_status_id",RegistrationStatusModel::registrationActiveId())
 					->get();
 		foreach ($users as $user) {
 			$user->role = $user->getRoleNames();
 		}
         return response([
-            "msg" => "Lista de usuarios no nulos y habilitados obtenida exitosamente",
+						"status" => 1,
             "data" => $users,
         ], 200);
     }

@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('standards', function (Blueprint $table) {
             $table->id();
             $table->string('name', 100);
+            $table->string('description', 200);
             $table->string('factor', 100);
             $table->string('dimension', 100);
             $table->string('related_standards', 550);

@@ -18,6 +18,7 @@ class StandardStatusModel extends Model
     public static function standardStatusId($standard_status){
         return self::where('description', $standard_status)->value('id');
     }
+
     public function deleteRegister(){
         return $this->update([
             'registration_status_id' => RegistrationStatusModel::registrationInactiveId()

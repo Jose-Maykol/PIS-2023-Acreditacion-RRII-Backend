@@ -236,7 +236,8 @@ class PlanController extends Controller
                 }
             }
             return response()->json([
-                "message" => "!Plan de mejora creado exitosamente",
+                "status" => 1,
+                "message" => "Plan de mejora creado exitosamente",
                 "data" => $plan
             ], 201);
         } else {
@@ -280,7 +281,6 @@ class PlanController extends Controller
     {
         try {
             $request->validate([
-                "id" => "required|integer",
                 "code" => "required",
                 "name" => "present|max:255",
                 "opportunity_for_improvement" => "present|max:255",
@@ -578,7 +578,11 @@ class PlanController extends Controller
                     }
                 }
             }
-            return response()->json($plan, 200);
+            return response([
+                "status" => 1,
+                "message" => "Plan de mejora actualizado exitosamente",
+                "data" => $plan
+            ], 200);
         } else {
             return response([
                 "status" => 0,
@@ -999,7 +1003,7 @@ class PlanController extends Controller
             ], 200);
         } else {
             return response([
-                "status" => 1,
+                "status" => 0,
                 "message" => "No tienes planes de mejora",
             ], 404);
         }
@@ -1019,16 +1023,16 @@ class PlanController extends Controller
             $plan->goals = GoalModel::where("plan_id", $plan_id)->get(['description']);
             $plan->observations = ObservationModel::where("plan_id", $plan_id)->get(['description']);
             $plan->responsibles = ResponsibleModel::where("plan_id", $plan_id)->get(['description']);
-            $plan->evidences = Evidencias::where("id_plan", $plan_id)->get();
+            //$plan->evidences = Evidencias::where("id_plan", $plan_id)->get();
             $plan->plan_status = PlanStatusModel::find($plan->plan_status_id)->description;
             try {
 
                 $template = new \PhpOffice\PhpWord\TemplateProcessor('plantilla_plan_de_mejora.docx');
 
-                //1
+                //1 Código
                 $template->setValue('codigo', $plan->code);
 
-                //2
+                //2 Fuentes/Sources
                 $content_sources = count($plan->sources) == 0 ?  "No hay fuentes" : "";
                 foreach ($plan->sources as $source) {
                     $content_sources .= "- " . $source->description . "</w:t><w:br/><w:t>";
@@ -1036,7 +1040,7 @@ class PlanController extends Controller
                 $content_sources = rtrim($content_sources, "</w:t><w:br/><w:t>");
                 $template->setValue('fuentes', $content_sources);
 
-                //3
+                //3 Problema/Oportunidad
                 $content_problems_opportunities = count($plan->problems_opportunities) == 0 ? "No hay problemas/oportunidades" : "";
                 foreach ($plan->problems_opportunities as $problem_opportunity) {
                     $content_problems_opportunities .= "- " . $problem_opportunity->description . "</w:t><w:br/><w:t>";
@@ -1044,7 +1048,7 @@ class PlanController extends Controller
                 $content_problems_opportunities = rtrim($content_problems_opportunities, "</w:t><w:br/><w:t>");
                 $template->setValue('problema_oportunidad', $content_problems_opportunities);
 
-                //4
+                //4 Causa/Raiz
                 $content_root_causes = count($plan->root_causes) == 0 ? "No hay causas raices" : "";
                 foreach ($plan->root_causes as $root_cause) {
                     $content_root_causes .= "- " . $root_cause->description . "</w:t><w:br/><w:t>";
@@ -1052,10 +1056,10 @@ class PlanController extends Controller
                 $content_root_causes = rtrim($content_root_causes, "</w:t><w:br/><w:t>");
                 $template->setValue('causa', $content_root_causes);
 
-                //5
+                //5 Oportunidad de mejora
                 $template->setValue('oportunidad', $plan->opportunity_for_improvement == null ? "No hay oportunidad plan de mejora" : $plan->opportunity_for_improvement);
 
-                //6
+                //6 Acciones de mejora
                 $content_improvement_actions = count($plan->improvement_actions) == 0 ? "No hay acciones de mejora" : "";
                 foreach ($plan->improvement_actions as $improvement_action) {
                     $content_improvement_actions .= "- " . $improvement_action->description . "</w:t><w:br/><w:t>";
@@ -1063,13 +1067,13 @@ class PlanController extends Controller
                 $content_improvement_actions = rtrim($content_improvement_actions, "</w:t><w:br/><w:t>");
                 $template->setValue('acciones', $content_improvement_actions);
 
-                //7
+                //7 Semestre de ejecución
                 $template->setValue('semestre', $plan->semester_execution == null ? "Sin definir" : $plan->semester_execution);
 
-                //8
+                //8 Duración
                 $template->setValue('duracion', $plan->duration == null ? "Sin definir" : $plan->duration);
 
-                //9
+                //9 Recursos
                 $content_resources = count($plan->resources) == 0 ? "No hay recursos" : "";
                 foreach ($plan->resources as $resource) {
                     $content_resources .= "- " . $resource->description . "</w:t><w:br/><w:t>";
@@ -1077,7 +1081,7 @@ class PlanController extends Controller
                 $content_resources = rtrim($content_resources, "</w:t><w:br/><w:t>");
                 $template->setValue('recursos', $content_resources);
 
-                //10
+                //10 Metas
                 $content_goals = count($plan->goals) == 0 ?  "No hay metas" : "";
                 foreach ($plan->goals as $goal) {
                     $content_goals .= "- " . $goal->description . "</w:t><w:br/><w:t>";
@@ -1085,7 +1089,7 @@ class PlanController extends Controller
                 $content_goals = rtrim($content_goals, "</w:t><w:br/><w:t>");
                 $template->setValue('metas', $content_goals);
 
-                //11
+                //11 Responsables
                 $content_responsibles = count($plan->responsibles) == 0 ?  "No hay responsables" : "";
                 foreach ($plan->responsibles as $responsible) {
                     $content_responsibles .= "- " . $responsible->description . "</w:t><w:br/><w:t>";
@@ -1093,7 +1097,7 @@ class PlanController extends Controller
                 $content_responsibles = rtrim($content_responsibles, "</w:t><w:br/><w:t>");
                 $template->setValue('responsables', $content_responsibles);
 
-                //12
+                //12 Observaciones
                 $content_observations = count($plan->observations) == 0 ? "No hay observaciones" : "";
                 foreach ($plan->observations as $observation) {
                     $content_observations .= "- " . $observation->description . "</w:t><w:br/><w:t>";
@@ -1101,26 +1105,26 @@ class PlanController extends Controller
                 $content_observations = rtrim($content_observations, "</w:t><w:br/><w:t>");
                 $template->setValue('observaciones', $content_observations);
 
-                //13
+                //13 Estado
                 $template->setValue('estado', $plan->plan_status);
 
-                //14
-                $content_evidences = count($plan->evidences) == 0 ? "No hay evidencias" : "";
+                //14 Evidencias
+/*                 $content_evidences = count($plan->evidences) == 0 ? "No hay evidencias" : "";
                 foreach ($plan->evidences as $evidence) {
                     $content_evidences .= "- " . $evidence->code . "</w:t><w:br/><w:t>";
                 }
                 $content_evidences = rtrim($content_evidences, "</w:t><w:br/><w:t>");
-                $template->setValue('evidencias', $content_evidences);
+                $template->setValue('evidencias', $content_evidences); */
 
-                //15
+                //15 Avance
                 $template->setValue('avance', $plan->advance);
 
-                //16
+                //16 Eficacia
                 $template->setValue('eficacia', $plan->efficacy_evaluation ? "SI" : "NO");
 
                 //Lista de evidencias
 
-                $template->cloneRow('n', count($plan->evidences));
+               /*  $template->cloneRow('n', count($plan->evidences));
                 $i = 1;
                 foreach ($plan->evidences as $evidence) {
                     $template->setValue('n#' . $i, $i);
@@ -1128,7 +1132,7 @@ class PlanController extends Controller
                     $template->setValue('denominacion#' . $i, $evidence->denomination);
                     $template->setValue('adjunto#' . $i, "Anexo" . $i);
                     $i++;
-                }
+                } */
 
                 $tempfiledocx = tempnam(sys_get_temp_dir(), 'PHPWord');
                 $template->saveAs($tempfiledocx);

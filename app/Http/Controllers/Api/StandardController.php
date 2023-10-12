@@ -458,11 +458,16 @@ class StandardController extends Controller
     public function StatusStandard($year, $semester, $standard_id)
     {
         if (StandardModel::where('id', $standard_id)->exists()) {
-            $status_standard = StandardModel::where('id', $standard_id)->select('standard_status_id')->get();
-            $standard_status_list = StandardStatusModel::select('id', 'description')->get();
+            $standard= StandardModel::where('id', $standard_id)->select('standard_status_id')->first();
+            $standardStatusList = StandardStatusModel::select('id', 'description')->get();
+            
+            $standardStatusList->each(function ($listItem) use ($standard) {
+                $listItem->active = $listItem->id == $standard->standard_status_id;
+            });
+
             return response([
-                "msg" => "Estado de estandar y listado",
-                "data" => [$status_standard, $standard_status_list]
+                "status" => 1,
+                "data" => [$standardStatusList]
             ], 200);
         } else {
             return response([
@@ -486,11 +491,10 @@ class StandardController extends Controller
             $standard = StandardModel::where('id', $standard_id)->first();
             $standard->standard_status_id = $request->standard_status_id;
             $standard->save();
-
             $status_standard = StandardModel::where('id', $standard_id)->select('standard_status_id')->get();
             return response([
-                "msg" => "Estado de estandar actualizado",
-                "data" => $status_standard
+                "status" => 1,
+                "message" => "Estado de estándar actualizado"
             ], 200);
         } else {
             return response([

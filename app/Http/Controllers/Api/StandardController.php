@@ -378,10 +378,18 @@ class StandardController extends Controller
     {
         if (StandardModel::where("id", $standard_id)->exists()) {
             $standard = StandardModel::where('id', $standard_id)
-                ->select('name', 'description', 'factor', 'dimension', 'related_standards', 'nro_standard')->get();
+                ->select('name', 'description', 'factor', 'dimension', 'related_standards', 'standard_status_id')->first();
+            $standardStatus = StandardStatusModel::where('id', $standard->standard_status_id)->select('description')->first();
             return response([
                 "status" => 1,
-                "data" => $standard,
+                "data" => [
+                    "name" => $standard->name,
+                    "description" => $standard->description,
+                    "factor" => $standard->factor,
+                    "dimension" => $standard->dimension,
+                    "related_standards" => $standard->related_standards,
+                    "standard_status" => $standardStatus->description,
+                ]
             ], 200);
         } else {
             return response([
@@ -419,13 +427,13 @@ class StandardController extends Controller
                 $standard = StandardModel::where('id', $standard_id)
                 ->select('name', 'description', 'factor', 'dimension', 'related_standards')->get();
                 return response([
-                    "msg" => "!Cabecera de estandar actualizado",
+                    "status" => 1,
                     "data" => $standard,
                 ], 200);
             } else{
                 return response([
                     "status" => 0,
-                    "msg" => "!Usted no puede editar la cabecera del estándar",
+                    "message" => "Usted no puede editar la cabecera del estándar",
                 ], 403);
             }
         } else {

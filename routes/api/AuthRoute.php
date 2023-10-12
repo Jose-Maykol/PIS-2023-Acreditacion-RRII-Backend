@@ -19,8 +19,6 @@ Route::prefix('auth')->group(function () {
     Route::get('login/{provider}/callback', [LoginController::class, 'handleProviderCallback']);
 });
 
-Route::get('{year}/{semester}/evidences/{evidence_id}/view', [EvidenciasController::class, 'view'])->where('evidence_id', '[0-9]+');
-
 Route::prefix('test')->group(function () {
     /*Route::get('log', function (Request $request) {
         $token = User::find(1)->createToken('Token Name')->plainTextToken;

@@ -350,11 +350,22 @@ class StandardController extends Controller
             ], 404);
         }
 
+        foreach ($evidences as &$evidence) {
+            $evidence['extension'] = $evidence['type'];
+            unset($evidence['type']);
+            $evidence['type'] = 'evidence';
+        }
+
+        foreach ($folders as &$folder) {
+            $folder['type'] = 'folder';
+        }
+
         return response()->json([
             "status" => 1,
-            "message" => "Evidencias obtenidas correctamente",
-            "evidences" => $evidences,
-            "folders" => $folders,
+            "data" => [
+                "evidences" => $evidences,
+                "folders" => $folders,
+            ]
         ]);
     }
 

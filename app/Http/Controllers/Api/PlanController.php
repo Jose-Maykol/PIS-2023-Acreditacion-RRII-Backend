@@ -236,7 +236,8 @@ class PlanController extends Controller
                 }
             }
             return response()->json([
-                "message" => "!Plan de mejora creado exitosamente",
+                "status" => 1,
+                "message" => "Plan de mejora creado exitosamente",
                 "data" => $plan
             ], 201);
         } else {
@@ -280,7 +281,6 @@ class PlanController extends Controller
     {
         try {
             $request->validate([
-                "id" => "required|integer",
                 "code" => "required",
                 "name" => "present|max:255",
                 "opportunity_for_improvement" => "present|max:255",
@@ -578,7 +578,11 @@ class PlanController extends Controller
                     }
                 }
             }
-            return response()->json($plan, 200);
+            return response([
+                "status" => 1,
+                "message" => "Plan de mejora actualizado exitosamente",
+                "data" => $plan
+            ], 200);
         } else {
             return response([
                 "status" => 0,
@@ -999,7 +1003,7 @@ class PlanController extends Controller
             ], 200);
         } else {
             return response([
-                "status" => 1,
+                "status" => 0,
                 "message" => "No tienes planes de mejora",
             ], 404);
         }

@@ -455,24 +455,33 @@ class StandardController extends Controller
 
     public function UpdateStatusStandard($year, $semester, $standard_id, Request $request)
     {
+        $user = auth()->user();
         if (StandardModel::where('id', $standard_id)->exists()) {
-            try {
-                $request->validate([
-                    "standard_status_id" => "required|max:1",
-                ]);
-            }
-            catch(\Illuminate\Validation\ValidationException $e){
-                return response()->json(['errors' => $e->errors()], 400);
-            }
-            $standard = StandardModel::where('id', $standard_id)->first();
-            $standard->standard_status_id = $request->standard_status_id;
-            $standard->save();
+            if($user->isAdmin()){
+                try {
+                    $request->validate([
+                        "standard_status_id" => "required|max:1",
+                    ]);
+                }
+                catch(\Illuminate\Validation\ValidationException $e){
+                    return response()->json(['errors' => $e->errors()], 400);
+                }
+                $standard = StandardModel::where('id', $standard_id)->first();
+                $standard->standard_status_id = $request->standard_status_id;
+                $standard->save();
+    
+                $status_standard = StandardModel::where('id', $standard_id)->select('standard_status_id')->get();
+                return response([
+                    "msg" => "Estado de estandar actualizado",
+                    "data" => $status_standard
+                ], 200);
 
-            $status_standard = StandardModel::where('id', $standard_id)->select('standard_status_id')->get();
-            return response([
-                "msg" => "Estado de estandar actualizado",
-                "data" => $status_standard
-            ], 200);
+            }else{
+                return response([
+                    "status" => 0,
+                    "message" => "Usted no es administrador",
+                ], 403);
+            }
         } else {
             return response([
                 "status" => 0,

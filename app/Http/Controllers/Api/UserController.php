@@ -88,11 +88,16 @@ class UserController extends Controller
 				"access_token": "11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
 			}
 	*/
-    public function listUser(){
-		$users = User::all();
+    public function listUser()
+	{
+		$users = User::join('registration_status', 'users.registration_status_id', '=', 'registration_status.id')
+			->select("users.id", "users.name", "users.lastname", "users.email", "registration_status.description as status")
+			->orderBy('users.id', 'asc')
+			->get();
 		foreach ($users as $user) {
-			$user->role = $user->getRoleNames();
-			$user->status = RegistrationStatusModel::where('id', $user->registration_status_id)->value('description');
+			$roles = $user->getRoleNames();
+			$user->role = $roles->isNotEmpty() ? $roles[0] : null;
+			$user->unsetRelation('roles'); 
 		}
         return response([
             "msg" => "Lista de usuarios obtenida exitosamente",
@@ -108,17 +113,18 @@ class UserController extends Controller
 				"access_token": "11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
 			}
 	*/
-    public function listEnabledUsers(){
-
+    public function listEnabledUsers()
+	{
 		$users = User::whereNotIn("name",["null"])
-					->where("registration_status_id",RegistrationStatusModel::registrationActiveId())
-					->join('registration_status', 'users.registration_status_id', '=', 'registration_status.id')
-    			->select("users.id", "users.name", "users.lastname", "users.email", "registration_status.description as status")
-					->get();
+			->where("registration_status_id",RegistrationStatusModel::registrationActiveId())
+			->join('registration_status', 'users.registration_status_id', '=', 'registration_status.id')
+    		->select("users.id", "users.name", "users.lastname", "users.email", "registration_status.description as status")
+			->orderBy('users.id', 'asc')
+			->get();
 		foreach ($users as $user) {
 			$roles = $user->getRoleNames();
-    	$user->role = $roles->isNotEmpty() ? $roles[0] : null;
-    	$user->unsetRelation('roles'); 
+    		$user->role = $roles->isNotEmpty() ? $roles[0] : null;
+    		$user->unsetRelation('roles'); 
 		}
         return response([
 						"status" => 1,
@@ -137,6 +143,7 @@ class UserController extends Controller
 				"registration_status_id":"2"
 			}
 	*/
+
     public function update(Request $request){
 		$request->validate([
 
@@ -178,34 +185,43 @@ class UserController extends Controller
 				"registration_status_id":"1"
 			}
 	*/
-    public function updateRole($user_id, Request $request){
+    public function updateRole($user_id, Request $request)
+	{
 		$request->validate([
-			"id"=>"exists:users,id",
-            "role_id" => "present|nullable|numeric|min:1|max:2",
-            "registration_status_id" => "present|nullable|numeric|min:1|max:2"
-        ]);
-		if(auth()->user()->isAdmin()){
+        	"role_id" => "present|nullable|numeric|min:1|max:2",
+    	]);
 
+		if(auth()->user()->isAdmin()){
+			$user = User::find($user_id);
+			$user->assignRole($request->role_id);	
+			return response([
+				"status" => 1,
+	        	"message" => "Usuario actualizado exitosamente",
+	    	], 200);
+		}
+		else{
+			return response()->json([
+				"status" => 0,
+				"message" => "No tienes permisos de administrador",
+			], 403);
+		}
+	}
+
+	public function updateStatus($user_id, Request $request)
+	{
+		$request->validate([
+			"registration_status_id" => "present|nullable|numeric|min:1|max:2"
+		]);
+
+		if(auth()->user()->isAdmin()){
 			$user = User::find($user_id);
 			$user->update([
 				'registration_status_id' =>$request->registration_status_id,
 			]);
-
-			$user->assignRole($request->role_id);
-
-			/*$user->update([
-				'role_id' =>$request->role_id,
-			]);*/
-
-			/*if($request->role_id != null){
-				$user->syncRoles([]);
-				$user->assignRole($request->role_id);
-			}*/
-			
 			return response([
-	            "message" => "Usuario actualizado exitosamente",
-	            "data" => $user,
-	        ], 200);
+				"status" => 1,
+	        	"message" => "Usuario actualizado exitosamente",
+	    	], 200);
 		}
 		else{
 			return response()->json([

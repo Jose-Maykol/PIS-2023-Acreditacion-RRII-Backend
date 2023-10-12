@@ -86,12 +86,13 @@ class StandardController extends Controller
 
         if ($standards) {
             return response([
-                "msg" => "!Lista de Estandares",
+                "status" => 1,
                 "data" => $standards,
             ], 200);
         } else {
             return response([
-                "msg" => "!No hay lista de Estandares",
+                "status" => 0,
+                "message" => "No hay lista de estándares",
             ], 404);
         }
     }

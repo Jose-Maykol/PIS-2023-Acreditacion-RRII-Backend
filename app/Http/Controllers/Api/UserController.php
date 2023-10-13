@@ -34,7 +34,7 @@ class UserController extends Controller
 		{
 			return response()->json([
 				'status' => 0,
-                'message' => 'Correo existente',
+                'message' => 'Usuario existente',
             ], 422);
 		}
 
@@ -52,12 +52,12 @@ class UserController extends Controller
 
             return response()->json([
 				'status' => 1,
-                'message' => 'Correo registrado exitosamente',
+                'message' => 'Usuario registrado exitosamente',
             ], 201);
         } else {
             return response()->json([
                 "status" => 0,
-                "message" => "No eres administrador: Correo no registrado",
+                "message" => "No eres administrador: Usuario no registrado",
             ], 403);
         }
     }
@@ -163,8 +163,8 @@ class UserController extends Controller
 			}
 			
 			return response([
+				"status" => 1,
 	            "message" => "Usuario actualizado exitosamente",
-	            "data" => $user,
 	        ], 200);
 		}
 		else{

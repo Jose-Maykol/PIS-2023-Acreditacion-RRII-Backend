@@ -11,6 +11,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
+use Spatie\Permission\Models\Role;
+
 class UserController extends Controller
 {
     /*
@@ -188,21 +190,57 @@ class UserController extends Controller
     public function updateRole($user_id, Request $request)
 	{
 		$request->validate([
-        	"role_id" => "present|nullable|numeric|min:1|max:2",
-    	]);
-
-		if(auth()->user()->isAdmin()){
+			'role_id' => 'present|nullable|numeric|min:1|max:2',
+		]);
+	
+		// Verificar si el usuario actual tiene permisos de administrador
+		if(auth()->user()->isAdmin()) {
 			$user = User::find($user_id);
-			$user->assignRole($request->role_id);	
-			return response([
-				"status" => 1,
-	        	"message" => "Usuario actualizado exitosamente",
-	    	], 200);
-		}
-		else{
+	
+			if (!$user) {
+				return response()->json([
+					'status' => 0,
+					'message' => 'Usuario no encontrado',
+				], 404);
+			}
+	
+			// Verificar si el rol proporcionado existe
+			$role = null;
+	
+			switch ($request->role_id) {
+				case 1:
+					$role = Role::where('name', 'administrador')->first();
+					break;
+	
+				case 2:
+					$role = Role::where('name', 'docente')->first();
+					break;
+	
+				default:
+					return response()->json([
+						'status' => 0,
+						'message' => 'El valor de role_id no es válido',
+					], 422);
+			}
+	
+			if (!$role) {
+				return response()->json([
+					'status' => 0,
+					'message' => 'El rol proporcionado no existe',
+				], 422);
+			}
+	
+			// Asignar el rol al usuario
+			$user->assignRole($role);
+	
 			return response()->json([
-				"status" => 0,
-				"message" => "No tienes permisos de administrador",
+				'status' => 1,
+				'message' => 'Usuario actualizado exitosamente',
+			], 200);
+		} else {
+			return response()->json([
+				'status' => 0,
+				'message' => 'No tienes permisos de administrador',
 			], 403);
 		}
 	}

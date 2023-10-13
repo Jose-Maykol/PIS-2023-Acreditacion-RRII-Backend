@@ -205,30 +205,16 @@ class UserController extends Controller
 			}
 	
 			// Verificar si el rol proporcionado existe
-			$role = null;
-	
-			switch ($request->role_id) {
-				case 1:
-					$role = Role::where('name', 'administrador')->first();
-					break;
-	
-				case 2:
-					$role = Role::where('name', 'docente')->first();
-					break;
-	
-				default:
-					return response()->json([
-						'status' => 0,
-						'message' => 'El valor de role_id no es válido',
-					], 422);
-			}
+			$role = Role::find($request->role_id);
 	
 			if (!$role) {
 				return response()->json([
 					'status' => 0,
 					'message' => 'El rol proporcionado no existe',
-				], 422);
+				], 404);
 			}
+
+			$role = $request->role_id == 1 ? 'administrador' : 'docente';
 	
 			// Asignar el rol al usuario
 			$user->assignRole($role);

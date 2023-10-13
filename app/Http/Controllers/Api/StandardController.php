@@ -440,6 +440,7 @@ class StandardController extends Controller
                 ->select('name', 'description', 'factor', 'dimension', 'related_standards')->get();
                 return response([
                     "status" => 1,
+                    "message" => "Cabecera de estandar actualizado correctamente!",
                     "data" => $standard,
                 ], 200);
             } else{
@@ -491,14 +492,21 @@ class StandardController extends Controller
                 catch(\Illuminate\Validation\ValidationException $e){
                     return response()->json(['errors' => $e->errors()], 400);
                 }
-                $standard = StandardModel::where('id', $standard_id)->first();
-                $standard->standard_status_id = $request->standard_status_id;
-                $standard->save();
-                $status_standard = StandardModel::where('id', $standard_id)->select('standard_status_id')->get();
-                return response([
-                    "status" => 1,
-                    "message" => "Estado de estándar actualizado"
-                ], 200);
+                if(StandardStatusModel::where('id', $request->standard_status_id)->exists()){
+                    $standard = StandardModel::where('id', $standard_id)->first();
+                    $standard->standard_status_id = $request->standard_status_id;
+                    $standard->save();
+                    $status_standard = StandardModel::where('id', $standard_id)->select('standard_status_id')->get();
+                    return response([
+                        "status" => 1,
+                        "message" => "Estado de estándar actualizado"
+                    ], 200);
+                }else{
+                    return response([
+                        "status" => 0,
+                        "message" => "Ese estado de estándar no existe"
+                    ], 404);
+                }
             }else{
                 return response([
                     "status" => 0,

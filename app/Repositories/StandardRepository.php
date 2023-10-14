@@ -20,6 +20,10 @@ class StandardRepository
         return StandardModel::find($standard_id);
     }
 
+    public function getStandardActiveById($standard_id){
+        return StandardModel::where('id', $standard_id)->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
+                ->first();
+    }
 
     public function createStandard($email, $role)
     {
@@ -64,5 +68,6 @@ class StandardRepository
         return $standard->users()->sync($users);
     }
 
+    public
 
 }

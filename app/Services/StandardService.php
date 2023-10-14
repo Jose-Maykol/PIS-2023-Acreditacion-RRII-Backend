@@ -43,7 +43,7 @@ class StandardService
         if (!$this->userRepository->isAdministrator($userAuth)) {
             throw new \App\Exceptions\User\UserNotAuthorizedException();
         }
-        if (!$this->standardRepository->getStandardById($standard_id)) {
+        if (!$this->standardRepository->getStandardActiveById($standard_id)) {
             throw new \App\Exceptions\Standard\StandardNotFoundException();
         }
         return $this->standardRepository->changeStandardAssignment($standard_id, $request->users);

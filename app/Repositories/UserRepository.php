@@ -27,7 +27,7 @@ class UserRepository
         $user->registration_status_id = RegistrationStatusModel::registrationAuthenticationPendingId();
         $user->save();
         $user->assignRole($role);
-        
+
         return $user;
     }
 
@@ -36,8 +36,13 @@ class UserRepository
         return User::where('email', $email)->exists();
     }
 
-    public function isAdministrator(User $user){
+    public function isAdministrator(User $user)
+    {
         return $user->hasRole('administrador');
     }
 
+    public function checkIfUserIsManagerStandard($standard_id, User $user)
+    {
+        return $user->standards()->where('standards.id', $standard_id)->exists();
+    }
 }

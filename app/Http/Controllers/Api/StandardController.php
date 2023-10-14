@@ -148,24 +148,19 @@ class StandardController extends Controller
 	*/
     public function showStandard($year, $semester, $standard_id, Request $request)
     {
-
-        if (StandardModel::where("id", $standard_id)
-            ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
-            ->exists()
-        ) {
-            $standard = StandardModel::find($standard_id);
-            $user = $standard->users()->first();
-            $standard->user = $user;
-            $standard->isManager = ($user->id == auth()->user()->id);
-            $standard->isAdmin = auth()->user()->isAdmin();
-            return response([
-                "msg" => "!Estandar",
-                "data" => $standard,
+        try{
+            $result = $this->standardService->showStandard($standard_id);
+            return response()->json([
+                'status' => 1,
+                'message' => "Estandar retornado",
+                'data' => $result
             ], 200);
-        } else {
-            return response([
-                "msg" => "!No se encontro el estandar",
-            ], 404);
+        }
+        catch (\App\Exceptions\Standard\StandardNotFoundException $e){
+            return response()->json([
+				'status' => 0,
+				'message' => $e->getMessage(),
+			], $e->getCode());
         }
     }
 

@@ -32,6 +32,10 @@ class StandardModel extends Model
         return $this->belongsToMany(User::class, 'users_standards', 'standard_id', 'user_id')
         ->using(UserStandardModel::class);
     }
+    public function standardStatus()
+    {
+        return $this->belongsTo(PlanStatusModel::class, 'plan_status_id');
+    }
     /*
     public static function user($standard_id){
         return StandardModel::find($standard_id)->users();

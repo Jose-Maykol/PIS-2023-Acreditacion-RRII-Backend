@@ -5,6 +5,8 @@ namespace App\Repositories;
 use App\Models\DateModel;
 use App\Models\RegistrationStatusModel;
 use App\Models\StandardModel;
+use App\Models\StandardStatusModel;
+use App\Models\User;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -68,6 +70,18 @@ class StandardRepository
         return $standard->users()->sync($users);
     }
 
-    public
+    public function getFullStandard($standard_id){
+        $standard = StandardModel::find($standard_id);
+        $standard->status = $standard->standardStatus();
+        return $standard;
+
+    }
+
+   
+
+    //StandardStatus
+    public function getAllStandardStatus(){
+        return StandardStatusModel::all();
+    }
 
 }

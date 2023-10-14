@@ -49,6 +49,20 @@ class StandardService
         return $this->standardRepository->changeStandardAssignment($standard_id, $request->users);
     }
 
+    public function showStandard($standard_id){
+        $userAuth = auth()->user();
+
+        if (!$this->standardRepository->getStandardActiveById($standard_id)) {
+            throw new \App\Exceptions\Standard\StandardNotFoundException();
+        }
+
+        $standard = $this->standardRepository->getFullStandard($standard_id);
+        $standard->standardStatus = $this->standardRepository->getAllStandardStatus();
+        $standard->isManager = $this->userRepository->checkIfUserIsManagerStandard($standard_id, $userAuth);
+        $standard->isAdministrator = $this->userRepository->isAdministrator($userAuth);
+        
+        return $standard;
+    }
 
 
 }

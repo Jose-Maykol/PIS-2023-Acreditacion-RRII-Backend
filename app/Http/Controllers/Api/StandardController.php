@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StandardRequest;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use App\Models\StandardModel;
@@ -83,26 +84,6 @@ class StandardController extends Controller
         
     }
 
-
-    public function listStandard($year, $semester)
-    {
-        $standards = StandardModel::where("date_id", DateModel::dateId($year, $semester))
-            ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
-            ->orderBy('nro_standard', 'asc')
-            ->get();
-
-        if ($standards) {
-            return response([
-                "status" => 1,
-                "data" => $standards,
-            ], 200);
-        } else {
-            return response([
-                "status" => 0,
-                "message" => "No hay lista de estándares",
-            ], 404);
-        }
-    }
     /*
 		ruta(get): localhost:8000/api/2023/A/standards/standard-values
 		ruta(get): localhost:8000/api/2023/A/standards/4
@@ -130,35 +111,31 @@ class StandardController extends Controller
        
     }
 
-    public function changeStandardAssignment($year, $semester, $standard_id, Request $request)
+    public function changeStandardAssignment($year, $semester, $standard_id, StandardRequest $request)
     {
-        $request->validate([
-            'users' => 'required|array',
-            'users.*' => 'exists:users,id'
-        ]);
-
-        $user = auth()->user();
-        if ($user->isAdmin()) {
-            $standard = StandardModel::find($standard_id);
-            if ($standard) {
-                $standard->users()->sync($request->users);
-
-                return response([
-                    "status" => 1,
-                    "msg" => "!Asignación de estándar cambiada",
-                ], 200);
-            } else {
-                return response([
-                    "status" => 0,
-                    "msg" => "!No existe el estándar",
-                ], 404);
-            }
-        } else {
-            return response([
-                "status" => 0,
-                "msg" => "!No está autorizado",
-            ], 403);
+        try {
+            $request->validated();
+            $result = $this->standardService->changeStandardAssignment($standard_id, $request);
+            return response()->json([
+                'status' => 1,
+                'message' => 'Estandares asignados'
+            ], 200);
         }
+        catch (\Illuminate\Validation\ValidationException $e){
+			return response()->json(['errors' => $e->errors()], 400);
+		}
+        catch(\App\Exceptions\User\UserNotAuthorizedException $e){
+            return response()->json([
+				'status' => 0,
+				'message' => $e->getMessage(),
+			], $e->getCode());
+        }
+        catch (\App\Exceptions\Standard\StandardNotFoundException $e){
+			return response()->json([
+				'status' => 0,
+				'message' => $e->getMessage(),
+			], $e->getCode());
+		}
     }
 
     /*

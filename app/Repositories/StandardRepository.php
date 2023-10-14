@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\DateModel;
 use App\Models\RegistrationStatusModel;
 use App\Models\StandardModel;
+use GuzzleHttp\Psr7\Request;
 use Illuminate\Database\Eloquent\Builder;
 
 class StandardRepository
@@ -14,8 +15,9 @@ class StandardRepository
     {
     }
 
-    public function getUserById($user_id)
+    public function getStandardById($standard_id)
     {
+        return StandardModel::find($standard_id);
     }
 
 
@@ -57,14 +59,10 @@ class StandardRepository
         return $standards;
     }
 
-
-    public function checkIfEmailExists($email)
-    {
-        return User::where('email', $email)->exists();
+    public function changeStandardAssignment($standard_id, $users){
+        $standard = $this->getStandardById($standard_id);
+        return $standard->users()->sync($users);
     }
 
-    public function isAdministrator(User $user)
-    {
-        return $user->hasRole('administrador');
-    }
+
 }

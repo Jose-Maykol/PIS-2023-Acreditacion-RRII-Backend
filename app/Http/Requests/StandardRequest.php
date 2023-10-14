@@ -32,10 +32,10 @@ class StandardRequest extends FormRequest
         return [];
     }
 
-    public function validationForRegister(){
+    public function validationForChangeStandardAssignment(){
         return [
-            'role'=> 'required|string|in:administrador,docente',
-            'email' => 'required|email'
+            'users' => 'required|array',
+            'users.*' => 'integer|exists:users,id'
         ];
     }
     

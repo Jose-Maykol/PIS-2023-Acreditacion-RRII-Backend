@@ -37,4 +37,18 @@ class StandardService
         return $this->standardRepository->listPartialStandards($year, $semester);
     }
 
+    public function changeStandardAssignment($standard_id, Request $request){
+        $userAuth = auth()->user();
+
+        if (!$this->userRepository->isAdministrator($userAuth)) {
+            throw new \App\Exceptions\User\UserNotAuthorizedException();
+        }
+        if (!$this->standardRepository->getStandardById($standard_id)) {
+            throw new \App\Exceptions\Standard\StandardNotFoundException();
+        }
+        return $this->standardRepository->changeStandardAssignment($standard_id, $request->users);
+    }
+
+
+
 }

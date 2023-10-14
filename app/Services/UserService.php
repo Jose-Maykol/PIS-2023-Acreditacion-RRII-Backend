@@ -27,19 +27,17 @@ class UserService
         $userAuth = auth()->user();
 
         if (!$this->userRepository->isAdministrator($userAuth)) {
-            throw new \App\Exceptions\User\UserNotAuthorizedException("El usuario no está autorizado", 403);
+            throw new \App\Exceptions\User\UserNotAuthorizedException();
         }
 
         if ($this->userRepository->checkIfEmailExists($request->email)) {
-            throw new \App\Exceptions\User\EmailAlreadyExistsException("Correo ya existente", 422);
+            throw new \App\Exceptions\User\EmailAlreadyExistsException();
         }
 
         if (!$this->roleRepository->checkIfRoleExists($request->role)){
-            throw new \App\Exceptions\User\RoleNotFoundException("El rol no existe", 404);
+            throw new \App\Exceptions\User\RoleNotFoundException();
         }
 
-        return $this->userRepository->createUser($request->email, $request->role);
-
-        
+        return $this->userRepository->createUser($request->email, $request->role);        
     }
 }

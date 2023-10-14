@@ -29,29 +29,42 @@ class StandardRepository
         $user->registration_status_id = RegistrationStatusModel::registrationAuthenticationPendingId();
         $user->save();
         $user->assignRole($role);
-        
+
         return $user;
     }
 
-    public function listStandardsAssignment($year, $semester){
+    public function listStandardsAssignment($year, $semester)
+    {
         $standards = StandardModel::where('standards.date_id', DateModel::dateId($year, $semester))
-                                    ->select('standards.id','standards.name','standards.nro_standard')
-                                    ->orderBy('standards.nro_standard', 'asc')
-                                    ->with(['users'=> function (Builder $query){
-                                        $query->select('users.id', 'users.name', 'users.lastname', 'users.email');
-                                    }
-                                    ])
-                                    ->get();
+            ->select('standards.id', 'standards.name', 'standards.nro_standard')
+            ->orderBy('standards.nro_standard', 'asc')
+            ->with([
+                'users' => function (Builder $query) {
+                    $query->select('users.id', 'users.name', 'users.lastname', 'users.email');
+                }
+            ])
+            ->get();
         return $standards;
     }
+
+    public function listPartialStandards($year, $semester){
+        $standards = StandardModel::where("standards.date_id", DateModel::dateId($year, $semester))
+            ->where('standards.registration_status_id', RegistrationStatusModel::registrationActiveId())
+            ->select('standards.id', 'standards.name', 'standards.nro_standard')
+            ->orderBy('standards.nro_standard', 'asc')
+            ->get();
+
+        return $standards;
+    }
+
 
     public function checkIfEmailExists($email)
     {
         return User::where('email', $email)->exists();
     }
 
-    public function isAdministrator(User $user){
+    public function isAdministrator(User $user)
+    {
         return $user->hasRole('administrador');
     }
-
 }

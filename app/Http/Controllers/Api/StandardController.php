@@ -14,6 +14,7 @@ use App\Models\Evidencias;
 use App\Models\RegistrationStatusModel;
 use App\Models\StandardStatusModel;
 use App\Services\StandardService;
+use Exception;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 
 class StandardController extends Controller
@@ -64,11 +65,22 @@ class StandardController extends Controller
 
     public function listPartialStandard($year, $semester)
     {
-        $standards = StandardModel::where("standards.date_id", DateModel::dateId($year, $semester))
-            ->where('standards.registration_status_id', RegistrationStatusModel::registrationActiveId())
-            ->select('standards.id', 'standards.name', 'standards.nro_standard')
-            ->orderBy('standards.nro_standard', 'asc')
-            ->get();
+        try{
+
+            $result = $this->standardService->listPartialStandards($year, $semester);
+            return response()->json([
+                'status' => 1,
+                'message' => 'Lista parcial de estandares',
+                'data' => $result
+            ], 200);
+        }
+        catch (Exception $e){
+            return response()->json([
+				'status' => 0,
+				'message' => $e->getMessage(),
+			], $e->getCode());
+        }
+        
 
         if ($standards) {
             return response([

@@ -21,24 +21,20 @@ class StandardService
 
     }
 
-    public function listStandards(Request $request)
+    public function listStandardsAssignment($year, $semester)
     {
         $userAuth = auth()->user();
 
         if (!$this->userRepository->isAdministrator($userAuth)) {
-            throw new \App\Exceptions\User\UserNotAuthorizedException("El usuario no está autorizado", 403);
+            throw new \App\Exceptions\User\UserNotAuthorizedException();
         }
 
-        if ($this->userRepository->checkIfEmailExists($request->email)) {
-            throw new \App\Exceptions\User\EmailAlreadyExistsException("Correo ya existente", 422);
-        }
-
-        if (!$this->roleRepository->checkIfRoleExists($request->role)){
-            throw new \App\Exceptions\User\RoleNotFoundException("El rol no existe", 404);
-        }
-
-        return $this->userRepository->createUser($request->email, $request->role);
-
-        
+        return $this->standardRepository->listStandardsAssignment($year, $semester);
     }
+
+    public function listPartialStandards($year, $semester)
+    {
+        return $this->standardRepository->listPartialStandards($year, $semester);
+    }
+
 }

@@ -81,17 +81,6 @@ class StandardController extends Controller
 			], $e->getCode());
         }
         
-
-        if ($standards) {
-            return response([
-                "msg" => "!Lista parcial de Estandares",
-                "data" => $standards,
-            ], 200);
-        } else {
-            return response([
-                "msg" => "!No hay lista de Estandares",
-            ], 404);
-        }
     }
 
 

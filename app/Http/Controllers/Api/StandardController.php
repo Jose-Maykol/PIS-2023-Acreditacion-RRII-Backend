@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\DateModel;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use App\Models\StandardModel;
@@ -14,10 +13,17 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Evidencias;
 use App\Models\RegistrationStatusModel;
 use App\Models\StandardStatusModel;
+use App\Services\StandardService;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 
 class StandardController extends Controller
 {
+    protected $standardService;
+
+	public function __construct(StandardService $standardService){
+	
+		$this->standardService = $standardService;
+	}
 
     public function createStandard($year, $semester, Request $request)
     {
@@ -106,21 +112,21 @@ class StandardController extends Controller
 	*/
     public function listStandardsAssignment($year, $semester)
     {
-        $standardslist = StandardModel::where('standards.date_id', DateModel::dateId($year, $semester))
-            ->select(
-                'standards.id',
-                'standards.name',
-                'standards.nro_standard',
-            )
-            ->orderBy('standards.nro_standard', 'asc')
-            ->with(['users' => function (Builder $query) {
-                $query->select('users.id', 'users.name', 'users.lastname', 'users.email');
-            }])
-            ->get();
-        return response()->json([
-            "msg" => "!Lista de nombres de Estandares",
-            "data" => $standardslist,
-        ], 200);
+        try{
+            $result = $this->standardService->listStandardsAssignment($year, $semester);
+            return response()->json([
+                "status" => 1,
+                "message" => "!Lista de Estandares",
+                "data" => $result,
+            ], 200);
+        }
+        catch (\App\Exceptions\User\UserNotAuthorizedException $e){
+            return response()->json([
+				'status' => 0,
+				'message' => $e->getMessage(),
+			], $e->getCode());
+        }
+       
     }
 
     public function changeStandardAssignment($year, $semester, $standard_id, Request $request)

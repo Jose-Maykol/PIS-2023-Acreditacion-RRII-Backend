@@ -2,8 +2,10 @@
 
 namespace App\Repositories;
 
+use App\Models\DateModel;
 use App\Models\RegistrationStatusModel;
 use App\Models\StandardModel;
+use Illuminate\Database\Eloquent\Builder;
 
 class StandardRepository
 {
@@ -31,8 +33,16 @@ class StandardRepository
         return $user;
     }
 
-    public function listStandard(){
-
+    public function listStandardsAssignment($year, $semester){
+        $standards = StandardModel::where('standards.date_id', DateModel::dateId($year, $semester))
+                                    ->select('standards.id','standards.name','standards.nro_standard')
+                                    ->orderBy('standards.nro_standard', 'asc')
+                                    ->with(['users'=> function (Builder $query){
+                                        $query->select('users.id', 'users.name', 'users.lastname', 'users.email');
+                                    }
+                                    ])
+                                    ->get();
+        return $standards;
     }
 
     public function checkIfEmailExists($email)

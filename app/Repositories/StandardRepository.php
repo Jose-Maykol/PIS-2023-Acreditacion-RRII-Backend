@@ -9,6 +9,7 @@ use App\Models\StandardStatusModel;
 use App\Models\User;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class StandardRepository
 {
@@ -41,17 +42,31 @@ class StandardRepository
         return $user;
     }
 
+    public function updateStandardHeader($standard_id, $description, $factor, $dimension, $related_standards){
+        $standard = $this->getStandardById($standard_id);
+        $standard->description = $description;
+        $standard->factor = $factor;
+        $standard->dimension = $dimension;
+        $standard->related_standards = $related_standards;
+        $standard->save();
+        return $standard;
+    }
+
     public function listStandardsAssignment($year, $semester)
     {
+      //  DB::enableQueryLog();  
         $standards = StandardModel::where('standards.date_id', DateModel::dateId($year, $semester))
-            ->select('standards.id', 'standards.name', 'standards.nro_standard')
+            ->select('standards.id', 'standards.name', 'standards.nro_standard', 'standard_status.description as standard_status')
             ->orderBy('standards.nro_standard', 'asc')
-            ->with([
-                'users' => function (Builder $query) {
-                    $query->select('users.id', 'users.name', 'users.lastname', 'users.email');
-                }
-            ])
+            ->leftJoin('standard_status', 'standard_status.id', '=', 'standards.standard_status_id')
+            ->with(
+//                'standard_status:id,description',
+                'users:id,name,lastname,email'
+            )
             ->get();
+//        dd(DB::getQueryLog());
+        //$standards = StandardModel::find(1)->standard_status;
+
         return $standards;
     }
 
@@ -72,16 +87,26 @@ class StandardRepository
 
     public function getFullStandard($standard_id){
         $standard = StandardModel::find($standard_id);
-        $standard->status = $standard->standardStatus();
+        $standard->standard_status;
         return $standard;
-
     }
 
-   
+    public function updateStandardStatus($standard_id, $standard_status_id){
+        $standard = $this->getStandardById($standard_id);
+        $standard->standard_status_id = $standard_status_id;
+        $standard->save();
+        return $standard;
+    }
 
     //StandardStatus
     public function getAllStandardStatus(){
         return StandardStatusModel::all();
+    }
+
+    public function getStandardStatusActiveById($standard_status_id){
+        return StandardStatusModel::where('id', $standard_status_id)
+                ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
+                ->first();
     }
 
 }

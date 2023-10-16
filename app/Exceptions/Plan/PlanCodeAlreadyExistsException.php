@@ -5,10 +5,10 @@ namespace App\Exceptions\Plan;
 use Exception;
 use Throwable;
 
-class PlanStatusNotFoundException extends Exception
+class PlanCodeAlreadyExistsException extends Exception
 {
-    protected $message = "Estado de plan de mejora no existe";
-    protected $code = 404;
+    protected $message = "Código de plan de mejora ya existe";
+    protected $code = 422;
 
     public function __construct($message = null, $code = null, Throwable $previous = null)
     {
@@ -31,3 +31,4 @@ class PlanStatusNotFoundException extends Exception
         ], $this->getCode());
     }
 }
+

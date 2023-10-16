@@ -7,7 +7,6 @@ use App\Models\RegistrationStatusModel;
 use App\Models\StandardModel;
 use App\Models\StandardStatusModel;
 use App\Models\User;
-use GuzzleHttp\Psr7\Request;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 

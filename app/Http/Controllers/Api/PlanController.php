@@ -21,6 +21,7 @@ use App\Models\RootCauseModel;
 use App\Models\SourceModel;
 use App\Models\StandardModel;
 use App\Models\User;
+use Exception;
 use PhpParser\PrettyPrinter\Standard;
 
 //plan::where(["id_user" => $id_user, "id" => $id])->exists()
@@ -254,41 +255,19 @@ class PlanController extends Controller
 */
     public function listPlanUser($year, $semester)
     {
-        $user = auth()->user();
-        $userPlans = PlanModel::where('plans.registration_status_id', RegistrationStatusModel::registrationActiveId())
-            ->where('plans.date_id', DateModel::dateId($year, $semester))
-            ->where("user_id", $user->id)
-            ->select(
-                'plans.id',
-                'plans.name',
-                'plans.code',
-                'plans.advance',
-                'plans.user_id',
-                'standards.name as standard_name',
-                'users.name as user_name',
-                'plan_status.description as plan_status'
-            )
-            ->join('standards', 'plans.standard_id', '=', 'standards.id')
-            ->join('users', 'plans.user_id', '=', 'users.id')
-            ->join('plan_status', 'plans.plan_status_id', '=', 'plan_status.id')
-            ->orderBy('plans.id', 'asc')
-            ->get();
-
-        foreach ($userPlans as $plan) {
-            $plan->isCreator = ($plan->user_id == $user->id) ? true : false;
-            unset($plan->user_id);
-        }
-
-        if ($userPlans->count() > 0) {
+        try{
+            $result = $this->planService->listPlanUser($year, $semester);
             return response([
                 "status" => 1,
-                "data" => $userPlans,
+                "message" => "!Planes de mejora",
+                "data" => $result,
             ], 200);
-        } else {
-            return response([
-                "status" => 0,
-                "message" => "No tienes planes de mejora",
-            ], 404);
+        }
+        catch (Exception $e) {
+            return response()->json([
+                'status' => 0,
+                'message' => $e->getMessage(),
+            ], $e->getCode());
         }
     }
 

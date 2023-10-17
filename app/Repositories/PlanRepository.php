@@ -64,6 +64,12 @@ class PlanRepository
             ->get();
     }
 
+    public function listPlanUser($year, $semester, $user_id){
+        return $this->listPlanQuery($year, $semester)
+            ->where('user_id', $user_id)
+            ->get();
+    }
+
     protected function listPlanQuery($year, $semester){
         $query = PlanModel::where('plans.date_id', DateModel::dateId($year, $semester))
             ->where('plans.registration_status_id', RegistrationStatusModel::registrationActiveId())

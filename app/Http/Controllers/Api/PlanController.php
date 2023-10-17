@@ -217,33 +217,19 @@ class PlanController extends Controller
 
     public function showPlan($year, $semester, $plan_id)
     {
-        if (PlanModel::existsAndActive($plan_id)) {
-            $plan = PlanModel::find($plan_id);
-            $plan->sources = SourceModel::where("plan_id", $plan_id)
-                ->get(['id', 'description']);
-            $plan->problems_opportunities = ProblemOpportunityModel::where("plan_id", $plan_id)
-                ->get(['id', 'description']);
-            $plan->root_causes = RootCauseModel::where("plan_id", $plan_id)
-                ->get(['id', 'description']);
-            $plan->improvement_actions = ImprovementActionModel::where("plan_id", $plan_id)
-                ->get(['id', 'description']);
-            $plan->resources = ResourceModel::where("plan_id", $plan_id)
-                ->get(['id', 'description']);
-            $plan->goals = GoalModel::where("plan_id", $plan_id)
-                ->get(['id', 'description']);
-            $plan->observations = ObservationModel::where("plan_id", $plan_id)
-                ->get(['id', 'description']);
-            $plan->responsibles = ResponsibleModel::where("plan_id", $plan_id)
-                ->get(['id', 'description']);
+        try{
+            $result = $this->planService->showPlan($plan_id);
             return response([
                 "status" => 1,
-                "data" => $plan,
+                "message" => "!Plan de mejora",
+                "data" => $result,
             ], 200);
-        } else {
-            return response([
-                "status" => 0,
-                "message" => "No se encontro el plan de mejora",
-            ], 404);
+        }
+        catch (\App\Exceptions\Plan\PlanNotFoundException $e) {
+            return response()->json([
+                'status' => 0,
+                'message' => $e->getMessage(),
+            ], $e->getCode());
         }
     }
     /*

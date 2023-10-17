@@ -3,9 +3,17 @@
 namespace App\Repositories;
 
 use App\Models\DateModel;
+use App\Models\GoalModel;
+use App\Models\ImprovementActionModel;
+use App\Models\ObservationModel;
 use App\Models\PlanModel;
 use App\Models\PlanStatusModel;
+use App\Models\ProblemOpportunityModel;
 use App\Models\RegistrationStatusModel;
+use App\Models\ResourceModel;
+use App\Models\ResponsibleModel;
+use App\Models\RootCauseModel;
+use App\Models\SourceModel;
 
 class PlanRepository
 {
@@ -89,6 +97,21 @@ class PlanRepository
         return PlanModel::find($plan_id)->standard_id;
     }
 
+    public function showPlan($plan_id){
+        $fields = ['id', 'description'];
+        $plan = PlanModel::find($plan_id);
+        $plan->sources = $this->getPlanSources($plan_id, $fields);
+        $plan->problems_opportunities = $this->getPlanProblems($plan_id, $fields);
+        $plan->root_causes = $this->getPlanRootCauses($plan_id, $fields);
+        $plan->improvement_actions = $this->getPlanActions($plan_id, $fields);
+        $plan->resources = $this->getPlanResources($plan_id, $fields);
+        $plan->goals = $this->getPlanGoals($plan_id, $fields);
+        $plan->responsibles = $this->getPlanResponsibles($plan_id, $fields);
+        $plan->observations = $this->getPlanObservations($plan_id, $fields);
+
+        return $plan;
+    }
+
     public function checkIfCodeExistsInPlan($plan_id, $code)
     {
         return PlanModel::where('id', $plan_id)
@@ -161,6 +184,11 @@ class PlanRepository
         }
     }
 
+    public function getPlanSources($plan_id, $fields){
+        return SourceModel::where('plan_id', $plan_id)
+            ->get($fields);
+    }
+
     /*----------------------------Problemas-------------------------------*/
 
     public function createPlanProblems(PlanModel $plan, $problems)
@@ -200,6 +228,11 @@ class PlanRepository
                 }
             }
         }
+    }
+
+    public function getPlanProblems($plan_id, $fields){
+        return ProblemOpportunityModel::where('plan_id', $plan_id)
+            ->get($fields);
     }
 
     /*--------------------------------Causas-------------------------------*/
@@ -242,6 +275,12 @@ class PlanRepository
             }
         }
     }
+
+    public function getPlanRootCauses($plan_id, $fields){
+        return RootCauseModel::where('plan_id', $plan_id)
+            ->get($fields);
+    }
+
     /*------------------------------Acciones-------------------------------*/
 
     public function createPlanActions(PlanModel $plan, $actions)
@@ -281,6 +320,11 @@ class PlanRepository
                 }
             }
         }
+    }
+
+    public function getPlanActions($plan_id, $fields){
+        return ImprovementActionModel::where('plan_id', $plan_id)
+            ->get($fields);
     }
 
     /*------------------------------Recursos-------------------------------*/
@@ -324,6 +368,11 @@ class PlanRepository
         }
     }
 
+    public function getPlanResources($plan_id, $fields){
+        return ResourceModel::where('plan_id', $plan_id)
+            ->get($fields);
+    }
+
     /*--------------------------------Metas-------------------------------*/
 
     public function createPlanGoals(PlanModel $plan, $goals)
@@ -363,6 +412,11 @@ class PlanRepository
                 }
             }
         }
+    }
+
+    public function getPlanGoals($plan_id, $fields){
+        return GoalModel::where('plan_id', $plan_id)
+            ->get($fields);
     }
 
     /*---------------------------Responsables-------------------------------*/
@@ -406,6 +460,11 @@ class PlanRepository
         }
     }
 
+    public function getPlanResponsibles($plan_id, $fields){
+        return ResponsibleModel::where('plan_id', $plan_id)
+            ->get($fields);
+    }
+
     /*--------------------------Observaciones-------------------------------*/
 
     public function createPlanObservations(PlanModel $plan, $observations)
@@ -445,5 +504,10 @@ class PlanRepository
                 }
             }
         }
+    }
+
+    public function getPlanObservations($plan_id, $fields){
+        return ObservationModel::where('plan_id', $plan_id)
+            ->get($fields);
     }
 }

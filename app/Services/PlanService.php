@@ -146,4 +146,16 @@ class PlanService
         return $plan;
     }
 
+    public function showPlan($plan_id){
+
+        if (!$this->planRepository->getPlanActiveById($plan_id)) {
+            throw new \App\Exceptions\Plan\PlanNotFoundException();
+        }
+
+        $plan = $this->planRepository->showPlan($plan_id);
+
+        return $plan;
+
+    }
+
 }

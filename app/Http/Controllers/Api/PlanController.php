@@ -21,6 +21,7 @@ use App\Models\RootCauseModel;
 use App\Models\SourceModel;
 use App\Models\StandardModel;
 use App\Models\User;
+use App\Services\PlanService;
 use Exception;
 use PhpParser\PrettyPrinter\Standard;
 
@@ -180,6 +181,7 @@ class PlanController extends Controller
             $result = $this->planService->listPlan($year, $semester, $request);
             return response([
                 "status" => 1,
+                "message" => "Lista de planes de mejora",
                 "data" => $result,
             ], 200);
         }
@@ -198,8 +200,8 @@ class PlanController extends Controller
             return response([
                 "status" => 1,
                 "message" => "!Se elimino el plan",
-                "data" => $result,
-            ], 204);
+                //"data" => $result,
+            ], 200);
         }
         catch (\App\Exceptions\Plan\PlanNotFoundException $e) {
             return response()->json([

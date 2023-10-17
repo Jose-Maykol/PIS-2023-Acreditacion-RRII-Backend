@@ -55,10 +55,10 @@ class PlanService
         $this->planRepository->createPlanRootCauses($plan, $request->root_causes);
         $this->planRepository->createPlanResponsibles($plan, $request->responsibles);
         $this->planRepository->createPlanResources($plan, $request->resources);
-        $this->planRepository->createPlanProblems($plan, $request->problems);
+        $this->planRepository->createPlanProblems($plan, $request->problems_opportunities);
         $this->planRepository->createPlanObservations($plan, $request->observations);
         $this->planRepository->createPlanGoals($plan, $request->goals);
-        $this->planRepository->createPlanActions($plan, $request->actions);
+        $this->planRepository->createPlanActions($plan, $request->improvement_actions);
 
         return $plan;
 

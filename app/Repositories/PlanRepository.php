@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Models\DateModel;
 use App\Models\PlanModel;
 use App\Models\PlanStatusModel;
 use App\Models\RegistrationStatusModel;
@@ -43,6 +44,37 @@ class PlanRepository
 
         $plan->save();
         return $plan;
+    }
+
+    public function listPlanAll($year, $semester){
+        return $this->listPlanQuery($year, $semester)->get();
+    }
+
+    public function listPlanStandard($year, $semester, $standard_id){
+        return $this->listPlanQuery($year, $semester)
+            ->where('plans.standard_id', $standard_id)
+            ->get();
+    }
+
+    protected function listPlanQuery($year, $semester){
+        $query = PlanModel::where('plans.date_id', DateModel::dateId($year, $semester))
+            ->where('plans.registration_status_id', RegistrationStatusModel::registrationActiveId())
+            ->select(
+                'plans.id',
+                'plans.name',
+                'plans.code',
+                'plans.advance',
+                'plans.user_id',
+                'standards.nro_standard as nro_standard',
+                'standards.name as standard_name',
+                'users.name as user_name',
+                'plan_status.description as plan_status'
+            )
+            ->join('standards', 'plans.standard_id', '=', 'standards.id')
+            ->join('users', 'plans.user_id', '=', 'users.id')
+            ->join('plan_status', 'plans.plan_status_id', '=', 'plan_status.id')
+            ->orderBy('plans.id', 'asc');
+        return $query;
     }
 
     public function checkIfCodeExistsInPlan($plan_id, $code)

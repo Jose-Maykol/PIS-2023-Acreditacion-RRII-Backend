@@ -5,11 +5,13 @@ namespace App\Services;
 use App\Models\DateModel;
 use App\Models\PlanModel;
 use App\Models\RegistrationStatusModel;
+use App\Models\StandardModel;
 use App\Repositories\PlanRepository;
 use App\Repositories\StandardRepository;
 use App\Repositories\UserRepository;
 
 use Illuminate\Http\Request;
+use PhpParser\PrettyPrinter\Standard;
 
 class PlanService
 {
@@ -105,6 +107,26 @@ class PlanService
 
     }
 
-    
+    public function listPlan($year, $semester, Request $request){
+        
+        if (!$this->standardRepository->getStandardActiveById($request->standard_id)) {
+            throw new \App\Exceptions\Standard\StandardNotFoundException();
+        }
+
+        $plans = null;
+        if(StandardModel::find($request->standard_id)->nro_standard == 8){
+            $plans = $this->planRepository->listPlanAll($year, $semester);
+        }
+        else{
+            $plans = $this->planRepository->listPlanStandard($year, $semester, $request->standard_id);
+        }
+        $userAuth = auth()->user();
+        foreach ($plans as $plan) {
+            $plan->isCreator = ($plan->user_id == $userAuth->id);
+            unset($plan->user_id);
+        }
+
+        return $plans;
+    }
 
 }

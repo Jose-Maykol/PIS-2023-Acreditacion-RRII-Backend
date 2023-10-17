@@ -170,49 +170,24 @@ class PlanController extends Controller
         }
     }
 
-    //confirmar los datos nesesarios
-    public function listPlan($year, $semester, Request $request)
+    
+    public function listPlan($year, $semester, PlanRequest $request)
     {
 
-        if (!$request->query('standard_id')) {
-            $request->query->add(['standard_id' => 8]);
+        try{
+            $request->validated();
+            $result = $this->planService->listPlan($year, $semester, $request);
+            return response([
+                "status" => 1,
+                "data" => $result,
+            ], 200);
         }
-
-        $user = auth()->user();
-        $standardId = intval($request->query('standard_id'));
-
-        $query = PlanModel::where('plans.date_id', DateModel::dateId($year, $semester))
-            ->where('plans.registration_status_id', RegistrationStatusModel::registrationActiveId())
-            ->select(
-                'plans.id',
-                'plans.name',
-                'plans.code',
-                'plans.advance',
-                'plans.user_id',
-                'standards.name as standard_name',
-                'users.name as user_name',
-                'plan_status.description as plan_status'
-            )
-            ->join('standards', 'plans.standard_id', '=', 'standards.id')
-            ->join('users', 'plans.user_id', '=', 'users.id')
-            ->join('plan_status', 'plans.plan_status_id', '=', 'plan_status.id')
-            ->orderBy('plans.id', 'asc');
-
-        if (StandardModel::find($standardId)->nro_standard == 8) {
-            $plans = $query->get();
-        } else {
-            $plans = $query->where('plans.standard_id', $standardId)->get();
+        catch (\App\Exceptions\Standard\StandardNotFoundException $e) {
+            return response()->json([
+                'status' => 0,
+                'message' => $e->getMessage(),
+            ], $e->getCode());
         }
-
-        foreach ($plans as $plan) {
-            $plan->isCreator = ($plan->user_id == $user->id);
-            unset($plan->user_id);
-        }
-
-        return response([
-            "status" => 1,
-            "data" => $plans,
-        ], 200);
     }
 
     public function deletePlan($year, $semester, $plan_id)

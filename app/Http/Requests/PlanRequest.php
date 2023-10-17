@@ -103,4 +103,9 @@ class PlanRequest extends CustomFormRequest
         ];
     }
 
+    public function validationForListPlan(){
+        return [
+            'standard_id' => "present|required|numeric"
+        ];
+    }
 }

@@ -14,12 +14,12 @@ Route::middleware("auth:sanctum")->prefix('standards')->group(function () {
     //rutas estandar
 
     Route::post('', [StandardController::class, 'createEstandar']);
-    Route::get('', [StandardController::class, 'listStandard']);
-    Route::get('{standard_id}/header', [StandardController::class, 'headerStandard']);
-    Route::put('{standard_id}/header', [StandardController::class, 'UpdateHeaderStandard']);
+    //Route::get('', [StandardController::class, 'listStandard']);
+    Route::get('{standard_id}/header', [StandardController::class, 'showStandardHeader']);
+    Route::put('{standard_id}/header', [StandardController::class, 'updateStandardHeader']);
 
-    Route::get('{standard_id}/status', [StandardController::class, 'StatusStandard']);
-    Route::put('{standard_id}/status', [StandardController::class, 'UpdateStatusStandard']);
+//    Route::get('{standard_id}/status', [StandardController::class, 'StatusStandard']);
+    Route::put('{standard_id}/status/{standard_status_id}', [StandardController::class, 'updateStatusStandard']);
 
     Route::get('partial', [StandardController::class, 'listPartialStandard']);
     Route::get('users', [StandardController::class, 'listStandardsAssignment'] );

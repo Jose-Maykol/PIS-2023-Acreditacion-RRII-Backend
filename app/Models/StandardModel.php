@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\DB;
 
+use App\Models\StandardStatusModel;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
 use function PHPSTORM_META\map;
 
 class StandardModel extends Model
@@ -32,6 +35,8 @@ class StandardModel extends Model
         return $this->belongsToMany(User::class, 'users_standards', 'standard_id', 'user_id')
         ->using(UserStandardModel::class);
     }
+    public function standard_status() {
+        return $this->belongsTo(StandardStatusModel::class, 'standard_status_id');    }
     /*
     public static function user($standard_id){
         return StandardModel::find($standard_id)->users();

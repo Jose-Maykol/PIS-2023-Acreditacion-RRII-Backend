@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StandardRequest;
 use App\Models\DateModel;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
@@ -14,10 +15,18 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Evidencias;
 use App\Models\RegistrationStatusModel;
 use App\Models\StandardStatusModel;
+use App\Services\StandardService;
+use Exception;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 
 class StandardController extends Controller
 {
+    protected $standardService;
+
+	public function __construct(StandardService $standardService){
+	
+		$this->standardService = $standardService;
+	}
 
     public function createStandard($year, $semester, Request $request)
     {
@@ -58,44 +67,24 @@ class StandardController extends Controller
 
     public function listPartialStandard($year, $semester)
     {
-        $standards = StandardModel::where("standards.date_id", DateModel::dateId($year, $semester))
-            ->where('standards.registration_status_id', RegistrationStatusModel::registrationActiveId())
-            ->select('standards.id', 'standards.name', 'standards.nro_standard')
-            ->orderBy('standards.nro_standard', 'asc')
-            ->get();
+        try{
 
-        if ($standards) {
-            return response([
-                "msg" => "!Lista parcial de Estandares",
-                "data" => $standards,
+            $result = $this->standardService->listPartialStandards($year, $semester);
+            return response()->json([
+                'status' => 1,
+                'message' => 'Lista parcial de estandares',
+                'data' => $result
             ], 200);
-        } else {
-            return response([
-                "msg" => "!No hay lista de Estandares",
-            ], 404);
         }
+        catch (Exception $e){
+            return response()->json([
+				'status' => 0,
+				'message' => $e->getMessage(),
+			], $e->getCode());
+        }
+        
     }
 
-
-    public function listStandard($year, $semester)
-    {
-        $standards = StandardModel::where("date_id", DateModel::dateId($year, $semester))
-            ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
-            ->orderBy('nro_standard', 'asc')
-            ->get();
-
-        if ($standards) {
-            return response([
-                "status" => 1,
-                "data" => $standards,
-            ], 200);
-        } else {
-            return response([
-                "status" => 0,
-                "message" => "No hay lista de estándares",
-            ], 404);
-        }
-    }
     /*
 		ruta(get): localhost:8000/api/2023/A/standards/standard-values
 		ruta(get): localhost:8000/api/2023/A/standards/4
@@ -106,52 +95,48 @@ class StandardController extends Controller
 	*/
     public function listStandardsAssignment($year, $semester)
     {
-        $standardslist = StandardModel::where('standards.date_id', DateModel::dateId($year, $semester))
-            ->select(
-                'standards.id',
-                'standards.name',
-                'standards.nro_standard',
-            )
-            ->orderBy('standards.nro_standard', 'asc')
-            ->with(['users' => function (Builder $query) {
-                $query->select('users.id', 'users.name', 'users.lastname', 'users.email');
-            }])
-            ->get();
-        return response()->json([
-            "msg" => "!Lista de nombres de Estandares",
-            "data" => $standardslist,
-        ], 200);
+        try{
+            $result = $this->standardService->listStandardsAssignment($year, $semester);
+            return response()->json([
+                "status" => 1,
+                "message" => "!Lista de Estandares",
+                "data" => $result,
+            ], 200);
+        }
+        catch (\App\Exceptions\User\UserNotAuthorizedException $e){
+            return response()->json([
+				'status' => 0,
+				'message' => $e->getMessage(),
+			], $e->getCode());
+        }
+       
     }
 
-    public function changeStandardAssignment($year, $semester, $standard_id, Request $request)
+    public function changeStandardAssignment($year, $semester, $standard_id, StandardRequest $request)
     {
-        $request->validate([
-            'users' => 'required|array',
-            'users.*' => 'exists:users,id'
-        ]);
-
-        $user = auth()->user();
-        if ($user->isAdmin()) {
-            $standard = StandardModel::find($standard_id);
-            if ($standard) {
-                $standard->users()->sync($request->users);
-
-                return response([
-                    "status" => 1,
-                    "msg" => "!Asignación de estándar cambiada",
-                ], 200);
-            } else {
-                return response([
-                    "status" => 0,
-                    "msg" => "!No existe el estándar",
-                ], 404);
-            }
-        } else {
-            return response([
-                "status" => 0,
-                "msg" => "!No está autorizado",
-            ], 403);
+        try {
+            $request->validated();
+            $result = $this->standardService->changeStandardAssignment($standard_id, $request);
+            return response()->json([
+                'status' => 1,
+                'message' => 'Estandares asignados'
+            ], 200);
         }
+        catch (\Illuminate\Validation\ValidationException $e){
+			return response()->json(['errors' => $e->errors()], 400);
+		}
+        catch(\App\Exceptions\User\UserNotAuthorizedException $e){
+            return response()->json([
+				'status' => 0,
+				'message' => $e->getMessage(),
+			], $e->getCode());
+        }
+        catch (\App\Exceptions\Standard\StandardNotFoundException $e){
+			return response()->json([
+				'status' => 0,
+				'message' => $e->getMessage(),
+			], $e->getCode());
+		}
     }
 
     /*
@@ -162,26 +147,21 @@ class StandardController extends Controller
 				"access_token":"11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
 			}
 	*/
-    public function showStandard($year, $semester, $standard_id, Request $request)
+    public function showStandardHeader($year, $semester, $standard_id, Request $request)
     {
-
-        if (StandardModel::where("id", $standard_id)
-            ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
-            ->exists()
-        ) {
-            $standard = StandardModel::find($standard_id);
-            $user = $standard->users()->first();
-            $standard->user = $user;
-            $standard->isManager = ($user->id == auth()->user()->id);
-            $standard->isAdmin = auth()->user()->isAdmin();
-            return response([
-                "msg" => "!Estandar",
-                "data" => $standard,
+        try{
+            $result = $this->standardService->showStandard($standard_id);
+            return response()->json([
+                'status' => 1,
+                'message' => "Estandar retornado",
+                'data' => $result
             ], 200);
-        } else {
-            return response([
-                "msg" => "!No se encontro el estandar",
-            ], 404);
+        }
+        catch (\App\Exceptions\Standard\StandardNotFoundException $e){
+            return response()->json([
+				'status' => 0,
+				'message' => $e->getMessage(),
+			], $e->getCode());
         }
     }
 
@@ -200,73 +180,34 @@ class StandardController extends Controller
 	*/
 
 
-    public function updateStandard($year, $semester, $standard_id, Request $request)
+    public function updateStandardHeader($year, $semester, $standard_id, StandardRequest $request)
     {
-        $user = auth()->user();
-
-        if ($user->isAssignStandard($standard_id) or $user->isAdmin()) {
-            $standard = StandardModel::find($standard_id);
-            $standard->name = isset($request->name) ? $request->name : $standard->name;
-            $standard->factor = isset($request->factor) ? $request->factor : $standard->factor;
-            $standard->dimension = isset($request->dimension) ? $request->dimension : $standard->dimension;
-            $standard->related_standards = isset($request->related_standards) ? $request->related_standards : $standard->related_standards;
-            $standard->nro_standard = isset($request->nro_standard) ? $request->nro_standard : $standard->nro_standard;
-            //$standard->date_id = DateModel::where('year', $year)->where('semester', $semester)->get()->id;
-            $standard->save();
-
-            $user_id = isset($request->user_id) ? $request->user_id : $standard->users()->first()->id;
-            try {
-                $standard = StandardModel::find($standard_id);
-                $user_standard = User::find($standard->users()->first()->id);
-                $standard->users()->detach($user_standard);
-                $standard->users()->attach(User::find($user_id));
-                return response([
-                    "msg" => "!Estandar actualizado",
-                    "data" => $standard,
-                ], 200);
-            } catch (\Exception $e) {
-                return response([
-                    "msg" => "!Error en la Base de datos",
-                ], 500);
-            }
-        } else {
-            return response([
-                "status" => 0,
-                "msg" => "!No se encontro el estandar o no esta autorizado",
-            ], 404);
+        try{
+            $request->validated();
+            //$result = $this->standardService->updateStandardHeader($standard_id, $request);
+            return response()->json([
+				'status' => 1,
+				'message' => 'Estandar modificado exitosamente',
+                //'data' => $result
+			], 200);
+        }
+        catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 400);
+        }
+        catch(\App\Exceptions\User\UserNotAuthorizedException $e){
+            return response()->json([
+				'status' => 0,
+				'message' => $e->getMessage(),
+			], $e->getCode());
+        }
+        catch (\App\Exceptions\Standard\StandardNotFoundException $e){
+            return response()->json([
+				'status' => 0,
+				'message' => $e->getMessage(),
+			], $e->getCode());
         }
     }
 
-    public function updateUserStandard($year, $semester, $standard_id, Request $request)
-    {
-        $request->validate([
-            "user_id" => "required|integer",
-        ]);
-
-        $user = auth()->user();
-        if ($user->isAdmin()) {
-            $standard = StandardModel::find($standard_id);
-            $user_id = isset($request->user_id) ? $request->user_id : $standard->users()->first()->id;
-            try {
-                $user_standard = User::find($standard->users()->first()->id);
-                $standard->users()->detach($user_standard);
-                $standard->users()->attach(User::find($user_id));
-                return response([
-                    "msg" => "!Estandar actualizado",
-                    "data" => $standard,
-                ], 200);
-            } catch (\Exception $e) {
-                return response([
-                    "msg" => "!Error en la Base de datos",
-                ], 500);
-            }
-        } else {
-            return response([
-                "status" => 0,
-                "msg" => "!No se encontro el estandar o no esta autorizado",
-            ], 404);
-        }
-    }
     /*
 		ruta(delete): localhost:8000/api/2023/A/standards/{standard_id}
 		ruta(delete): localhost:8000/api/2023/A/standards/1
@@ -385,78 +326,6 @@ class StandardController extends Controller
             ], 404);
         }
     }
-
-    public function headerStandard($year, $semester, $standard_id)
-    {
-        if (StandardModel::where("id", $standard_id)->exists()) {
-            $standard = StandardModel::where('id', $standard_id)
-                ->select('name', 'description', 'factor', 'dimension', 'related_standards', 'standard_status_id')->first();
-            $standardStatus = StandardStatusModel::where('id', $standard->standard_status_id)->select('description')->first();
-            return response([
-                "status" => 1,
-                "data" => [
-                    "name" => $standard->name,
-                    "description" => $standard->description,
-                    "factor" => $standard->factor,
-                    "dimension" => $standard->dimension,
-                    "related_standards" => $standard->related_standards,
-                    "standard_status" => $standardStatus->description,
-                ]
-            ], 200);
-        } else {
-            return response([
-                "status" => 0,
-                "message" => "No existe el estándar",
-            ], 404);
-        }
-    }
-
-    public function UpdateHeaderStandard($year, $semester, $standard_id, Request $request)
-    {
-        if (StandardModel::where('id', $standard_id)->exists()) {
-            try {
-                $request->validate([
-                    "name" => "required|max:255",
-                    "description" => "required|max:255",
-                    "factor" => "required|max:255",
-                    "dimension" => "required|max:255", 
-                    "related_standards" => "required|max:550",
-                ]);
-            }
-            catch(\Illuminate\Validation\ValidationException $e){
-                return response()->json(['errors' => $e->errors()], 400);
-            }
-            
-            $standard = StandardModel::where('id', $standard_id)->first();
-            $user = auth()->user();
-            if($user->isAdmin() or $user->isAssignStandard($standard_id)){
-                $standard->name =$request->name;
-                $standard->description =$request->description;
-                $standard->factor = $request->factor;
-                $standard->dimension = $request->dimension;
-                $standard->related_standards = $request->related_standards;
-                $standard->save();
-                $standard = StandardModel::where('id', $standard_id)
-                ->select('name', 'description', 'factor', 'dimension', 'related_standards')->get();
-                return response([
-                    "status" => 1,
-                    "message" => "Cabecera de estandar actualizado correctamente!",
-                    "data" => $standard,
-                ], 200);
-            } else{
-                return response([
-                    "status" => 0,
-                    "message" => "Usted no puede editar la cabecera del estándar",
-                ], 403);
-            }
-        } else {
-            return response([
-                "status" => 0,
-                "message" => "No existe el estándar",
-            ], 404);
-        }
-    }
-
     public function StatusStandard($year, $semester, $standard_id)
     {
         if (StandardModel::where('id', $standard_id)->exists()) {
@@ -479,45 +348,33 @@ class StandardController extends Controller
         }
     }
 
-    public function UpdateStatusStandard($year, $semester, $standard_id, Request $request)
+    public function updateStatusStandard($year, $semester, $standard_id, $standard_status_id, Request $request)
     {
-        $user = auth()->user();
-        if (StandardModel::where('id', $standard_id)->exists()) {
-            if($user->isAdmin()){
-                try {
-                    $request->validate([
-                        "standard_status_id" => "required|max:1",
-                    ]);
-                }
-                catch(\Illuminate\Validation\ValidationException $e){
-                    return response()->json(['errors' => $e->errors()], 400);
-                }
-                if(StandardStatusModel::where('id', $request->standard_status_id)->exists()){
-                    $standard = StandardModel::where('id', $standard_id)->first();
-                    $standard->standard_status_id = $request->standard_status_id;
-                    $standard->save();
-                    $status_standard = StandardModel::where('id', $standard_id)->select('standard_status_id')->get();
-                    return response([
-                        "status" => 1,
-                        "message" => "Estado de estándar actualizado"
-                    ], 200);
-                }else{
-                    return response([
-                        "status" => 0,
-                        "message" => "Ese estado de estándar no existe"
-                    ], 404);
-                }
-            }else{
-                return response([
-                    "status" => 0,
-                    "message" => "Usted no es administrador"
-                ], 403);
-            }
-        } else {
-            return response([
-                "status" => 0,
-                "message" => "No existe el estándar",
-            ], 404);
+        try{
+            $result = $this->standardService->updateStandardStatus($standard_id, $standard_status_id);
+            return response()->json([
+				'status' => 1,
+				'message' => "Estandard actualizado",
+			], 200);
         }
+        catch(\App\Exceptions\User\UserNotAuthorizedException $e){
+            return response()->json([
+				'status' => 0,
+				'message' => $e->getMessage(),
+			], $e->getCode());
+        }
+        catch (\App\Exceptions\Standard\StandardNotFoundException $e){
+            return response()->json([
+				'status' => 0,
+				'message' => $e->getMessage(),
+			], $e->getCode());
+        }
+        catch (\App\Exceptions\Standard\StandardStatusNotFoundException $e){
+            return response()->json([
+				'status' => 0,
+				'message' => $e->getMessage(),
+			], $e->getCode());
+        }
+        
     }
 }

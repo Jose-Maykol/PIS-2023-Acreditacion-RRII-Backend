@@ -3,65 +3,70 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UserRequest;
 use Illuminate\Http\Request;
 use App\Models\Estandar;
 use App\Models\RegistrationStatusModel;
 use App\Models\RoleModel;
 use App\Models\User;
+use App\Services\UserService;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
+	protected $userService;
+
+	public function __construct(UserService $userService){
+	
+		$this->userService = $userService;
+	}
+
     /*
 		ruta(post): localhost:8000/api/2023/A/users/register
 		ruta(post): localhost:8000/api/2023/A/users/register
 		datos:
 			{
 				"email":"pfloresq5@unsa.edu.pe",
-    			"role_id":"1"
+    			"role":"administrador"
                 "access_token": "11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
 			}
 	*/
-    public function register(Request $request)
+    public function register(UserRequest $request)
     {
-        $request->validate([
-			'role'=> 'required|string|in:administrador,docente',
-            'email' => 'required|email'
-        ]);
+		try{
 
-		if(User::where('email', $request->email)->exists())
-		{
+			$request->validated();
+			$result = $this->userService->createUser($request);
+
+			return response()->json([
+                'status' => 1,
+                'message' => 'Usuario creado con éxito'
+            ], 201);
+		}
+		catch (\Illuminate\Validation\ValidationException $e){
+			return response()->json(['errors' => $e->errors()], 400);
+		}
+		catch (\App\Exceptions\User\UserNotAuthorizedException $e){
 			return response()->json([
 				'status' => 0,
-                'message' => 'Usuario existente',
-            ], 422);
+				'message' => $e->getMessage(),
+			], $e->getCode());
+		}
+		catch (\App\Exceptions\User\EmailAlreadyExistsException $e){
+			return response()->json([
+				'status' => 0,
+				'message' => $e->getMessage(),
+			], $e->getCode());
+		}
+		catch (\App\Exceptions\User\RoleNotFoundException $e){
+			return response()->json([
+				'status' => 0,
+				'message' => $e->getMessage(),
+			], $e->getCode());
 		}
 
-		$userAuth = auth()->user();
-
-        if ($userAuth->isAdmin()) {
-            $user = new User();
-            $user->name = "NOMBRES";
-            $user->lastname = "APELLIDOS";
-            $user->email = $request->email;
-            $user->password = "null";
-			$user->registration_status_id = RegistrationStatusModel::registrationAuthenticationPendingId();
-            $user->save();
-			$user->assignRole($request->role);
-
-            return response()->json([
-				'status' => 1,
-                'message' => 'Usuario registrado exitosamente',
-            ], 201);
-        } else {
-            return response()->json([
-                "status" => 0,
-                "message" => "No eres administrador: Usuario no registrado",
-            ], 403);
-        }
     }
 
 

@@ -8,8 +8,11 @@ use App\Models\User;
 class UserRepository
 {
 
-    public function getAllUsers()
+    public function getAllUsersActive()
     {
+        return User::select('users.id', 'users.name', 'users.lastname', 'users.email')
+            ->where('users.registration_status_id', RegistrationStatusModel::registrationActiveId())
+            ->get();
     }
 
     public function getUserById($user_id)

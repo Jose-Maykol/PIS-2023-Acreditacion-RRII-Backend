@@ -377,4 +377,28 @@ class StandardController extends Controller
         }
         
     }
+
+    
+	public function listUserAssigned($year, $semester, $standard_id){
+        try{
+            $result = $this->standardService->listUserAssigned($standard_id);
+            return response()->json([
+				'status' => 1,
+				'message' => "Lista de usuarios del estandar",
+                'data' => $result
+			], 200);
+        }
+        catch(\App\Exceptions\User\UserNotAuthorizedException $e){
+            return response()->json([
+				'status' => 0,
+				'message' => $e->getMessage(),
+			], $e->getCode());
+        }
+        catch(\App\Exceptions\Standard\StandardNotFoundException $e){
+            return response()->json([
+				'status' => 0,
+				'message' => $e->getMessage(),
+			], $e->getCode());
+        }
+	}
 }

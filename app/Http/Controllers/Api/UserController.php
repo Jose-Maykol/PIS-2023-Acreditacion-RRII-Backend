@@ -216,12 +216,20 @@ class UserController extends Controller
 
 			$role = $request->role_id == 1 ? 'administrador' : 'docente';
 	
-			// Asignar el rol al usuario
-			$user->assignRole($role);
+			 // Obtener el rol actual del usuario
+			 $userRole = $user->getRoleNames()->first();
+
+			 if ($userRole) {
+					 // Eliminar el rol actual del usuario
+					 $user->removeRole($userRole);
+			 }
+
+			 // Asignar el nuevo rol al usuario
+			 $user->assignRole($role);
 	
 			return response()->json([
 				'status' => 1,
-				'message' => 'Usuario actualizado exitosamente',
+				'message' => 'Rol de usuario actualizado exitosamente',
 			], 200);
 		} else {
 			return response()->json([
@@ -244,7 +252,7 @@ class UserController extends Controller
 			]);
 			return response([
 				"status" => 1,
-	        	"message" => "Usuario actualizado exitosamente",
+	        	"message" => "Estado de usuario actualizado exitosamente",
 	    	], 200);
 		}
 		else{

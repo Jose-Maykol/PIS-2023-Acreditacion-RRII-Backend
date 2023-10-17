@@ -7,7 +7,7 @@ use App\Http\Controllers\Api\UserController;
 
 Route::middleware("auth:sanctum")->prefix('users')->group(function () {
 
-    //Rutas de Gestion de usarios
+    //Rutas de Gestion de usuarios
     Route::get('profile', [UserController::class, 'userProfile']);
     Route::put('', [UserController::class, 'update']);
     Route::put('update_role/{user_id}', [UserController::class, 'updateRole']);
@@ -15,5 +15,4 @@ Route::middleware("auth:sanctum")->prefix('users')->group(function () {
     Route::post('', [UserController::class, 'register']);
     Route::get('', [UserController::class, 'listUser']);
     Route::get('enabled_users', [UserController::class, 'listEnabledUsers']);
-
 });

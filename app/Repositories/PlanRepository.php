@@ -77,6 +77,18 @@ class PlanRepository
         return $query;
     }
 
+    public function deletePlan($plan_id){
+        $plan = PlanModel::find($plan_id);
+        $plan->update([
+            'registration_status_id' => RegistrationStatusModel::registrationInactiveId()
+        ]);
+        return $plan;
+    }
+
+    public function getStandardForPlan($plan_id){
+        return PlanModel::find($plan_id)->standard_id;
+    }
+
     public function checkIfCodeExistsInPlan($plan_id, $code)
     {
         return PlanModel::where('id', $plan_id)

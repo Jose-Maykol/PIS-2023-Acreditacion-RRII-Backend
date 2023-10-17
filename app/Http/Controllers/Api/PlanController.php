@@ -192,23 +192,25 @@ class PlanController extends Controller
 
     public function deletePlan($year, $semester, $plan_id)
     {
-        $plan = PlanModel::find($plan_id);
-        if (!PlanModel::where("id", $plan_id)->exists()) {
-            return response()->json([
-                "message" => "!No se encontro el plan",
-            ], 404);
-        }
-
-        $user = auth()->user();
-        if ($user->isCreatorPlan($plan_id) or $user->isAdmin()) {
-            $plan->deleteRegister();
-            return response()->json([
+        try{
+            $result = $this->planService->deletePlan($plan_id);
+            return response([
+                "status" => 1,
                 "message" => "!Se elimino el plan",
-            ], 204); //Sale 204 No Content, no devuelve message
-        } else {
+                "data" => $result,
+            ], 204);
+        }
+        catch (\App\Exceptions\Plan\PlanNotFoundException $e) {
             return response()->json([
-                "message" => "!No esta autorizado par realizar esta accion",
-            ], 403);
+                'status' => 0,
+                'message' => $e->getMessage(),
+            ], $e->getCode());
+        }
+        catch (\App\Exceptions\User\UserNotAuthorizedException $e) {
+            return response()->json([
+                'status' => 0,
+                'message' => $e->getMessage(),
+            ], $e->getCode());
         }
     }
 

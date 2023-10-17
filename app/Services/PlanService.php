@@ -129,4 +129,21 @@ class PlanService
         return $plans;
     }
 
+    public function deletePlan($plan_id){
+
+        $userAuth = auth()->user();
+        if (!$this->planRepository->getPlanActiveById($plan_id)) {
+            throw new \App\Exceptions\Plan\PlanNotFoundException();
+        }
+        $standard_id = $this->planRepository->getStandardForPlan($plan_id);
+        if (!($this->userRepository->checkIfUserIsManagerStandard($standard_id, $userAuth) 
+                or $this->userRepository->isAdministrator($userAuth))) {
+            throw new \App\Exceptions\User\UserNotAuthorizedException();
+        }
+
+        $plan = $this->planRepository->deletePlan($plan_id);
+
+        return $plan;
+    }
+
 }

@@ -38,7 +38,7 @@ Route::middleware("auth:sanctum")->prefix('standards')->group(function () {
 
         Route::post('', [NarrativasController::class, 'create']);
         //Route::get('{narrative_id}', [NarrativasController::class, 'show'])->where('narrative_id', '[0-9]+');
-        Route::put('', [NarrativasController::class, 'update'])->where('narrative_id', '[0-9]+');
+        Route::put('', [NarrativasController::class, 'update']);
         Route::delete('', [NarrativasController::class, 'delete'])->where('narrative_id', '[0-9]+');
         Route::get('', [NarrativasController::class, 'listNarratives']);
         //Route::get('last/{narrative_id}', [NarrativasController::class, 'lastNarrative'])->where('narrative_id', '[0-9]+');

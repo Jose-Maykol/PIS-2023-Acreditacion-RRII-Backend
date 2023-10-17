@@ -58,21 +58,21 @@ class NarrativasController extends Controller
     public function update($year, $semester, $standard_id, Request $request)
     {
         /*
-            ruta(put): /api/standards/{standard_id}/narratives/{narrative_id}
-            ruta(put): /api/2023/A/standards/1/narratives/1
+            ruta(put): /api/standards/{standard_id}/narratives/
+            ruta(put): /api/2023/A/standards/1/narratives/
             datos:
             {
                 "id":"1",
-                "content":"Narrativa de update"
+                "narrative":"Update Narrativa"
             }
         */
         $request->validate([
-            "content" => "required",
+            "narrative" => "required",
         ]);
         if (StandardModel::where("id", $standard_id)->exists()) {
             $standard = StandardModel::find($standard_id);
             $standard->update([
-                "content" => $request->content,
+                "narrative" => $request->narrative,
             ]);
             return response()->json([
                 "message" => 'Narrativa correctamente actualizada',

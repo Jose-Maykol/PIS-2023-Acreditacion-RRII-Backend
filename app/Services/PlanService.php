@@ -86,7 +86,7 @@ class PlanService
         }
 
         if (($this->planRepository->checkIfCodeExistsInPlan($plan_id, $request->code)
-            and $this->planRepository->checkIfCodeExists($request->code, $request->standard_id))) {
+            and !$this->planRepository->checkIfCodeExists($request->code, $request->standard_id))) {
             throw new \App\Exceptions\Plan\PlanCodeAlreadyExistsException();
         }
 

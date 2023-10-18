@@ -124,8 +124,8 @@ class PlanRepository
             ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
             ->where('code', $code)
             ->exists();
-    } //V - V = V // F - V = F // F - F = V
-
+    } /*V - V/F = F // F - V/F = V // F - F/V = F // V - F/V = V
+*/
     public function checkIfCodeExists($code, $standard_id)
     {
         return PlanModel::where('standard_id', $standard_id)
@@ -162,9 +162,12 @@ class PlanRepository
 
     public function updatePlanSources(PlanModel $plan, $sources)
     {
+        //dd($sources);
         //Eliminar fuentes que no esten en el Request
         $existingsIds = collect($sources)->pluck('id')->filter();
+        //dd($existingsIds);
         $sources_delete = $plan->sources()->whereNotIn('id', $existingsIds)->get();
+        //dd($sources_delete);
         //Actualizar fuentes de estandar
         foreach ($sources_delete as $source_delete) {
             $source_delete->delete();
@@ -173,10 +176,7 @@ class PlanRepository
         if (isset($sources)) {
             foreach ($sources as $source) {
                 if (isset($source['id'])) {
-                    $plan->sources()->update(
-                        [
-                            "id" => $source['id']
-                        ],
+                    $plan->sources()->where('id', $source['id'])->update(
                         [
                             "description" => $source['description'],
                         ]
@@ -188,6 +188,7 @@ class PlanRepository
                 }
             }
         }
+        
     }
 
     public function getPlanSources($plan_id, $fields){
@@ -219,10 +220,7 @@ class PlanRepository
         if (isset($problems)) {
             foreach ($problems as $problem) {
                 if (isset($problem['id'])) {
-                    $plan->problemsOpportunities()->update(
-                        [
-                            "id" => $problem['id']
-                        ],
+                    $plan->problemsOpportunities()->where('id', $problem['id'])->update(
                         [
                             "description" => $problem['description'],
                         ]
@@ -265,10 +263,7 @@ class PlanRepository
         if (isset($root_causes)) {
             foreach ($root_causes as $root_cause) {
                 if (isset($root_cause['id'])) {
-                    $plan->rootCauses()->update(
-                        [
-                            "id" => $root_cause['id']
-                        ],
+                    $plan->rootCauses()->where('id',$root_cause['id'])->update(
                         [
                             "description" => $root_cause['description'],
                         ]
@@ -311,10 +306,7 @@ class PlanRepository
         if (isset($actions)) {
             foreach ($actions as $action) {
                 if (isset($action['id'])) {
-                    $plan->improvementActions()->update(
-                        [
-                            "id" => $action['id']
-                        ],
+                    $plan->improvementActions()->where('id', $action['id'])->update(
                         [
                             "description" => $action['description'],
                         ]
@@ -357,10 +349,7 @@ class PlanRepository
         if (isset($resources)) {
             foreach ($resources as $resource) {
                 if (isset($resource['id'])) {
-                    $plan->resources()->update(
-                        [
-                            "id" => $resource['id']
-                        ],
+                    $plan->resources()->where('id', $resource['id'])->update(
                         [
                             "description" => $resource['description'],
                         ]
@@ -403,10 +392,7 @@ class PlanRepository
         if (isset($goals)) {
             foreach ($goals as $goal) {
                 if (isset($goal['id'])) {
-                    $plan->goals()->update(
-                        [
-                            "id" => $goal['id']
-                        ],
+                    $plan->goals()->where('id', $goal['id'])->update(
                         [
                             "description" => $goal['description'],
                         ]
@@ -449,10 +435,7 @@ class PlanRepository
         if (isset($responsibles)) {
             foreach ($responsibles as $responsible) {
                 if (isset($responsible['id'])) {
-                    $plan->responsibles()->update(
-                        [
-                            "id" => $responsible['id']
-                        ],
+                    $plan->responsibles()->where('id', $responsible['id'])->update(
                         [
                             "description" => $responsible['description'],
                         ]
@@ -495,10 +478,7 @@ class PlanRepository
         if (isset($observations)) {
             foreach ($observations as $observation) {
                 if (isset($observation['id'])) {
-                    $plan->observations()->update(
-                        [
-                            "id" => $observation['id']
-                        ],
+                    $plan->observations()->where('id', $observation['id'])->update(
                         [
                             "description" => $observation['description'],
                         ]

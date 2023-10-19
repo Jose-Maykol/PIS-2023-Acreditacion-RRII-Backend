@@ -141,4 +141,69 @@ class FoldersController extends Controller
             "message" => "Carpeta eliminada exitosamente",
         ], 404);
     }
+
+    public function move(Request $request, $year, $semester, $folder_id)
+    {
+        $request->validate([
+            "parent_id" => "required|integer|nullable",
+        ]);
+
+        $parentId = $request->parent_id;
+        $parentFolder = Folder::find($parentId);
+
+        if (!$parentFolder) {
+            return response([
+                "status" => 0,
+                "message" => "No se encontro la carpeta padre",
+            ], 404);
+        }
+
+        if ($parentFolder->id == $folder_id) {
+            return response([
+                "status" => 0,
+                "message" => "No se puede mover la carpeta dentro de si misma",
+            ], 404);
+        }
+
+        $newPath = $parentFolder->path;
+        $folder = Folder::find($folder_id);
+
+        if ($parentFolder->evidence_type_id != $folder->evidence_type_id) {
+            return response([
+                "status" => 0,
+                "message" => "No se puede mover la carpeta a una carpeta de otro tipo de evidencia",
+            ], 404);
+        
+        }
+
+        if ($parentFolder->standard_id != $folder->standard_id) {
+            return response([
+                "status" => 0,
+                "message" => "No se puede mover la carpeta a una carpeta de otro estándar",
+            ], 404);
+        }
+
+        $standardId = $folder->standard_id;
+        $typeEvidenceId = $folder->evidence_type_id;
+        $folderName = $folder->name;
+        $currentPath = 'evidencias/' . $year . '/' . $semester . '/' .'estandar_' . $standardId . '/tipo_evidencia_'. $typeEvidenceId;
+        $currentFolderPath = $currentPath . $folder->path;
+        $newFolderPath = $currentPath . $newPath . '/' . $folderName;
+        Storage::move($currentFolderPath, $newFolderPath);
+        $folder->path = $newPath . '/' . $folderName;
+        $folder->parent_id = $parentId;
+        $folder->save();
+        // actualizar evidencias con nuevo path
+        $evidences = Evidence::where('folder_id', $folder_id)->get();
+        if ($evidences) {
+            foreach ($evidences as $evidence) {
+                $evidence->path = $newPath . '/' . $folderName . '/' . $evidence->file;
+                $evidence->save();
+            }
+        }
+        return response([
+            "status" => 1,
+            "message" => "Carpeta movida exitosamente",
+        ], 404);
+    }
 }

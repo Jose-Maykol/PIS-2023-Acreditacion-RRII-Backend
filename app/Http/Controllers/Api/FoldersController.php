@@ -206,4 +206,61 @@ class FoldersController extends Controller
             "message" => "Carpeta movida exitosamente",
         ], 404);
     }
+
+    public function list(Request $request, $year, $semester)
+    {
+        $request->validate([
+            'folder_id' => 'integer|nullable',
+            'standard_id' => 'required|integer',
+            'evidence_type_id' => 'required|integer',
+        ]);
+
+        $standardId = $request->standard_id;
+        $evidenceTypeId = $request->evidence_type_id;
+        $folderId = $request->folder_id;
+        $dateId = DateModel::dateId($year, $semester);
+
+        if ($folderId == null) {
+            $parentFolder = Folder::where('parent_id', null)
+                ->where('standard_id', $standardId)
+                ->where('evidence_type_id', $evidenceTypeId)
+                ->where('date_id', $dateId)
+                ->first();
+            $parentFolderId = $parentFolder->id;
+            $folders = Folder::where('parent_id', $parentFolderId )->get();
+            if (!$folders) {
+                return response([
+                    "status" => 0,
+                    "message" => "No se encontraron carpetas",
+                ], 404);
+            }
+            return response([
+                "status" => 1,
+                "data" => $folders,
+            ], 200);
+        }
+
+        
+        $folder = Folder::find($folderId);
+
+        if (!$folder) {
+            return response([
+                "status" => 0,
+                "message" => "No se existe la carpeta",
+            ], 404);
+        }
+
+        $folders = Folder::where('parent_id', $folderId)->get();
+
+        if ($folders->isEmpty()) {
+            return response([
+                "status" => 0,
+                "message" => "No hay carpetas dentro de esta carpeta",
+            ], 404);
+        }
+        return response([
+            "status" => 1,
+            "data" => $folders,
+        ], 200);
+    }
 }

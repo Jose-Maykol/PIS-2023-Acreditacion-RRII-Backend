@@ -145,7 +145,7 @@ class FoldersController extends Controller
     public function move(Request $request, $year, $semester, $folder_id)
     {
         $request->validate([
-            "parent_id" => "required|integer|nullable",
+            "parent_id" => "required|integer",
         ]);
 
         $parentId = $request->parent_id;
@@ -154,7 +154,7 @@ class FoldersController extends Controller
         if (!$parentFolder) {
             return response([
                 "status" => 0,
-                "message" => "No se encontro la carpeta padre",
+                "message" => "No se encontro la carpeta",
             ], 404);
         }
 

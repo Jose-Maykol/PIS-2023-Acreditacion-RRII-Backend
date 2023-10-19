@@ -412,4 +412,65 @@ class EvidenciasController extends Controller
         }
         return 'application/octet-stream';
     }
+
+    public function move(Request $request, $year, $semester, $evidence_id)
+    {
+        $request->validate([
+            "parent_id" => "required|integer",
+        ]);
+
+        $parentId = $request->parent_id;
+        $parentFolder = Folder::find($parentId);
+
+        if (!$parentFolder) {
+            return response([
+                "status" => 0,
+                "message" => "No se encontro la carpeta",
+            ], 404);
+        }
+
+        $evidence = Evidence::find($evidence_id);
+
+        if (!$evidence) {
+            return response([
+                "status" => 0,
+                "message" => "No se encontro la evidencia",
+            ], 404);
+        }
+
+        if ($evidence->folder_id == $parentFolder->id) {
+            return response([
+                "status" => 0,
+                "message" => "La evidencia ya se encuentra en esta carpeta",
+            ], 404);
+        }
+
+        if ($evidence->evidence_type_id != $parentFolder->evidence_type_id) {
+            return response([
+                "status" => 0,
+                "message" => "La evidencia no pertenece a este tipo de evidencia",
+            ], 404);
+        }
+
+        if ($evidence->standard_id != $parentFolder->standard_id) {
+            return response([
+                "status" => 0,
+                "message" => "La evidencia no pertenece a este estándar",
+            ], 404);
+        }
+
+        $standardId = $evidence->standard_id;
+        $typeEvidenceId = $evidence->evidence_type_id;
+        $currentPath = 'evidencias/' . $year . '/' . $semester . '/' .'estandar_' . $standardId . '/tipo_evidencia_'. $typeEvidenceId;
+        $currentEvidencePath = $currentPath . $evidence->path;
+        $newEvidencePath = $currentPath . $parentFolder->path . '/' . $evidence->file;
+        Storage::move($currentEvidencePath, $newEvidencePath);
+        $evidence->path = $parentFolder->path . '/' . $evidence->file;
+        $evidence->folder_id = $parentFolder->id;
+        $evidence->save();
+        return response([
+            "status" => 1,
+            "message" => "Evidencia movida exitosamente",
+        ], 404);
+    }
 }

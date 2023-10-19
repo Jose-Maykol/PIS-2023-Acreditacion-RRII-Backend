@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Folder;
 use App\Models\DateModel;
+use App\Models\Evidence;
 
 class FoldersController extends Controller
 {
@@ -82,15 +83,16 @@ class FoldersController extends Controller
     public function rename(Request $request,  $year, $semester, $folder_id)
     {
         $request->validate([
-            "new_foldername" => "required|string",
+            "new_name" => "required|string",
         ]);
         if (Folder::where("id", $folder_id)) {
-            $newFoldername = $request->new_foldername;
+            $newFoldername = $request->new_name;
             $folder = Folder::find($folder_id);
             $standardId = $folder->standard_id;
             $typeEvidenceId = $folder->evidence_type_id;
             $folderName = $folder->name;
-            $pathFolder = str_replace($folderName, '', $folder->path);
+            $lastOcurrence = strrpos($folder->path, $folderName);
+            $pathFolder = substr_replace($folder->path, '', $lastOcurrence, strlen($folderName));
             $currentPath = 'evidencias/' . $year . '/' . $semester . '/' .'estandar_' . $standardId . '/tipo_evidencia_'. $typeEvidenceId;
             $currentFolderPath = $currentPath . $folder->path;
             $newFolderPath = $currentPath . $pathFolder . $newFoldername;
@@ -98,6 +100,14 @@ class FoldersController extends Controller
             $folder->name = $newFoldername;
             $folder->path = $pathFolder . $newFoldername;
             $folder->save();
+            // actualizar evidencias con nuevo path
+            $evidences = Evidence::where('folder_id', $folder_id)->get();
+            if ($evidences) {
+                foreach ($evidences as $evidence) {
+                    $evidence->path = $pathFolder . $newFoldername . '/' . $evidence->file;
+                    $evidence->save();
+                }
+            }
             return response([
                 "status" => 1,
                 "message" => "Nombre de carpeta actualizado exitosamente",

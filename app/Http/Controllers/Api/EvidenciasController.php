@@ -5,17 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Evidencias;
 use App\Models\plan;
-use App\Models\User;
 use App\Models\StandardModel;
 use App\Models\Folder;
 use App\Models\Evidence;
 use App\Models\DateModel;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage; 
-use Illuminate\Support\Facades\Response as FacadeResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\UploadedFile;
 use ZipArchive;
 
 

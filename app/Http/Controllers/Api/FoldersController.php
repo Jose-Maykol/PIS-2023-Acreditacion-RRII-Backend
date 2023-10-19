@@ -119,4 +119,26 @@ class FoldersController extends Controller
             ], 404);
         }
     }
+
+    public function delete($year, $semester, $folder_id)
+    {
+        $folder = Folder::find($folder_id);
+        $standardId = $folder->standard_id;
+        $typeEvidenceId = $folder->evidence_type_id;
+        $currentPath = 'evidencias/' . $year . '/' . $semester . '/' .'estandar_' . $standardId . '/tipo_evidencia_'. $typeEvidenceId;
+        $currentFolderPath = $currentPath . $folder->path;
+        // Obtiene las evidencias vinculadas y las borra
+        $evidences = Evidence::where('folder_id', $folder_id)->get();
+        if ($evidences) {
+            foreach ($evidences as $evidence) {
+                $evidence->delete();
+            }
+        }
+        Storage::deleteDirectory($currentFolderPath);
+        $folder->delete();
+        return response([
+            "status" => 1,
+            "message" => "Carpeta eliminada exitosamente",
+        ], 404);
+    }
 }

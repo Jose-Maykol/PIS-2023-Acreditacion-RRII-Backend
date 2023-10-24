@@ -16,9 +16,9 @@ use Illuminate\Support\Facades\Validator;
 class NarrativasController extends Controller
 {
 
-    public function create($year, $semester, $standard_id, Request $request)
+    /* public function create($year, $semester, $standard_id, Request $request)
     {
-        /*
+        
             ruta(post): /api/standard/{standard}/narratives
             ruta(post): /api/standard/1/narratives
             datos:
@@ -26,7 +26,7 @@ class NarrativasController extends Controller
                 "standard_id":"1",
                 "content":"Narrativa de prueba"
             } 
-        */
+        
         $user = auth()->user();
         if ($user->isAdmin() or $user->isAssignStandard($standard_id)) {
             $validator = Validator::make($request->all(), [
@@ -53,7 +53,7 @@ class NarrativasController extends Controller
                 "data" => null,
             ], 403); //Sin permisos
         }
-    }
+    } */
 
     public function update($year, $semester, $standard_id, Request $request)
     {
@@ -74,13 +74,14 @@ class NarrativasController extends Controller
             $standard->update([
                 "narrative" => $request->narrative,
             ]);
-            return response()->json([
-                "message" => 'Narrativa correctamente actualizada',
-                "standard" => $standard
+            return response([
+                "status" => 1,
+                "message" => "Narrativa actualizada",
             ], 200);
         } else {
             return response([
-                "message" => "!No se encontro la narrativa",
+                "status" => 0,
+                "message" => "No se encontro la narrativa",
             ], 404);
         }
     }
@@ -98,35 +99,36 @@ class NarrativasController extends Controller
                 "content" => ""
             ]);
             return response([
-                "message" => "!Narrativa eliminada",
+                "message" => "Narrativa eliminada",
             ], 204); //Sale 204 No Content, no devuelve message
         } else {
             return response([
-                "message" => "!No se encontro la narrativa",
-            ], 404);
-        }
-    }
-/*
-    public function show($year, $semester, $standard_id)
-    {
-        
-            ruta(get): /api/standards/{standard_id}/narratives/{narrative_id}
-            ruta(get): /api/standards/1/narratives/1
-            datos: {json con los datos qué nos mandan}
-        
-        if (StandardModel::where("id", $standard_id)->exists()) {
-            $standard = StandardModel::find($standard_id);
-            return response([
-                "message" => "!Narrativa encontrada",
-                "data" => $standard,
-            ], 200);
-        } else {
-            return response([
-                "message" => "!No se encontro la narrativa",
+                "message" => "No se encontro la narrativa",
             ], 404);
         }
     }
 
+    public function get($year, $semester, $standard_id)
+    {
+        /*
+            ruta(get): /api/standards/{standard_id}/narratives/{narrative_id}
+            ruta(get): /api/standards/1/narratives/1
+            datos: {json con los datos qué nos mandan}
+        */
+        
+        if (StandardModel::where("id", $standard_id)->exists()) {
+            $standard = StandardModel::where("id", $standard_id)->select("id", "narrative")->first();
+            return response([
+                "status" => 1,
+                "data" => $standard,
+            ], 200);
+        } else {
+            return response([
+                "message" => "No se encontro la narrativa",
+            ], 404);
+        }
+    }
+/*
     public function listNarratives()
     {
         

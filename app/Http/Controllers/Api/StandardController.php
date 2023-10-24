@@ -184,7 +184,7 @@ class StandardController extends Controller
     {
         try{
             $request->validated();
-            //$result = $this->standardService->updateStandardHeader($standard_id, $request);
+            $result = $this->standardService->updateStandardHeader($standard_id, $request);
             return response()->json([
 				'status' => 1,
 				'message' => 'Estandar modificado exitosamente',
@@ -326,7 +326,7 @@ class StandardController extends Controller
             ], 404);
         }
     }
-    public function StatusStandard($year, $semester, $standard_id)
+    public function standardStatus($year, $semester, $standard_id)
     {
         if (StandardModel::where('id', $standard_id)->exists()) {
             $standard= StandardModel::where('id', $standard_id)->select('standard_status_id')->first();
@@ -345,6 +345,29 @@ class StandardController extends Controller
                 "status" => 0,
                 "message" => "No existe el estándar",
             ], 404);
+        }
+    }
+
+    public function listStandardStatus($year, $semester, $standard_id=0){
+        try{
+            $result = $this->standardService->listStandardStatus($standard_id);
+            return response()->json([
+				'status' => 1,
+				'message' => "Lista de estandares",
+                'data' => $result
+			], 200);
+        }
+        catch(\App\Exceptions\User\UserNotAuthorizedException $e){
+            return response()->json([
+				'status' => 0,
+				'message' => $e->getMessage(),
+			], $e->getCode());
+        }
+        catch(\App\Exceptions\Standard\StandardNotFoundException $e){
+            return response()->json([
+				'status' => 0,
+				'message' => $e->getMessage(),
+			], $e->getCode());
         }
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\StandardStatusModel;
 use App\Repositories\StandardRepository;
 use App\Repositories\UserRepository;
 
@@ -58,7 +59,7 @@ class StandardService
         }
 
         $standard = $this->standardRepository->getFullStandard($standard_id);
-        $standard->standardStatus = $this->standardRepository->getAllStandardStatus();
+        //$standard->standardStatus = $this->standardRepository->getAllStandardStatus();
         $standard->isManager = $this->userRepository->checkIfUserIsManagerStandard($standard_id, $userAuth);
         $standard->isAdministrator = $this->userRepository->isAdministrator($userAuth);
 
@@ -96,11 +97,12 @@ class StandardService
         if (!$this->userRepository->checkIfUserIsManagerStandard($standard_id, $userAuth)) {
             throw new \App\Exceptions\User\UserNotAuthorizedException();
         }
-        
+
         return $this->standardRepository->updateStandardStatus($standard_id, $standard_status_id);
     }
 
-    public function listUserAssigned($standard_id){
+    public function listUserAssigned($standard_id)
+    {
 
         $userAuth = auth()->user();
 
@@ -114,16 +116,31 @@ class StandardService
 
         $users = $this->userRepository->getAllUsersActive();
 
-        foreach ($users as $user){
+        foreach ($users as $user) {
             if ($user->providers()->first() !== null) {
                 $user->avatar = $user->providers()->first()->avatar;
-            }
-            else{
+            } else {
                 $user->avatar = null;
             }
-            
+
             $user->isManager = $this->userRepository->checkIfUserIsManagerStandard($standard_id, $user);
         }
         return $users;
+    }
+
+    public function listStandardStatus($standard_id=0)
+    {
+        $userAuth = auth()->user();
+        if ($standard_id != 0 and !$this->standardRepository->getStandardActiveById($standard_id)) {
+            throw new \App\Exceptions\Standard\StandardNotFoundException();
+        }
+
+        if ($standard_id != 0 and !($this->userRepository->isAdministrator($userAuth)
+            or $this->userRepository->checkIfUserIsManagerStandard($standard_id, $userAuth)
+        )) {
+            throw new \App\Exceptions\User\UserNotAuthorizedException();
+        }
+        $standardStatus = $this->standardRepository->getAllStandardStatus();
+        return $standardStatus;
     }
 }

@@ -97,7 +97,9 @@ class UserController extends Controller
 	*/
     public function listUser()
 	{
-		$users = User::join('registration_status', 'users.registration_status_id', '=', 'registration_status.id')
+		$user = auth()->user();
+		$users = User::where('users.id', '!=', $user->id)
+			->join('registration_status', 'users.registration_status_id', '=', 'registration_status.id')
 			->select("users.id", "users.name", "users.lastname", "users.email", "registration_status.description as status")
 			->orderBy('users.id', 'asc')
 			->get();

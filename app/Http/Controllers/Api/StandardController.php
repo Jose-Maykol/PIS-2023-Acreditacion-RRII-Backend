@@ -314,7 +314,7 @@ class StandardController extends Controller
     public function searchEvidence($year, $semester, $standard_id)
     {
         if (StandardModel::where("id", $standard_id)->exists()) {
-            $evidences = Evidence::where('standard_id', $standard_id)->select('id', 'name', 'file', 'type')->get();
+            $evidences = Evidence::where('standard_id', $standard_id)->select('id as value', 'file as label', 'type')->get();
             return response()->json([
                 "status" => 0,
                 "data" => $evidences,

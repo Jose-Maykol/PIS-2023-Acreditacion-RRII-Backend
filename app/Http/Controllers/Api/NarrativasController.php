@@ -96,13 +96,15 @@ class NarrativasController extends Controller
         if (StandardModel::where("id", $standard_id)->exists()) {
             $standard = StandardModel::find($standard_id);
             $standard->update([
-                "content" => ""
+                "narrative" => ""
             ]);
             return response([
+                "status" => 1,
                 "message" => "Narrativa eliminada",
-            ], 204); //Sale 204 No Content, no devuelve message
+            ]);
         } else {
             return response([
+                "status" => 0,
                 "message" => "No se encontro la narrativa",
             ], 404);
         }

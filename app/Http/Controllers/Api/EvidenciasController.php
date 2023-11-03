@@ -21,48 +21,24 @@ class EvidenciasController extends Controller
     public function create(Request $request)
     {
         $request->validate([
-            "id_plan" => "required|integer",
-            "id_tipo" => "required|integer",
-            "id_estandar" => "required|integer",
-            "codigo" => "required",
-            "denominacion" => "required",
-            "adjunto" => "required",
+            "standard_id" => "required|integer",
+            "type_evidence_id" => "required|integer",
+            "plan_id" => "integer",
+            "file" => "required|array",
+            "file.*" => "file",
+            "path" => "string",
         ]);
-        $id_user = auth()->user();
-        if (plan::where(["id" => $request->id_plan])->exists()) {
-            $plan = plan::find($request->id_plan);
-            if ($id_user->isCreadorPlan($request->id_plan) or $id_user->isAdmin()) {
-                $evidencia = new Evidencias();
-                $evidencia->id_plan = $request->id_plan;
-                $evidencia->id_tipo = $request->id_tipo;
-                $evidencia->codigo = $plan->codigo;
-                $evidencia->denominacion = $request->denominacion.'.'.$request->adjunto->extension();
-                $path = $request->adjunto->storePubliclyAs(
-                    'evidencias',
-                    $request->adjunto->getClientOriginalName()
-                );
-                error_log($path);
 
-                $evidencia->adjunto = $path;
-                $evidencia->id_user = $id_user->id;
-                $evidencia->save();
-                return response([
-                    "status" => 1,
-                    "message" => "Evidencia creada exitosamente",
-                    "evidencia" => $evidencia
-                ]);
-            } else {
-                return response([
-                    "status" => 0,
-                    "message" => "No tienes permisos para crear esta Evidencia",
-                ], 404);
-            }
-        } else {
-            return response([
-                "status" => 0,
-                "message" => "No se encontro el plan",
-            ], 404);
-        }
+        $userId = auth()->user()->id;
+        $year = $request->route('year');
+        $semester = $request ->route('semester');
+        $dateId = DateModel::dateId($year, $semester);
+        $standardId = $request->standard_id;
+        $typeEvidenceId = $request->type_evidence_id;
+        $planId = $request->has('plan_id')? $request->plan_id : null;
+        $generalPath = $request->has('path') ? $request->path : '/';
+        $parentFolder = null;
+        
     }
 
         
@@ -76,13 +52,13 @@ class EvidenciasController extends Controller
 			$evidencia->id_user = $user->name;*/
             return response([
                 "status" => 1,
-                "msg" => "!Evidencia",
+                "msg" => "Evidencia",
                 "data" => $evidencia,
             ]);
         } else {
             return response([
                 "status" => 0,
-                "msg" => "!No se encontro el evidencia",
+                "msg" => "No se encontro el evidencia",
             ], 404);
         }
     }
@@ -381,16 +357,21 @@ class EvidenciasController extends Controller
     {
         if (Evidence::where("id", $evidence_id)->exists()) {
             $evidence = Evidence::find($evidence_id);
-            $dateId = DateModel::dateId($year, $semester);
-            $path = storage_path('app/' . 'evidencias/'. $year . '/' . $semester . '/estandar_' . $evidence->standard_id . '/tipo_evidencia_' . $evidence->evidence_type_id . $evidence->path);
+            $dateId = $evidence->date_id;
+            $date = DateModel::find($dateId);
+            $path = storage_path('app/' . 'evidencias/'. $date->year . '/' . $date->semester . '/estandar_' . $evidence->standard_id . '/tipo_evidencia_' . $evidence->evidence_type_id . $evidence->path);
             $extension = pathinfo($path, PATHINFO_EXTENSION);
             $contentType = $this->getContentType($extension);
             $fileContents = file_get_contents($path);
             $base64Content = base64_encode($fileContents);
             return response([
-                "status" => 0,
-                "evidence_id" => $evidence_id,
-                "base64_content" => $base64Content,
+                "status" => 1,
+                "data" => [
+                    "content" => $base64Content,
+                    "name" => $evidence->name,
+                    "extension" => $extension,
+                    "type" => $contentType,
+                ]
             ], 200)->header('Content-Type', 'application/json');
         } else {
             return response([

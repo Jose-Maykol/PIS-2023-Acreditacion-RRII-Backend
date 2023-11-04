@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Evidencias;
 use App\Models\RegistrationStatusModel;
 use App\Models\StandardStatusModel;
+use App\Services\EvidenceService;
 use App\Services\StandardService;
 use Exception;
 use Illuminate\Contracts\Database\Eloquent\Builder;
@@ -22,11 +23,14 @@ use Illuminate\Contracts\Database\Eloquent\Builder;
 class StandardController extends Controller
 {
     protected $standardService;
+    protected $evidenceService;
 
-	public function __construct(StandardService $standardService){
-	
-		$this->standardService = $standardService;
-	}
+    public function __construct(StandardService $standardService, EvidenceService $evidenceService)
+    {
+
+        $this->standardService = $standardService;
+        $this->evidenceService = $evidenceService;
+    }
 
     public function createStandard($year, $semester, Request $request)
     {
@@ -67,7 +71,7 @@ class StandardController extends Controller
 
     public function listPartialStandard($year, $semester)
     {
-        try{
+        try {
 
             $result = $this->standardService->listPartialStandards($year, $semester);
             return response()->json([
@@ -75,14 +79,12 @@ class StandardController extends Controller
                 'message' => 'Lista parcial de estandares',
                 'data' => $result
             ], 200);
-        }
-        catch (Exception $e){
+        } catch (Exception $e) {
             return response()->json([
-				'status' => 0,
-				'message' => $e->getMessage(),
-			], $e->getCode());
+                'status' => 0,
+                'message' => $e->getMessage(),
+            ], $e->getCode());
         }
-        
     }
 
     /*
@@ -95,21 +97,19 @@ class StandardController extends Controller
 	*/
     public function listStandardsAssignment($year, $semester)
     {
-        try{
+        try {
             $result = $this->standardService->listStandardsAssignment($year, $semester);
             return response()->json([
                 "status" => 1,
                 "message" => "!Lista de Estandares",
                 "data" => $result,
             ], 200);
-        }
-        catch (\App\Exceptions\User\UserNotAuthorizedException $e){
+        } catch (\App\Exceptions\User\UserNotAuthorizedException $e) {
             return response()->json([
-				'status' => 0,
-				'message' => $e->getMessage(),
-			], $e->getCode());
+                'status' => 0,
+                'message' => $e->getMessage(),
+            ], $e->getCode());
         }
-       
     }
 
     public function changeStandardAssignment($year, $semester, $standard_id, StandardRequest $request)
@@ -121,22 +121,19 @@ class StandardController extends Controller
                 'status' => 1,
                 'message' => 'Estandares asignados'
             ], 200);
-        }
-        catch (\Illuminate\Validation\ValidationException $e){
-			return response()->json(['errors' => $e->errors()], 400);
-		}
-        catch(\App\Exceptions\User\UserNotAuthorizedException $e){
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 400);
+        } catch (\App\Exceptions\User\UserNotAuthorizedException $e) {
             return response()->json([
-				'status' => 0,
-				'message' => $e->getMessage(),
-			], $e->getCode());
+                'status' => 0,
+                'message' => $e->getMessage(),
+            ], $e->getCode());
+        } catch (\App\Exceptions\Standard\StandardNotFoundException $e) {
+            return response()->json([
+                'status' => 0,
+                'message' => $e->getMessage(),
+            ], $e->getCode());
         }
-        catch (\App\Exceptions\Standard\StandardNotFoundException $e){
-			return response()->json([
-				'status' => 0,
-				'message' => $e->getMessage(),
-			], $e->getCode());
-		}
     }
 
     /*
@@ -149,19 +146,18 @@ class StandardController extends Controller
 	*/
     public function showStandardHeader($year, $semester, $standard_id, Request $request)
     {
-        try{
+        try {
             $result = $this->standardService->showStandard($standard_id);
             return response()->json([
                 'status' => 1,
                 'message' => "Estandar retornado",
                 'data' => $result
             ], 200);
-        }
-        catch (\App\Exceptions\Standard\StandardNotFoundException $e){
+        } catch (\App\Exceptions\Standard\StandardNotFoundException $e) {
             return response()->json([
-				'status' => 0,
-				'message' => $e->getMessage(),
-			], $e->getCode());
+                'status' => 0,
+                'message' => $e->getMessage(),
+            ], $e->getCode());
         }
     }
 
@@ -182,29 +178,26 @@ class StandardController extends Controller
 
     public function updateStandardHeader($year, $semester, $standard_id, StandardRequest $request)
     {
-        try{
+        try {
             $request->validated();
             $result = $this->standardService->updateStandardHeader($standard_id, $request);
             return response()->json([
-				'status' => 1,
-				'message' => 'Estandar modificado exitosamente',
-                //'data' => $result
-			], 200);
-        }
-        catch (\Illuminate\Validation\ValidationException $e) {
+                'status' => 1,
+                'message' => 'Estandar modificado exitosamente',
+                'data' => $result
+            ], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['errors' => $e->errors()], 400);
-        }
-        catch(\App\Exceptions\User\UserNotAuthorizedException $e){
+        } catch (\App\Exceptions\User\UserNotAuthorizedException $e) {
             return response()->json([
-				'status' => 0,
-				'message' => $e->getMessage(),
-			], $e->getCode());
-        }
-        catch (\App\Exceptions\Standard\StandardNotFoundException $e){
+                'status' => 0,
+                'message' => $e->getMessage(),
+            ], $e->getCode());
+        } catch (\App\Exceptions\Standard\StandardNotFoundException $e) {
             return response()->json([
-				'status' => 0,
-				'message' => $e->getMessage(),
-			], $e->getCode());
+                'status' => 0,
+                'message' => $e->getMessage(),
+            ], $e->getCode());
         }
     }
 
@@ -249,83 +242,49 @@ class StandardController extends Controller
 
     public function getStandardEvidences(Request $request, $year, $semester, $standard_id, $evidence_type_id)
     {
+        try {
+            $request->validate([
+                'parent_id' => 'nullable|integer',
+            ]);
 
-        $request->validate([
-            'parent_id' => 'nullable|integer',
-        ]);
-
-        $standardId = $standard_id;
-        $parentIdFolder = $request->parent_id;
-
-        $idTypeEvidence = $evidence_type_id;
-        $dateId = DateModel::dateId($year, $semester);
-
-        if (!$request->parent_id) {
-            $queryRootFolder = Folder::where('standard_id', $standardId)->where('evidence_type_id', $idTypeEvidence)->where('date_id', $dateId)->where('parent_id', null)->first();
-            if ($queryRootFolder == null) {
-                return response()->json([
-                    "status" => 0,
-                    "message" => "Aun no hay evidencias para este estándar",
-                ], 404);
-            } else {
-                $parentIdFolder = $queryRootFolder->id;
-            }
-        }
-
-        $evidences = Evidence::join('users', 'evidences.user_id', '=', 'users.id')
-            ->where('evidences.folder_id', $parentIdFolder)
-            ->where('evidences.evidence_type_id', $idTypeEvidence)
-            ->where('evidences.standard_id', $standardId)
-            ->select('evidences.*', DB::raw("CONCAT(users.name, ' ', users.lastname) as full_name"))
-            ->get();
-        $folders = Folder::join('users', 'folders.user_id', '=', 'users.id')
-            ->where('folders.parent_id', $parentIdFolder)
-            ->where('folders.standard_id', $standardId)
-            ->where('folders.evidence_type_id', $idTypeEvidence)
-            ->select('folders.*', DB::raw("CONCAT(users.name, ' ', users.lastname) as full_name"))
-            ->get();
-
-        if ($evidences->isEmpty() && $folders->isEmpty()) {
+            $result = $this->evidenceService
+                ->getStandardEvidences($year, $semester, $standard_id, $evidence_type_id, $request->parent_id);
             return response()->json([
-                "status" => 0,
-                "message" => "No se encontraron evidencias",
-            ], 404);
+                "status" => 1,
+                "data" => [
+                    "evidences" => $result['evidences'],
+                    "folders" => $result['folders'],
+                ]
+            ], 200);
         }
-
-        foreach ($evidences as &$evidence) {
-            $evidence['extension'] = $evidence['type'];
-            unset($evidence['type']);
-            $evidence['type'] = 'evidence';
+        catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['error' => $e->errors()], 422);
         }
-
-        foreach ($folders as &$folder) {
-            $folder['type'] = 'folder';
+        catch (\App\Exceptions\Evidence\StandardNotHaveEvidencesException $e) {
+            return response()->json([
+                'status' => 0,
+                'message' => $e->getMessage(),
+            ], $e->getCode());
         }
-
-        return response()->json([
-            "status" => 1,
-            "data" => [
-                "evidences" => $evidences,
-                "folders" => $folders,
-            ]
-        ]);
     }
 
     public function searchEvidence($year, $semester, $standard_id)
     {
-        if (StandardModel::where("id", $standard_id)->exists()) {
-            $evidences = Evidence::where('standard_id', $standard_id)->select('id as value', 'file as label', 'type')->get();
+        try{
+            $result = $this->evidenceService->searchEvidence($standard_id);
             return response()->json([
-                "status" => 0,
-                "data" => $evidences,
+                "status" => 1,
+                "data" => $result,
             ], 200);
-        } else {
+        }
+        catch(\App\Exceptions\Standard\StandardNotFoundException $e){
             return response()->json([
-                "status" => 0,
-                "message" => "No existe el estándar",
-            ], 404);
+                'status' => 0,
+                'message' => $e->getMessage(),
+            ], $e->getCode());
         }
     }
+    /*
     public function standardStatus($year, $semester, $standard_id)
     {
         if (StandardModel::where('id', $standard_id)->exists()) {
@@ -347,81 +306,75 @@ class StandardController extends Controller
             ], 404);
         }
     }
-
-    public function listStandardStatus($year, $semester, $standard_id=0){
-        try{
+*/
+    public function listStandardStatus($year, $semester, $standard_id = 0)
+    {
+        try {
             $result = $this->standardService->listStandardStatus($standard_id);
             return response()->json([
-				'status' => 1,
-				'message' => "Lista de estandares",
+                'status' => 1,
+                'message' => "Lista de estandares",
                 'data' => $result
-			], 200);
-        }
-        catch(\App\Exceptions\User\UserNotAuthorizedException $e){
+            ], 200);
+        } catch (\App\Exceptions\User\UserNotAuthorizedException $e) {
             return response()->json([
-				'status' => 0,
-				'message' => $e->getMessage(),
-			], $e->getCode());
-        }
-        catch(\App\Exceptions\Standard\StandardNotFoundException $e){
+                'status' => 0,
+                'message' => $e->getMessage(),
+            ], $e->getCode());
+        } catch (\App\Exceptions\Standard\StandardNotFoundException $e) {
             return response()->json([
-				'status' => 0,
-				'message' => $e->getMessage(),
-			], $e->getCode());
+                'status' => 0,
+                'message' => $e->getMessage(),
+            ], $e->getCode());
         }
     }
 
     public function updateStatusStandard($year, $semester, $standard_id, $standard_status_id, Request $request)
     {
-        try{
+        try {
             $result = $this->standardService->updateStandardStatus($standard_id, $standard_status_id);
             return response()->json([
-				'status' => 1,
-				'message' => "Estandard actualizado",
-			], 200);
-        }
-        catch(\App\Exceptions\User\UserNotAuthorizedException $e){
+                'status' => 1,
+                'message' => "Estandard actualizado",
+            ], 200);
+        } catch (\App\Exceptions\User\UserNotAuthorizedException $e) {
             return response()->json([
-				'status' => 0,
-				'message' => $e->getMessage(),
-			], $e->getCode());
-        }
-        catch (\App\Exceptions\Standard\StandardNotFoundException $e){
+                'status' => 0,
+                'message' => $e->getMessage(),
+            ], $e->getCode());
+        } catch (\App\Exceptions\Standard\StandardNotFoundException $e) {
             return response()->json([
-				'status' => 0,
-				'message' => $e->getMessage(),
-			], $e->getCode());
-        }
-        catch (\App\Exceptions\Standard\StandardStatusNotFoundException $e){
+                'status' => 0,
+                'message' => $e->getMessage(),
+            ], $e->getCode());
+        } catch (\App\Exceptions\Standard\StandardStatusNotFoundException $e) {
             return response()->json([
-				'status' => 0,
-				'message' => $e->getMessage(),
-			], $e->getCode());
+                'status' => 0,
+                'message' => $e->getMessage(),
+            ], $e->getCode());
         }
-        
     }
 
-    
-	public function listUserAssigned($year, $semester, $standard_id){
-        try{
+
+    public function listUserAssigned($year, $semester, $standard_id)
+    {
+        try {
             $result = $this->standardService->listUserAssigned($standard_id);
             return response()->json([
-				'status' => 1,
-				'message' => "Lista de usuarios del estandar",
+                'status' => 1,
+                'message' => "Lista de usuarios del estandar",
                 'data' => $result
-			], 200);
-        }
-        catch(\App\Exceptions\User\UserNotAuthorizedException $e){
+            ], 200);
+        } catch (\App\Exceptions\User\UserNotAuthorizedException $e) {
             return response()->json([
-				'status' => 0,
-				'message' => $e->getMessage(),
-			], $e->getCode());
-        }
-        catch(\App\Exceptions\Standard\StandardNotFoundException $e){
+                'status' => 0,
+                'message' => $e->getMessage(),
+            ], $e->getCode());
+        } catch (\App\Exceptions\Standard\StandardNotFoundException $e) {
             return response()->json([
-				'status' => 0,
-				'message' => $e->getMessage(),
-			], $e->getCode());
+                'status' => 0,
+                'message' => $e->getMessage(),
+            ], $e->getCode());
         }
-	}
+    }
 }

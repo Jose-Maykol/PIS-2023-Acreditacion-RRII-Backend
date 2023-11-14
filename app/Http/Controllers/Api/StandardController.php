@@ -277,6 +277,7 @@ class StandardController extends Controller
             ->where('evidences.evidence_type_id', $idTypeEvidence)
             ->where('evidences.standard_id', $standardId)
             ->select(
+                DB::raw("CONCAT('E-', evidences.id) as code"),
                 'evidences.id as evidence_id', 
                 'evidences.name',
                 'evidences.path',
@@ -297,6 +298,7 @@ class StandardController extends Controller
             ->where('folders.standard_id', $standardId)
             ->where('folders.evidence_type_id', $idTypeEvidence)
             ->select(
+                DB::raw("CONCAT('F-', folders.id) as code"),
                 'folders.id as folder_id',
                 'folders.path',
                 'folders.user_id',

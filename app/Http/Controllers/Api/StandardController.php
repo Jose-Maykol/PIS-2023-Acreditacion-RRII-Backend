@@ -276,13 +276,37 @@ class StandardController extends Controller
             ->where('evidences.folder_id', $parentIdFolder)
             ->where('evidences.evidence_type_id', $idTypeEvidence)
             ->where('evidences.standard_id', $standardId)
-            ->select('evidences.*', DB::raw("CONCAT(users.name, ' ', users.lastname) as full_name"))
+            ->select(
+                'evidences.id as evidence_id', 
+                'evidences.name',
+                'evidences.path',
+                'evidences.file',
+                'evidences.size',
+                'evidences.user_id',
+                'evidences.plan_id',
+                'evidences.folder_id',
+                'evidences.evidence_type_id',
+                'evidences.standard_id',
+                'evidences.date_id',
+                'evidences.created_at',
+                'evidences.updated_at',
+                DB::raw("CONCAT(users.name, ' ', users.lastname) as full_name"))
             ->get();
         $folders = Folder::join('users', 'folders.user_id', '=', 'users.id')
             ->where('folders.parent_id', $parentIdFolder)
             ->where('folders.standard_id', $standardId)
             ->where('folders.evidence_type_id', $idTypeEvidence)
-            ->select('folders.*', DB::raw("CONCAT(users.name, ' ', users.lastname) as full_name"))
+            ->select(
+                'folders.id as folder_id',
+                'folders.path',
+                'folders.user_id',
+                'folders.parent_id',
+                'folders.evidence_type_id',
+                'folders.standard_id',
+                'folders.date_id',
+                'folders.created_at',
+                'folders.updated_at',
+                DB::raw("CONCAT(users.name, ' ', users.lastname) as full_name"))
             ->get();
 
         if ($evidences->isEmpty() && $folders->isEmpty()) {

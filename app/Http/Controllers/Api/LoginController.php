@@ -119,12 +119,16 @@ class LoginController extends Controller
 				"id_provider":"114480000560878434027"
 			}
 	*/
-	public function redirectToProvider($provider){
+	public function redirectToProvider($provider, Request $request){
+
+		$isLocal = $request->is('localhost*') || $request->is('127.0.0.1*');
+		$redirectUri = $isLocal ? env('GOOGLE_REDIRECT_URI_LOCAL') : env('GOOGLE_REDIRECT_URI');
 		$validated = $this->validateProvider($provider);
 		if (!is_null($validated)) {
 			return $validated;
 		}
-		return Socialite::driver($provider)->stateless()->redirect();
+		//return Socialite::driver($provider)->stateless()->redirect();
+		return Socialite::driver($provider)->stateless()->redirectUrl($redirectUri)->redirect();
 		//return Socialite::driver($provider)->redirect();
 	}
  

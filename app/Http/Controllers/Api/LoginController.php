@@ -215,7 +215,7 @@ class LoginController extends Controller
     {
         auth()->user()->tokens()->delete();
         return response()->json([
-			"status" => 1,
+						"status" => 1,
             "message" => "Sesion cerrada"
         ], 200);
     }

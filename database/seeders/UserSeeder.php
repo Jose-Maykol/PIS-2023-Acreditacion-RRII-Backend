@@ -18,70 +18,68 @@ class UserSeeder extends Seeder
      * @return void
      */
     public function run(){
-        $user = User::create([
-            'name' => 'ARIAN EDUARDO JAVIER',
-            'lastname' => 'CANAZA CUADROS',
-            'email'=> 'acanazacua@unsa.edu.pe',
-            'password' => 'null',
-            'registration_status_id' => RegistrationStatusModel::registrationActiveId()
-        ]);
+        $users = [
+            [
+                'name' => 'ARIAN EDUARDO JAVIER',
+                'lastname' => 'CANAZA CUADROS',
+                'email'=> 'acanazacua@unsa.edu.pe',
+                'password' => 'null',
+                'registration_status_id' => RegistrationStatusModel::registrationActiveId()
+            ],
+            [
+                'name' => 'JOSE MAYKOL',
+                'lastname' => 'PANIURA HUAMANI',
+                'email'=> 'jpaniura@unsa.edu.pe',
+                'password' => 'null',
+                'registration_status_id' => RegistrationStatusModel::registrationActiveId()
+            ],
+            [
+                'name' => 'ANGEL ALEXIS',
+                'lastname' => 'ZEVALLOS APAZA',
+                'email'=> 'azevallosa@unsa.edu.pe',
+                'password' => 'null',
+                'registration_status_id' => RegistrationStatusModel::registrationActiveId()
+            ].
+            [
+                'name' => 'SOFIA SAIR',
+                'lastname' => 'ONQUE GARATE',
+                'email'=> 'sonque@unsa.edu.pe',
+                'password' => 'null',
+                'registration_status_id' => RegistrationStatusModel::registrationActiveId()
+            ].
+            [
+                'name' => 'PERCY SANTIAGO',
+                'lastname' => 'FLORES QUISPE',
+                'email'=> 'pfloresq@unsa.edu.pe',
+                'password' => 'null',
+                'registration_status_id' => RegistrationStatusModel::registrationActiveId()
+            ],
+            [
+                'name' => 'PAULINA MIRIAM',
+                'lastname' => 'CHOQUENEIRA CCASA',
+                'email'=> 'pchoqueneira@unsa.edu.pe',
+                'password' => 'null',
+                'registration_status_id' => RegistrationStatusModel::registrationActiveId()
+            ],
+            [
+                'name' => 'ALEX RONALDO',
+                'lastname' => 'TURPO COILA',
+                'email'=> 'aturpoco@unsa.edu.pe',
+                'password' => 'null',
+                'registration_status_id' => RegistrationStatusModel::registrationActiveId()
+            ],
+            [
+                'name' => 'WALTER',
+                'lastname' => 'HUARACHA CONDORI',
+                'email'=> 'whuaracha@unsa.edu.pe',
+                'password' => 'null',
+                'registration_status_id' => RegistrationStatusModel::registrationActiveId()
+            ]
+        ];
 
-        $user->assignRole(RoleModel::findByName('administrador'));
-
-        DB::table('users')->insert([
-            'name' => 'JOSE MAYKOL',
-            'lastname' => 'PANIURA HUAMANI',
-            'email'=> 'jpaniura@unsa.edu.pe',
-            'password' => 'null',
-            'registration_status_id' => RegistrationStatusModel::registrationActiveId()
-        ]);
-
-        DB::table('users')->insert([
-            'name' => 'ANGEL ALEXIS',
-            'lastname' => 'ZEVALLOS APAZA',
-            'email'=> 'azevallosa@unsa.edu.pe',
-            'password' => 'null',
-            'registration_status_id' => RegistrationStatusModel::registrationActiveId()
-        ]);
-
-        DB::table('users')->insert([
-            'name' => 'SOFIA SAIR',
-            'lastname' => 'ONQUE GARATE',
-            'email'=> 'sonque@unsa.edu.pe',
-            'password' => 'null',
-            'registration_status_id' => RegistrationStatusModel::registrationActiveId()
-        ]);
-
-        DB::table('users')->insert([
-            'name' => 'PERCY SANTIAGO',
-            'lastname' => 'FLORES QUISPE',
-            'email'=> 'pfloresq@unsa.edu.pe',
-            'password' => 'null',
-            'registration_status_id' => RegistrationStatusModel::registrationActiveId()
-        ]);
-
-        DB::table('users')->insert([
-            'name' => 'PAULINA MIRIAM',
-            'lastname' => 'CHOQUENEIRA CCASA',
-            'email'=> 'pchoqueneira@unsa.edu.pe',
-            'password' => 'null',
-            'registration_status_id' => RegistrationStatusModel::registrationActiveId()
-        ]);
-
-        DB::table('users')->insert([
-            'name' => 'ALEX RONALDO',
-            'lastname' => 'TURPO COILA',
-            'email'=> 'aturpoco@unsa.edu.pe',
-            'password' => 'null',
-            'registration_status_id' => RegistrationStatusModel::registrationActiveId()
-        ]);
-
-        DB::table('users')->insert([
-            'name' => 'WALTER',
-            'lastname' => 'HUARACHA CONDORI',
-            'email'=> 'whuaracha@unsa.edu.pe',
-            'password' => 'null',
-            'registration_status_id' => RegistrationStatusModel::registrationActiveId()
-        ]);
+        foreach ($users as $user) {
+            $user = User::create($user);
+            $user->assignRole(RoleModel::findByName('administrador'));
+        }
     }
 }

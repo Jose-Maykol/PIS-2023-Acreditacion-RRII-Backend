@@ -39,14 +39,14 @@ class UserSeeder extends Seeder
                 'email'=> 'azevallosa@unsa.edu.pe',
                 'password' => 'null',
                 'registration_status_id' => RegistrationStatusModel::registrationActiveId()
-            ].
+            ],
             [
                 'name' => 'SOFIA SAIR',
                 'lastname' => 'ONQUE GARATE',
                 'email'=> 'sonque@unsa.edu.pe',
                 'password' => 'null',
                 'registration_status_id' => RegistrationStatusModel::registrationActiveId()
-            ].
+            ],
             [
                 'name' => 'PERCY SANTIAGO',
                 'lastname' => 'FLORES QUISPE',

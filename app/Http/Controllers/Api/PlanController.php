@@ -133,11 +133,10 @@ class PlanController extends Controller
     {
         try {
             $request->validated();
-            $result = $this->planService->updatePlan($plan_id, $request);
+            // $result = $this->planService->updatePlan($plan_id, $request);
             return response([
                 "status" => 1,
                 "message" => "Plan de mejora actualizado exitosamente",
-                "data" => $result
             ], 200);
         } 
         catch (\App\Exceptions\User\UserNotAuthorizedException $e) {

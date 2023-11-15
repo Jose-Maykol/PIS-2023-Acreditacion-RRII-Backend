@@ -133,7 +133,7 @@ class PlanController extends Controller
     {
         try {
             $request->validated();
-            // $result = $this->planService->updatePlan($plan_id, $request);
+            $this->planService->updatePlan($plan_id, $request);
             return response([
                 "status" => 1,
                 "message" => "Plan de mejora actualizado exitosamente",

@@ -14,7 +14,7 @@ use App\Models\ResourceModel;
 use App\Models\ResponsibleModel;
 use App\Models\RootCauseModel;
 use App\Models\SourceModel;
-
+ 
 class PlanRepository
 {
     public function createPlan($code, $name, $opportunity_for_improvement, $semester_execution, $advance, $duration, $efficacy_evaluation, $plan_status_id, $standard_id, $user_id, $date_id, $registration_status_id)

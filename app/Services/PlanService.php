@@ -15,7 +15,7 @@ use PhpParser\PrettyPrinter\Standard;
 
 class PlanService
 {
-
+ 
     protected $planRepository;
     protected $userRepository;
     protected $standardRepository;

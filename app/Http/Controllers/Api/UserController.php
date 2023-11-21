@@ -103,10 +103,11 @@ class UserController extends Controller
 			->select("users.id", "users.name", "users.lastname", "users.email", "registration_status.description as status")
 			->orderBy('users.id', 'asc')
 			->get();
-		foreach ($users as $user) {
+		foreach ($users as $index => $user) {
 			$roles = $user->getRoleNames();
 			$user->role = $roles->isNotEmpty() ? $roles[0] : null;
 			$user->unsetRelation('roles'); 
+			$user->id = $index + 1;
 		}
         return response([
             "msg" => "Lista de usuarios obtenida exitosamente",

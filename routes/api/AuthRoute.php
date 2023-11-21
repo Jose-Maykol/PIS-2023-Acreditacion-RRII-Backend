@@ -30,7 +30,7 @@ Route::prefix('test')->group(function () {
     }); //->where(['year' => '\d{4}']);
 });
 
-Route::middleware("auth:sanctum")->prefix('auth')->group(function () {
+Route::middleware("auth:sanctum")->prefix('api/auth')->group(function () {
     //Rutas de Auth
     Route::get('logout', [LoginController::class, 'logout']);
 });

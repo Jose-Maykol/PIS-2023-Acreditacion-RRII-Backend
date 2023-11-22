@@ -133,11 +133,10 @@ class PlanController extends Controller
     {
         try {
             $request->validated();
-            $result = $this->planService->updatePlan($plan_id, $request);
+            $this->planService->updatePlan($plan_id, $request);
             return response([
                 "status" => 1,
                 "message" => "Plan de mejora actualizado exitosamente",
-                "data" => $result
             ], 200);
         } 
         catch (\App\Exceptions\User\UserNotAuthorizedException $e) {
@@ -415,91 +414,6 @@ class PlanController extends Controller
                 "message" => "!No se encontro el plan de mejora",
             ], 404);
         }
-    }
-    // Arreglar el formato de IDs
-    public function createPlanV1(Request $request, $year, $semester)
-    {
-        $request->validate([
-            'code' => [
-                'required',
-                Rule::unique('plans', 'code')->where(function ($query) use ($request) {
-                    return $query->where('standard_id', $request->standard_id);
-                }),
-            ],
-            'name' => 'present|max:255',
-            'standard_id' => 'exists:standards,id'
-        ]);
-
-
-        $user = auth()->user();
-        $plan = PlanModel::create([
-            'code' => $request->code,
-            'name' => $request->name,
-            'user_id' => $user->id,
-            'date_id' => DateModel::date($year, $semester),
-            'standard_id' => $request->standard_id
-        ]);
-        $plan_id = $plan->id;
-
-        foreach ($request->sources as $source) {
-            $source_aux = new SourceModel();
-            $source_aux->description = $source["description"];
-            $source_aux->plan_id = $plan_id;
-            $source_aux->save();
-        }
-
-        foreach ($request->problems_opportunities as $problem) {
-            $problem_opportunity_aux = new ProblemOpportunityModel();
-            $problem_opportunity_aux->description = $problem["description"];
-            $problem_opportunity_aux->plan_id = $plan_id;
-            $problem_opportunity_aux->save();
-        }
-
-        foreach ($request->root_causes as $root_cause) {
-            $root_cause_aux = new RootCauseModel();
-            $root_cause_aux->description = $root_cause["description"];
-            $root_cause_aux->plan_id = $plan_id;
-            $root_cause_aux->save();
-        }
-
-        foreach ($request->improvement_actions as $improvement_action) {
-            $improvement_action_aux = new ImprovementActionModel();
-            $improvement_action_aux->description = $improvement_action["description"];
-            $improvement_action_aux->plan_id = $plan_id;
-            $improvement_action_aux->save();
-        }
-
-        foreach ($request->resources as $resource) {
-            $resource_aux = new ResourceModel();
-            $resource_aux->description = $resource["description"];
-            $resource_aux->plan_id = $plan_id;
-            $resource_aux->save();
-        }
-
-        foreach ($request->goals as $goal) {
-            $goal_aux = new GoalModel();
-            $goal_aux->description = $goal["description"];
-            $goal_aux->plan_id = $plan_id;
-            $goal_aux->save();
-        }
-
-        foreach ($request->observations as $observation) {
-            $observation_aux = new ObservationModel();
-            $observation_aux->description = $observation["description"];
-            $observation_aux->plan_id = $plan_id;
-            $observation_aux->save();
-        }
-
-        foreach ($request->responsibles as $responsible) {
-            $responsible_aux = new ResponsibleModel();
-            $responsible_aux->name = $responsible["name"];
-            $responsible_aux->plan_id = $plan_id;
-            $responsible_aux->save();
-        }
-
-        return response([
-            "message" => "!Plan de mejora creado exitosamente",
-        ], 201);
     }
     
     public function exportResume($year, $semester)

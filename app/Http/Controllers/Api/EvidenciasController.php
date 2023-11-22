@@ -357,15 +357,21 @@ class EvidenciasController extends Controller
     {
         if (Evidence::where("id", $evidence_id)->exists()) {
             $evidence = Evidence::find($evidence_id);
-            $dateId = DateModel::dateId($year, $semester);
-            $path = storage_path('app/' . 'evidencias/'. $year . '/' . $semester . '/estandar_' . $evidence->standard_id . '/tipo_evidencia_' . $evidence->evidence_type_id . $evidence->path);
+            $dateId = $evidence->date_id;
+            $date = DateModel::find($dateId);
+            $path = storage_path('app/' . 'evidencias/'. $date->year . '/' . $date->semester . '/estandar_' . $evidence->standard_id . '/tipo_evidencia_' . $evidence->evidence_type_id . $evidence->path);
             $extension = pathinfo($path, PATHINFO_EXTENSION);
             $contentType = $this->getContentType($extension);
             $fileContents = file_get_contents($path);
             $base64Content = base64_encode($fileContents);
             return response([
                 "status" => 1,
-                "data" => $base64Content,
+                "data" => [
+                    "content" => $base64Content,
+                    "name" => $evidence->name,
+                    "extension" => $extension,
+                    "type" => $contentType,
+                ]
             ], 200)->header('Content-Type', 'application/json');
         } else {
             return response([

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\DateModel;
+use App\Repositories\UserRepository;
 use App\Models\StandardModel;
 use App\Models\NarrativeModel;
 use App\Models\RegistrationStatusModel;
@@ -15,7 +16,6 @@ use Illuminate\Support\Facades\Validator;
 
 class NarrativasController extends Controller
 {
-
     /* public function create($year, $semester, $standard_id, Request $request)
     {
         
@@ -96,13 +96,15 @@ class NarrativasController extends Controller
         if (StandardModel::where("id", $standard_id)->exists()) {
             $standard = StandardModel::find($standard_id);
             $standard->update([
-                "content" => ""
+                "narrative" => ""
             ]);
             return response([
+                "status" => 1,
                 "message" => "Narrativa eliminada",
-            ], 204); //Sale 204 No Content, no devuelve message
+            ]);
         } else {
             return response([
+                "status" => 0,
                 "message" => "No se encontro la narrativa",
             ], 404);
         }
@@ -118,6 +120,8 @@ class NarrativasController extends Controller
         
         if (StandardModel::where("id", $standard_id)->exists()) {
             $standard = StandardModel::where("id", $standard_id)->select("id", "narrative")->first();
+            $standard->isManager = auth()->user()->isAssignStandard($standard_id);
+            $standard->isAdministrator = auth()->user()->isAdmin();
             return response([
                 "status" => 1,
                 "data" => $standard,

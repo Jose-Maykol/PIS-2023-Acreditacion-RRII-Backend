@@ -12,8 +12,6 @@ use App\Models\User;
 //Rutas de Auth
 
 Route::prefix('auth')->group(function () {
-
-    
     Route::post('login', [LoginController::class, 'login']);
     Route::get('login/{provider}', [LoginController::class, 'redirectToProvider']);
     Route::get('login/{provider}/callback', [LoginController::class, 'handleProviderCallback']);
@@ -32,7 +30,7 @@ Route::prefix('test')->group(function () {
     }); //->where(['year' => '\d{4}']);
 });
 
-Route::middleware("auth:sanctum")->prefix('auth')->group(function () {
+Route::middleware("auth:sanctum")->prefix('api/auth')->group(function () {
     //Rutas de Auth
     Route::get('logout', [LoginController::class, 'logout']);
 });

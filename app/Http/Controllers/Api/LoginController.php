@@ -10,8 +10,10 @@ use App\Models\User;
 use App\Models\StandardModel;
 use App\Models\RegistrationStatusModel;
 use GuzzleHttp\Exception\ClientException;
+use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Role;
 
 class LoginController extends Controller
 {
@@ -175,13 +177,18 @@ class LoginController extends Controller
 					'avatar' => $userProvider->getAvatar()
 				]
 			);
-
+			$role = $userCreated->hasRole('administrador') ? 'administrador' : 'docente';
+			$userRole = Role::where('name', $role)->first();
+			$permissions = $userRole->permissions;
+			$rolePermisions = $permissions->pluck('name')->all();
+			$permissions = Permission::all();
 			$token = $userCreated->createToken('token-auth_token')->plainTextToken;
 			return response()->json([
 				"message" => "Usuario ha iniciado sesion",
 				"user" =>  $userCreated,
 				"image" =>  $userProvider->getAvatar(),
-				"role" => $userCreated->hasRole('administrador') ? 'administrador' : 'docente',
+				"role" => $role,
+				"permissions" => $rolePermisions,
 				"access_token" => $token
 			], 200);
 		} else {
@@ -215,7 +222,7 @@ class LoginController extends Controller
     {
         auth()->user()->tokens()->delete();
         return response()->json([
-			"status" => 1,
+						"status" => 1,
             "message" => "Sesion cerrada"
         ], 200);
     }

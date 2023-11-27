@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class IdentificationContextModel extends Model
-{
+{ 
     use HasFactory;
 
     protected $table ='identification_context';
@@ -34,7 +34,8 @@ class IdentificationContextModel extends Model
         'interest_groups_study_program'
     ];
     protected $casts = [
-        'members_quality_committee' => 'array',
-        'interest_groups_study_program' => 'array',
+        'members_quality_committee' => 'json',
+        'interest_groups_study_program' => 'json',
+        'region_province_district' => 'json'
     ];
 }

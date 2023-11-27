@@ -48,6 +48,7 @@ class RouteServiceProvider extends ServiceProvider
                     require base_path('routes/api/PlanRoute.php');
                     require base_path('routes/api/StandardRoute.php');
                     require base_path('routes/api/ValuesRoute.php');
+                    require base_path('routes/api/IdentificationContextRoute.php');
                 });
             Route::middleware('api')//   /api/
                 ->prefix('api')

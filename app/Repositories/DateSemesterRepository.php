@@ -13,14 +13,14 @@ class DateSemesterRepository
     public function listDateSemester()
     {
         return DateModel::where('registration_status_id', RegistrationStatusModel::registrationActiveId())
-        ->select('year', 'semester')
-        ->get()
-        ->groupBy('year')->map(function ($items, $year){
-            return [
-                'year' => $year,
-                'semester' => $items->pluck('semester')->toArray()
-            ];
-        });
+            ->select('year', 'semester')
+            ->get()
+            ->groupBy('year')->map(function ($items, $year) {
+                return [
+                    'year' => $year,
+                    'semester' => $items->pluck('semester')->toArray()
+                ];
+            });
     }
     public function createDateSemester($year, $semester)
     {
@@ -52,16 +52,27 @@ class DateSemesterRepository
     public function closeDateSemester()
     {
     }
-    public function checkIfDateSemesterExists($year, $semester){
+    public function checkIfDateSemesterExists($year, $semester)
+    {
         return DateModel::where('year', $year)
-        ->where('semester', $semester)
-        ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
-        ->exists();
+            ->where('semester', $semester)
+            ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
+            ->exists();
     }
-    public function dateSemesterExists($id_date_semester){
+    public function dateSemesterExists($id_date_semester)
+    {
         return DateModel::where('id', $id_date_semester)
-        ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
-        ->exists();
+            ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
+            ->exists();
     }
-    
+    public function dateSemesterExists2($year, $semester)
+    {
+        return DateModel::where('year', $year)
+            ->where('semester', $semester)
+            ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
+            ->exists();
+    }
+    public function dateId($year, $semester){
+        return DateModel::where('year', $year)->where('semester', $semester)->value('id');
+    }
 }

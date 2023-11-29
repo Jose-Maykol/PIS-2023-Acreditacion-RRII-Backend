@@ -111,7 +111,7 @@ class FoldersController extends Controller
             return response([
                 "status" => 1,
                 "message" => "Nombre de carpeta actualizado exitosamente",
-            ], 404);
+            ], 200);
         } else {
             return response([
                 "status" => 0,
@@ -139,7 +139,7 @@ class FoldersController extends Controller
         return response([
             "status" => 1,
             "message" => "Carpeta eliminada exitosamente",
-        ], 404);
+        ], 200);
     }
 
     public function move(Request $request, $year, $semester, $folder_id)
@@ -204,7 +204,7 @@ class FoldersController extends Controller
         return response([
             "status" => 1,
             "message" => "Carpeta movida exitosamente",
-        ], 404);
+        ], 200);
     }
 
     public function list(Request $request, $year, $semester)

@@ -24,6 +24,9 @@ Route::middleware("auth:sanctum")->prefix('standards')->group(function () {
     Route::get('{standard_id}/users', [StandardController::class, 'listUserAssigned'])->where('standard_id', '[0-9]+');
 
     Route::get('narratives/export', [NarrativasController::class, 'reportAll']);
+    Route::get('context/export', [StandardController::class, 'reportContext']);
+    Route::get('anual/export', [StandardController::class, 'reportAnual']);
+
 
     Route::get('partial', [StandardController::class, 'listPartialStandard']);
     Route::get('users', [StandardController::class, 'listStandardsAssignment'] );

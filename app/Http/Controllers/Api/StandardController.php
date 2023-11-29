@@ -15,10 +15,16 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Evidencias;
 use App\Models\RegistrationStatusModel;
 use App\Models\StandardStatusModel;
+use App\Models\IdentificationContextModel;
 use App\Services\EvidenceService;
 use App\Services\StandardService;
 use Exception;
 use Illuminate\Contracts\Database\Eloquent\Builder;
+
+//require 'vendor/autoload.php';
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class StandardController extends Controller
 {
@@ -438,5 +444,88 @@ class StandardController extends Controller
                 'message' => $e->getMessage(),
             ], $e->getCode());
         }
+    }
+
+    public function reportContext($year, $semester)
+    {
+        $tempfiledocx = tempnam(sys_get_temp_dir(), 'PHPWord');
+        $template = new \PhpOffice\PhpWord\TemplateProcessor('plantilla-contexto.docx');
+        $contexto = IdentificationContextModel::where("date_id", DateModel::dateId($year, $semester))->get();
+        if($contexto->count() > 0){
+            $key = $contexto[0];
+            $template->setValue("direccion-sede", $key->address_headquarters);
+            $lugar = json_decode($key->region_province_district);
+            $p = $lugar[0];
+            $template->setValue("región-provincia", $p->region . " / " . $p->provincia . " / " . $p->distrito);
+
+            $template->setValue("telefono-institucional", $key->institutional_telephone);
+            $template->setValue("página-web", $key->web_page);
+            $template->setValue("resolucion", "NO SE SABE, no se sabe, hasta yo quiero saber pero no se");
+            $template->setValue("fecha-resolucion", $key->date_resolution);
+            $template->setValue("nombre-autoridad-institucion", $key->highest_authority_institution);
+            $template->setValue("correo-autoridad-institucion", $key->highest_authority_institution_email);
+            $template->setValue("telefono-autoridad-institucion", $key->highest_authority_institution_telephone);
+            
+            //Programa de estudios
+            $template->setValue("resolucion-programa", $key->licensing_resolution);
+            $template->setValue("nivel-academico", $key->academic_level);
+            $template->setValue("cui", $key->cui);
+            $template->setValue("denominacion-grado", $key->grade_denomination);
+            $template->setValue("denominacion-titulo", $key->title_denomination);
+            $template->setValue("oferta", $key->authorized_offer);
+            $template->setValue("nombre-autoridad-programa", $key->highest_authority_study_program);
+            $template->setValue("correo-autoridad-programa", $key->highest_authority_study_program_email);
+            $template->setValue("telefono-autoridad-programa", $key->highest_authority_study_program_telephone);
+
+            //Tabla de miembros de comité
+            $miembrosComite = $key->members_quality_committee;
+            $template->cloneRow('n-c', count($miembrosComite));
+            foreach ($miembrosComite as $i => $miembro){
+                $template->setValue("n-c#" . ($i+1) , ($i+1));
+                $template->setValue("nombre-miembro#" . ($i+1) , $miembro["Nombre"]);
+                $template->setValue("cargo-miembro#" . ($i+1) , $miembro["Cargo"]);
+                $template->setValue("correo#" . ($i+1) , $miembro["Correo"]);
+                $template->setValue("telefono#" . ($i+1) , $miembro["Teléfono"]);
+            }
+
+            //Tabla de interesados
+            $interesados = $key->interest_groups_study_program;
+            $template->cloneRow('n-g', count($interesados));
+            foreach ($interesados as $j => $miembro){
+                $template->setValue("n-g#" . ($j+1) , ($j+1));
+                $template->setValue("interesado#" . ($j+1) , $miembro["Interesado"]);
+                $template->setValue("requerimiento#" . ($j+1) , $miembro["Requerimiento"]);
+                $template->setValue("tipo#" . ($j+1) , $miembro["Tipo"]);
+            }
+            
+            $template->saveAs($tempfiledocx);
+            $headers = [
+                'Content-Type' => 'application/msword',
+                'Content-Disposition' => 'attachment;filename="contexto.docx"',
+            ];
+            return response()->download($tempfiledocx, 'contexto.docx', $headers);
+        } else{
+            return response([
+                "message" => "!No cuenta con ningún contexto en este periodo",
+            ], 404);
+        }
+    } 
+
+    public function reportAnual()
+    {
+        $spreadsheet = new Spreadsheet();
+        $activeWorksheet = $spreadsheet->getActiveSheet();
+        $activeWorksheet->setCellValue('A1', 'Hello World !');
+
+        $writer = new Xlsx($spreadsheet);
+        $writer->save('hello world.xlsx');
+
+        // redirect output to client browser
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="myfile.xlsx"');
+        header('Cache-Control: max-age=0');
+
+        $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $writer->save('php://output');
     }
 }

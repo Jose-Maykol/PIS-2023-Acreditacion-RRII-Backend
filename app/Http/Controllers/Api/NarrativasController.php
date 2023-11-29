@@ -169,13 +169,17 @@ class NarrativasController extends Controller
     {
         $tempfiledocx = tempnam(sys_get_temp_dir(), 'PHPWord');
         $template = new \PhpOffice\PhpWord\TemplateProcessor('plantilla-narrativa-v3.docx');
-        $dates = DateModel::all();
+        $dates = DateModel::all(); //por rango a elegir {inicioyear: 2023, iniciosemester: 'A', finyear:2024, finsemester: 'B'}
         $standards = StandardModel::where("date_id", 1)->get();
         if($standards->count() > 0){
             $template->cloneBlock('block_periodo', $dates->count(), true, true);
             $template->cloneBlock('block_estandar', $standards->count(), true, true);
 
             foreach ($standards as $key => $standard){
+                return response([
+                    "key" => $key,
+                    "standard" => $standards
+                ], );
                 // Dimensión
                 $template->setValue('dimension#'. ($key + 1) , $standard->dimension);
                 // Factor
@@ -189,7 +193,13 @@ class NarrativasController extends Controller
                 foreach ($dates as $j => $date){
                     $template->setValue('year#' . ($j + 1) . '#'.($key + 1) , $date->year);
                     $template->setValue('semester#' . ($j + 1) . '#'.($key + 1) , $date->semester);
-                    $template->setValue('narrativa#' . ($j + 1) . '#'.($key + 1) , $standard->narrative);
+                    $estandar = StandardModel::where("nro_standard", $standard->nro_standard)->where("date_id", $date->id)->first();
+                    if($estandar != null){
+                        $template->setValue('narrativa#' . ($j + 1) . '#'.($key + 1) , $estandar->narrative);
+                    }
+                    else{
+                        $template->setValue('narrativa#' . ($j + 1) . '#'.($key + 1) , "Este periodo no tiene ningún estándar");
+                    }
                 } 
             }
 

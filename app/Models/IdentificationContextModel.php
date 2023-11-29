@@ -12,16 +12,18 @@ class IdentificationContextModel extends Model
     protected $table ='identification_context';
     protected $fillable = [
         'date_id',
+        'name_institution',
         'address_headquarters',
         'region_province_district',
         'institutional_telephone',
         'web_page',
+        'resolution_authorizes_institution',
         'date_resolution',
         'highest_authority_institution',
 		'highest_authority_institution_email',
         'highest_authority_institution_telephone',
         //
-        'licensing_resolution',
+        'resolution_authorizing_offering_program',
         'academic_level',
         'cui',
         'grade_denomination',

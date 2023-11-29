@@ -31,6 +31,7 @@ class IdentificationContextRequest extends CustomFormRequest
     public function validationForCreateIdentificationContext()
     {
         return [
+            'name_institution' => 'present|required|string',
             'address_headquarters' => 'present|required|string',
             'region_province_district' => [
                 'required',
@@ -45,12 +46,13 @@ class IdentificationContextRequest extends CustomFormRequest
             ],
             'institutional_telephone' => 'present|required|string',
             'web_page' => 'present|nullable|url',
+            'resolution_authorizes_institution' => 'present|required|string',
             'date_resolution' => 'present|required|date|date_format:Y-m-d',
             'highest_authority_institution' => 'present|required|string',
             'highest_authority_institution_email' => 'present|required|email',
             'highest_authority_institution_telephone' => 'present|required|string',
             //
-            'licensing_resolution' => 'present|required|string',
+            'resolution_authorizing_offering_program' => 'present|required|string',
             'academic_level' => 'present|required|string',
             'cui' => 'present|required|integer|digits:8',
             'grade_denomination' => 'present|required|string',
@@ -79,6 +81,7 @@ class IdentificationContextRequest extends CustomFormRequest
     public function validationForUpdateIdentificationContext()
     {
         return [
+            'name_institution' => 'present|required|string',
             'address_headquarters' => 'present|required|string',
             'region_province_district' => [
                 'required',
@@ -93,12 +96,13 @@ class IdentificationContextRequest extends CustomFormRequest
             ],
             'institutional_telephone' => 'present|required|string',
             'web_page' => 'present|nullable|url',
+            'resolution_authorizes_institution' => 'present|required|string',
             'date_resolution' => 'present|required|date|date_format:Y-m-d',
             'highest_authority_institution' => 'present|required|string',
             'highest_authority_institution_email' => 'present|required|email',
             'highest_authority_institution_telephone' => 'present|required|string',
             //
-            'licensing_resolution' => 'present|required|string',
+            'resolution_authorizing_offering_program' => 'present|required|string',
             'academic_level' => 'present|required|string',
             'cui' => 'present|required|integer|digits:8',
             'grade_denomination' => 'present|required|string',

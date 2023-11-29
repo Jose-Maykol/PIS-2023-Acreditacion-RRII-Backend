@@ -17,16 +17,18 @@ return new class extends Migration
             $table->id();
             $table->foreignId('date_id')
                 ->constrained('date_semesters');
+            $table->string('name_institution');
             $table->string('address_headquarters');
             $table->json('region_province_district');
             $table->string('institutional_telephone');
             $table->string('web_page');
+            $table->string('resolution_authorizes_institution');
             $table->date('date_resolution');
             $table->string('highest_authority_institution');
             $table->string('highest_authority_institution_email');
             $table->string('highest_authority_institution_telephone');
             //
-            $table->string('licensing_resolution');
+            $table->string('resolution_authorizing_offering_program');
             $table->string('academic_level');
             $table->unsignedInteger('cui');
             $table->string('grade_denomination');

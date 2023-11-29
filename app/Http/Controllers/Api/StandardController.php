@@ -55,7 +55,8 @@ class StandardController extends Controller
 
         $standard->save();
         return response([
-            "msg" => "!Estandar creado exitosamente",
+            "status" => 1,
+            "msg" => "Estandar creado exitosamente",
             "data" => $standard,
         ], 201);
     }
@@ -101,7 +102,7 @@ class StandardController extends Controller
             $result = $this->standardService->listStandardsAssignment($year, $semester);
             return response()->json([
                 "status" => 1,
-                "message" => "!Lista de Estandares",
+                "message" => "Lista de estandares",
                 "data" => $result,
             ], 200);
         } catch (\App\Exceptions\User\UserNotAuthorizedException $e) {

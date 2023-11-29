@@ -277,7 +277,7 @@ class EvidenciasController extends Controller
             return response([
                 "status" => 1,
                 "message" => "Evidencia actualizada exitosamente",
-            ], 404);
+            ], 200);
         } else {
             return response([
                 "status" => 0,
@@ -300,17 +300,21 @@ class EvidenciasController extends Controller
             $currentPath = 'evidencias/' . $year . '/' . $semester . '/' .'estandar_' . $standardId . '/tipo_evidencia_'. $typeEvidenceId;
             $currentFilePath = $currentPath . $pathEvidence;
             $folder = Folder::find($evidence->folder_id);
-            $folderName = $folder->path;
-            $newFilePath = $currentPath . $folderName . '/' . $newFilename . '.' . $evidence->type;
+            if ($folder->path == '/') {
+                $folderName = $folder->path;
+            } else {
+                $folderName = $folder->path . '/';
+            }
+            $newFilePath = $currentPath . $folderName . $newFilename . '.' . $evidence->type;
             Storage::move($currentFilePath, $newFilePath);
             $evidence->name = $newFilename;
-            $evidence->path = $folderName . '/' . $newFilename . '.' . $evidence->type;
+            $evidence->path = $folderName . $newFilename . '.' . $evidence->type;
             $evidence->file = $newFilename . '.'. $evidence->type;
             $evidence->save();
             return response([
                 "status" => 1,
                 "message" => "Nombre de evidencia actualizada exitosamente",
-            ], 404);
+            ], 200);
         } else {
             return response([
                 "status" => 0,
@@ -330,7 +334,7 @@ class EvidenciasController extends Controller
             return response([
                 "status" => 0,
                 "message" => "Evidencia eliminada exitosamente",
-            ], 404);
+            ], 200);
         } else {
             return response([
                 "status" => 0,

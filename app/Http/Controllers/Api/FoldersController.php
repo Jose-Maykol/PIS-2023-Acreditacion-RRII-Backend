@@ -111,7 +111,7 @@ class FoldersController extends Controller
             return response([
                 "status" => 1,
                 "message" => "Nombre de carpeta actualizado exitosamente",
-            ], 404);
+            ], 200);
         } else {
             return response([
                 "status" => 0,
@@ -123,12 +123,21 @@ class FoldersController extends Controller
     public function delete($year, $semester, $folder_id)
     {
         $folder = Folder::find($folder_id);
+
+        if (!$folder) {
+            return response([
+                "status" => 0,
+                "message" => "No se encontro la carpeta",
+            ], 404);
+        }
+
         $standardId = $folder->standard_id;
         $typeEvidenceId = $folder->evidence_type_id;
         $currentPath = 'evidencias/' . $year . '/' . $semester . '/' .'estandar_' . $standardId . '/tipo_evidencia_'. $typeEvidenceId;
         $currentFolderPath = $currentPath . $folder->path;
         // Obtiene las evidencias vinculadas y las borra
         $evidences = Evidence::where('folder_id', $folder_id)->get();
+
         if ($evidences) {
             foreach ($evidences as $evidence) {
                 $evidence->delete();
@@ -139,7 +148,7 @@ class FoldersController extends Controller
         return response([
             "status" => 1,
             "message" => "Carpeta eliminada exitosamente",
-        ], 404);
+        ], 200);
     }
 
     public function move(Request $request, $year, $semester, $folder_id)
@@ -204,7 +213,7 @@ class FoldersController extends Controller
         return response([
             "status" => 1,
             "message" => "Carpeta movida exitosamente",
-        ], 404);
+        ], 200);
     }
 
     public function list(Request $request, $year, $semester)

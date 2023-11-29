@@ -98,10 +98,10 @@ class PlanService
         $this->planRepository->updatePlanRootCauses($plan, $request->root_causes);
         $this->planRepository->updatePlanResponsibles($plan, $request->responsibles);
         $this->planRepository->updatePlanResources($plan, $request->resources);
-        $this->planRepository->updatePlanProblems($plan, $request->problems);
+        $this->planRepository->updatePlanProblems($plan, $request->problems_opportunities);
         $this->planRepository->updatePlanObservations($plan, $request->observations);
         $this->planRepository->updatePlanGoals($plan, $request->goals);
-        $this->planRepository->updatePlanActions($plan, $request->actions);
+        $this->planRepository->updatePlanActions($plan, $request->improvement_actions);
 
         return $plan;
 

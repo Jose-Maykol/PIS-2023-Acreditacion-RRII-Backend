@@ -18,9 +18,10 @@ return new class extends Migration
             $table->foreignId('date_id')
                 ->constrained('date_semesters');
             $table->unsignedSmallInteger('number_extraordinary_professor');
-            $table->unsignedSmallInteger('number_contractor_professor');
             $table->unsignedSmallInteger('number_ordinary_professor_main');
+            $table->unsignedSmallInteger('number_ordinary_professor_associate');
             $table->unsignedSmallInteger('number_ordinary_professor_assistant');
+            $table->unsignedSmallInteger('number_contractor_professor');
             $table->unsignedSmallInteger('ordinary_professor_exclusive_dedication');
             $table->unsignedSmallInteger('ordinary_professor_fulltime');
             $table->unsignedSmallInteger('ordinary_professor_parttime');

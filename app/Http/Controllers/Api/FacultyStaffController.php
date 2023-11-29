@@ -3,30 +3,27 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\DateSemesterRequest;
-use App\Http\Requests\IdentificationContextRequest;
-use Illuminate\Http\Request;
-use App\Models\DateModel;
+use App\Http\Requests\FacultyStaffRequest;
 use App\Services\DateSemesterService;
-use App\Services\IdentificationContextService;
+use App\Services\FacultyStaffService;
 use Exception;
 
-class IdentificationContextController extends Controller
+class FacultyStaffController extends Controller
 {
     protected $dateSemesterService;
-    protected $identContextService;
-    public function __construct(DateSemesterService $dateSemesterService, IdentificationContextService $identContextService)
+    protected $facultyStaffService;
+    public function __construct(DateSemesterService $dateSemesterService, FacultyStaffService $facultyStaffService)
     {
-        $this->identContextService = $identContextService;
+        $this->facultyStaffService = $facultyStaffService;
         $this->dateSemesterService = $dateSemesterService;
     }
-    public function createIdentificationContext($year, $semester, IdentificationContextRequest $request){
+    public function createFacultyStaff($year, $semester, FacultyStaffRequest $request){
         try {
             $request->validated();
-            $result = $this->identContextService->createIdentificationContext($year, $semester, $request->all());
+            $result = $this->facultyStaffService->createFacultyStaff($year, $semester, $request->all());
             return response([
                 "status" => 1,
-                "message" => "Identificación y contexto creado exitosamente",
+                "message" => "Datos de personal docente creado exitosamente",
                 "data" => $result
             ], 201);
         } 
@@ -43,13 +40,13 @@ class IdentificationContextController extends Controller
             ], $e->getCode());
         }
     }
-    public function updateIdentificationContext($year, $semester, IdentificationContextRequest $request){
+    public function updateFacultyStaff($year, $semester, FacultyStaffRequest $request){
         try {
             $request->validated();
-            $result = $this->identContextService->updateIdentificationContext($year, $semester, $request->all());
+            $result = $this->facultyStaffService->updateFacultyStaff($year, $semester, $request->all());
             return response([
                 "status" => 1,
-                "message" => "Identificación y contexto actualizado exitosamente",
+                "message" => "Datos de personal docente actualizado exitosamente",
                 "data" => $result
             ], 200);
         } 
@@ -66,12 +63,12 @@ class IdentificationContextController extends Controller
             ], $e->getCode());
         }
     }
-    public function getIdentificationContext($year, $semester, IdentificationContextRequest $request){
+    public function getFacultyStaff($year, $semester, FacultyStaffRequest $request){
         try {
-            $result = $this->identContextService->getIdentificationContext($year, $semester);
+            $result = $this->facultyStaffService->getFacultyStaff($year, $semester);
             return response([
                 "status" => 1,
-                "message" => "Identificación y contexto del periodo $year - $semester",
+                "message" => "Datos de personal docente del periodo $year - $semester",
                 "data" => $result
             ], 200);
         } 

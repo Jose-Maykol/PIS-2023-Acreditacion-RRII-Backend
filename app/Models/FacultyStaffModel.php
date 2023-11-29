@@ -13,9 +13,10 @@ class FacultyStaffModel extends Model
     protected $fillable = [
         'date_id',
         'number_extraordinary_professor',
-        'number_contractor_professor',
         'number_ordinary_professor_main',
+        'number_ordinary_professor_associate',
         'number_ordinary_professor_assistant',
+        'number_contractor_professor',
         'ordinary_professor_exclusive_dedication',
         'ordinary_professor_fulltime',
 		'ordinary_professor_parttime',

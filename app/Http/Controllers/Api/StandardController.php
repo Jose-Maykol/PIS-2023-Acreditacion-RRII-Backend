@@ -317,12 +317,12 @@ class StandardController extends Controller
             $evidences = $evidences->where('plan_id', $idPlan);
         }
 
-        if ($evidences->isEmpty() && $folders->isEmpty()) {
+        /* if ($evidences->isEmpty() && $folders->isEmpty()) {
             return response()->json([
                 "status" => 0,
                 "message" => "No se encontraron evidencias",
             ], 404);
-        }
+        } */
 
         foreach ($evidences as &$evidence) {
             $evidence['extension'] = $evidence['type'];

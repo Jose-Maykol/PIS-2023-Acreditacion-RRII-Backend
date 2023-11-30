@@ -15,4 +15,7 @@ class EvidenciasTipo extends Model
     protected $fillable = [
         'description',
     ];
+    public static function evidenceId($id){
+        return self::where('id', $id)->value('description');
+    }
 }

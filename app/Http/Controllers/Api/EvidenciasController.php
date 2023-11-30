@@ -8,6 +8,7 @@ use App\Models\plan;
 use App\Models\StandardModel;
 use App\Models\Folder;
 use App\Models\Evidence;
+use App\Models\EvidenciasTipo;
 use App\Models\DateModel;
 use Illuminate\Support\Facades\Storage; 
 use Illuminate\Http\Request;
@@ -491,13 +492,13 @@ class EvidenciasController extends Controller
                             $template->setValue('n#' . ($j+1). "#". ($key + 1) . "#" . ($m+1), ($m+1));
                             $template->setValue('codigo#' . ($j+1). "#". ($key + 1) . "#" . ($m+1), "No data");
                             $template->setValue('nombre#' . ($j+1). "#". ($key + 1) . "#" . ($m+1), $evidence->name);
-                            $template->setValue('tipo#' . ($j+1). "#". ($key + 1) . "#" . ($m+1), $evidence->type);
+                            $template->setValue('tipo#' . ($j+1). "#". ($key + 1) . "#" . ($m+1), EvidenciasTipo::evidenceId($evidence->evidence_type_id));
                             $template->setValue('tamaño#' . ($j+1). "#". ($key + 1) . "#" . ($m+1), $evidence->size);
                             $template->setValue('fecha#' . ($j+1). "#". ($key + 1) . "#" . ($m+1), $evidence->created_at);
                         }
                     }else{
-                        $template->cloneRow('n#' . ($j+1) . '#'.($key + 1), 0);
-
+                        $template->cloneRow('n#' . ($j+1) . '#'.($key + 1), 0); 
+                        //$template->replaceBlock("block_tabla#" . ($j+1) . "#" . ($key + 1), "No hay evidencias");
                     }
                 } 
             }

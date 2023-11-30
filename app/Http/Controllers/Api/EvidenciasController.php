@@ -464,7 +464,7 @@ class EvidenciasController extends Controller
         $tempfiledocx = tempnam(sys_get_temp_dir(), 'PHPWord');
         $template = new \PhpOffice\PhpWord\TemplateProcessor('plantilla-evidencias.docx');
         $dates = DateModel::all();
-        $standards = StandardModel::where("date_id", 1)->get();
+        $standards = StandardModel::where("date_id", 1)->orderBy('nro_standard')->get();
         if($standards->count() > 0){
             $template->cloneBlock('block_periodo', $dates->count(), true, true);
             $template->cloneBlock('block_estandar', $standards->count(), true, true);
@@ -494,8 +494,10 @@ class EvidenciasController extends Controller
                             $template->setValue('tipo#' . ($j+1). "#". ($key + 1) . "#" . ($m+1), $evidence->type);
                             $template->setValue('tamaño#' . ($j+1). "#". ($key + 1) . "#" . ($m+1), $evidence->size);
                             $template->setValue('fecha#' . ($j+1). "#". ($key + 1) . "#" . ($m+1), $evidence->created_at);
-    
                         }
+                    }else{
+                        $template->cloneRow('n#' . ($j+1) . '#'.($key + 1), 0);
+
                     }
                 } 
             }

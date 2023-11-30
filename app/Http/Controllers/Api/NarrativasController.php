@@ -170,16 +170,12 @@ class NarrativasController extends Controller
         $tempfiledocx = tempnam(sys_get_temp_dir(), 'PHPWord');
         $template = new \PhpOffice\PhpWord\TemplateProcessor('plantilla-narrativa-v3.docx');
         $dates = DateModel::all(); //por rango a elegir {inicioyear: 2023, iniciosemester: 'A', finyear:2024, finsemester: 'B'}
-        $standards = StandardModel::where("date_id", 1)->get();
+        $standards = StandardModel::where("date_id", 1)->orderBy('nro_standard')->get();
         if($standards->count() > 0){
             $template->cloneBlock('block_periodo', $dates->count(), true, true);
             $template->cloneBlock('block_estandar', $standards->count(), true, true);
 
             foreach ($standards as $key => $standard){
-                return response([
-                    "key" => $key,
-                    "standard" => $standards
-                ], );
                 // Dimensión
                 $template->setValue('dimension#'. ($key + 1) , $standard->dimension);
                 // Factor

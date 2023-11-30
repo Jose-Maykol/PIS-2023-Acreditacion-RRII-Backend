@@ -26,4 +26,6 @@ class ResponsablesValoresController extends Controller
             "data" => $ResponsableValorList,
         ]);
     }
+
+    
 }

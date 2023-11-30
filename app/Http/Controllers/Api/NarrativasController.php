@@ -163,4 +163,56 @@ class NarrativasController extends Controller
             "data" => $narrative,
         ], 200);
     }*/
+
+    // api/narratives/export
+    public function reportAll()
+    {
+        $tempfiledocx = tempnam(sys_get_temp_dir(), 'PHPWord');
+        $template = new \PhpOffice\PhpWord\TemplateProcessor('plantilla-narrativa-v3.docx');
+        $dates = DateModel::all(); //por rango a elegir {inicioyear: 2023, iniciosemester: 'A', finyear:2024, finsemester: 'B'}
+        $standards = StandardModel::where("date_id", 1)->get();
+        if($standards->count() > 0){
+            $template->cloneBlock('block_periodo', $dates->count(), true, true);
+            $template->cloneBlock('block_estandar', $standards->count(), true, true);
+
+            foreach ($standards as $key => $standard){
+                return response([
+                    "key" => $key,
+                    "standard" => $standards
+                ], );
+                // Dimensión
+                $template->setValue('dimension#'. ($key + 1) , $standard->dimension);
+                // Factor
+                $template->setValue('factor#'. ($key + 1) , $standard->factor);
+                // Estandar
+                $template->setValue('n#'. ($key + 1) , $standard->nro_standard);
+                $template->setValue('estandar#'. ($key + 1) , $standard->name);
+                
+                
+                //Periodos
+                foreach ($dates as $j => $date){
+                    $template->setValue('year#' . ($j + 1) . '#'.($key + 1) , $date->year);
+                    $template->setValue('semester#' . ($j + 1) . '#'.($key + 1) , $date->semester);
+                    $estandar = StandardModel::where("nro_standard", $standard->nro_standard)->where("date_id", $date->id)->first();
+                    if($estandar != null){
+                        $template->setValue('narrativa#' . ($j + 1) . '#'.($key + 1) , $estandar->narrative);
+                    }
+                    else{
+                        $template->setValue('narrativa#' . ($j + 1) . '#'.($key + 1) , "Este periodo no tiene ningún estándar");
+                    }
+                } 
+            }
+
+            $template->saveAs($tempfiledocx);
+            $headers = [
+                'Content-Type' => 'application/msword',
+                'Content-Disposition' => 'attachment;filename="narrativas.docx"',
+            ];
+            return response()->download($tempfiledocx, 'todas-narrativas.docx', $headers);
+        } else{
+            return response([
+                "message" => "!No cuenta con ningún estándar todavía en este periodo",
+            ], 404);
+        }
+    } 
 }

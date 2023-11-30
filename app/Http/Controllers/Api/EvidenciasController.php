@@ -458,4 +458,58 @@ class EvidenciasController extends Controller
             "message" => "Evidencia movida exitosamente",
         ], 404);
     }
+
+    public function reportAllEvidences()
+    {
+        $tempfiledocx = tempnam(sys_get_temp_dir(), 'PHPWord');
+        $template = new \PhpOffice\PhpWord\TemplateProcessor('plantilla-evidencias.docx');
+        $dates = DateModel::all();
+        $standards = StandardModel::where("date_id", 1)->get();
+        if($standards->count() > 0){
+            $template->cloneBlock('block_periodo', $dates->count(), true, true);
+            $template->cloneBlock('block_estandar', $standards->count(), true, true);
+
+            foreach ($standards as $key => $standard){
+                // Dimensión
+                $template->setValue('dimension#'. ($key + 1) , $standard->dimension);
+                // Factor
+                $template->setValue('factor#'. ($key + 1) , $standard->factor);
+                // Estandar
+                $template->setValue('n-e#'. ($key + 1) , $standard->nro_standard);
+                $template->setValue('estandar#'. ($key + 1) , $standard->name);
+                
+                
+                //Periodos
+                foreach ($dates as $j => $date){
+                    $template->setValue('year#' . ($j + 1) . '#'.($key + 1) , $date->year);
+                    $template->setValue('semester#' . ($j + 1) . '#'.($key + 1) , $date->semester);
+                    $evidencesCount = Evidence::where("standard_id", $standard->id)->where("date_id", $date->id)->count();
+                    if($evidencesCount > 0){
+                        $template->cloneRow('n#' . ($j+1) . '#'.($key + 1), $evidencesCount); 
+                        $evidencias = Evidence::where("standard_id", $standard->id)->where("date_id", $date->id)->get();
+                        foreach ($evidencias as $m => $evidence){
+                            $template->setValue('n#' . ($j+1). "#". ($key + 1) . "#" . ($m+1), ($m+1));
+                            $template->setValue('codigo#' . ($j+1). "#". ($key + 1) . "#" . ($m+1), "No data");
+                            $template->setValue('nombre#' . ($j+1). "#". ($key + 1) . "#" . ($m+1), $evidence->name);
+                            $template->setValue('tipo#' . ($j+1). "#". ($key + 1) . "#" . ($m+1), $evidence->type);
+                            $template->setValue('tamaño#' . ($j+1). "#". ($key + 1) . "#" . ($m+1), $evidence->size);
+                            $template->setValue('fecha#' . ($j+1). "#". ($key + 1) . "#" . ($m+1), $evidence->created_at);
+    
+                        }
+                    }
+                } 
+            }
+
+            $template->saveAs($tempfiledocx);
+            $headers = [
+                'Content-Type' => 'application/msword',
+                'Content-Disposition' => 'attachment;filename="evidencias.docx"',
+            ];
+            return response()->download($tempfiledocx, 'listado-evidencias.docx', $headers);
+        } else{
+            return response([
+                "message" => "!No cuenta con ningún estándar todavía en este periodo",
+            ], 404);
+        }
+    } 
 }

@@ -107,7 +107,7 @@ class UserController extends Controller
 			$roles = $user->getRoleNames();
 			$user->role = $roles->isNotEmpty() ? $roles[0] : null;
 			$user->unsetRelation('roles'); 
-			$user->id = $index + 1;
+			$user->index = $index + 1;
 		}
         return response([
             "msg" => "Lista de usuarios obtenida exitosamente",

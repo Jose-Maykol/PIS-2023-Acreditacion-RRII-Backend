@@ -29,6 +29,8 @@ Route::middleware("auth:sanctum")->prefix('plans')->group(function () {// /api/2
     Route::get('users', [PlanController::class, 'listPlanUser']);//Considerar anhadirlo a User
     Route::post('assign', [PlanController::class, 'assignPlan']);
     Route::get('{plan_id}/export', [PlanController::class, 'exportPlan'])->where('plan_id', '[0-9]+');
+    Route::get('export', [PlanController::class, 'exportResume']);
+
 
     //Route::put('{plan_id}', [PlanController::class, 'update'])->where('plan_id', '[0-9]+');
 

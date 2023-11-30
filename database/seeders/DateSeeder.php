@@ -19,11 +19,13 @@ class DateSeeder extends Seeder
         DB::table('date_semesters')->insert([
             'year' => 2023,
             'semester' => 'A',
+            'is_closed' => false,
             'registration_status_id' => RegistrationStatusModel::registrationActiveId(),
         ]);
         DB::table('date_semesters')->insert([
             'year' => 2023,
             'semester' => 'B',
+            'is_closed' => false,
             'registration_status_id' => RegistrationStatusModel::registrationActiveId(),
         ]);
     }

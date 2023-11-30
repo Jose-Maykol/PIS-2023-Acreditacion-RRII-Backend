@@ -35,7 +35,8 @@ class DateSemesterRepository
     public function readDateSemester($id_date_semester)
     {
         $date_semester = DateModel::where('id', $id_date_semester)
-            ->where('registration_status_id', RegistrationStatusModel::registrationActiveId());
+            ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
+            ->get();
 
         return $date_semester;
     }
@@ -49,8 +50,12 @@ class DateSemesterRepository
         return $date_semester;
     }
 
-    public function closeDateSemester()
+    public function closeDateSemester($id_date_semester, $closing_date)
     {
+        $date_semester = DateModel::where('id', $id_date_semester)->first();
+        $date_semester->closing_date = $closing_date;
+        $date_semester->save();
+        return $date_semester;
     }
     public function checkIfDateSemesterExists($year, $semester)
     {

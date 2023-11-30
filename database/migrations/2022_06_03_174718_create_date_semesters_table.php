@@ -17,6 +17,8 @@ return new class extends Migration
             $table->id();
             $table->year('year');// 1 - 2022 - A
             $table->char('semester', 1);
+            $table->date('closing_date')->nullable();
+            $table->boolean('is_closed');
             $table->foreignId('registration_status_id')
                 ->constrained('registration_status');
             $table->timestamps();

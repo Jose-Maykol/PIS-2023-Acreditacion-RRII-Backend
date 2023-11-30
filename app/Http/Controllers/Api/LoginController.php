@@ -150,9 +150,14 @@ class LoginController extends Controller
 		} catch (ClientException $exception) {
 			return response()->json(['error' => 'Credenciales de google invalidas.'], 422);
 		}
+		$user_isnotactived = User::where("email", "=", $userProvider->email)
+			->where("registration_status_id", RegistrationStatusModel::registrationInactiveId())
+			->exists();
+		if ($user_isnotactived){
+			return response()->json(['error' => 'El usuario se encuentra no puede logearse, consulte con el administrador'], 422);
+		}
 
 		$user = User::where("email", "=", $userProvider->email)
-				->where("registration_status_id", RegistrationStatusModel::registrationActiveId())
 				->first();
 		if (isset($user)) {
 			$registrationStatusId = RegistrationStatusModel::registrationActiveId();

@@ -74,7 +74,8 @@ class StandardService
             throw new \App\Exceptions\Standard\StandardNotFoundException();
         }
 
-        if (!$this->userRepository->isAdministrator($userAuth)) {
+        if (!($this->userRepository->isAdministrator($userAuth) 
+                or $this->userRepository->checkIfUserIsManagerStandard($standard_id, $userAuth))) {
             throw new \App\Exceptions\User\UserNotAuthorizedException();
         }
 
@@ -128,7 +129,7 @@ class StandardService
         return $users;
     }
 
-    public function listStandardStatus($standard_id=0)
+    public function listStandardStatus($standard_id = 0)
     {
         $userAuth = auth()->user();
         if ($standard_id != 0 and !$this->standardRepository->getStandardActiveById($standard_id)) {

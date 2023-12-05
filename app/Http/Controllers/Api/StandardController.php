@@ -268,6 +268,10 @@ class StandardController extends Controller
                 return response()->json([
                     "status" => 0,
                     "message" => "Aun no hay evidencias para este estándar",
+                    "data" => [
+                        "evidences" => [],
+                        "folders" => []
+                    ]
                 ], 200);
             } else {
                 $parentIdFolder = $queryRootFolder->id;

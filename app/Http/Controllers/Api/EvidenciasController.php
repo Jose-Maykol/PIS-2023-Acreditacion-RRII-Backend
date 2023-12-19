@@ -460,11 +460,31 @@ class EvidenciasController extends Controller
         ], 404);
     }
 
-    public function reportAllEvidences()
+    public function reportAllEvidences(Request $request)
     {
         $tempfiledocx = tempnam(sys_get_temp_dir(), 'PHPWord');
         $template = new \PhpOffice\PhpWord\TemplateProcessor('plantilla-evidencias.docx');
-        $dates = DateModel::all();
+        //Rango de periodos
+        $startYear = $request->input('startYear');
+        $startSemester = $request->input('startSemester');
+        $endYear = $request->input('endYear');
+        $endSemester = $request->input('endSemester');
+        $dates = DateModel::where(function ($query) use ($startYear, $startSemester, $endYear, $endSemester) {
+            $query->where(function ($query) use ($startYear, $startSemester) {
+                $query->where('year', '>', $startYear)
+                    ->orWhere(function ($query) use ($startYear, $startSemester) {
+                        $query->where('year', $startYear)
+                                ->where('semester', '>=', $startSemester);
+                    });
+            })
+            ->where(function ($query) use ($endYear, $endSemester) {
+                $query->where('year', '<', $endYear)
+                    ->orWhere(function ($query) use ($endYear, $endSemester) {
+                        $query->where('year', $endYear)
+                                ->where('semester', '<=', $endSemester);
+                    });
+            });
+        })->get();        
         $standards = StandardModel::where("date_id", 1)->orderBy('nro_standard')->get();
         if($standards->count() > 0){
             $template->cloneBlock('block_periodo', $dates->count(), true, true);
@@ -497,8 +517,8 @@ class EvidenciasController extends Controller
                             $template->setValue('fecha#' . ($j+1). "#". ($key + 1) . "#" . ($m+1), $evidence->created_at);
                         }
                     }else{
-                        $template->cloneRow('n#' . ($j+1) . '#'.($key + 1), 0); 
-                        //$template->replaceBlock("block_tabla#" . ($j+1) . "#" . ($key + 1), "No hay evidencias");
+                        $template->cloneRow('n#' . ($j+1) . '#'.($key + 1), -1); 
+                        $template->replaceBlock("block_tabla#" . ($j+1) . "#" . ($key + 1), "No hay evidencias");
                     }
                 } 
             }
@@ -508,7 +528,7 @@ class EvidenciasController extends Controller
                 'Content-Type' => 'application/msword',
                 'Content-Disposition' => 'attachment;filename="evidencias.docx"',
             ];
-            return response()->download($tempfiledocx, 'listado-evidencias.docx', $headers);
+            return response()->download($tempfiledocx, 'reporte-evidencias.docx', $headers);
         } else{
             return response([
                 "message" => "!No cuenta con ningún estándar todavía en este periodo",

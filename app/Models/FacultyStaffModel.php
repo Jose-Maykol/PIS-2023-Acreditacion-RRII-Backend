@@ -17,6 +17,7 @@ class FacultyStaffModel extends Model
         'number_ordinary_professor_associate',
         'number_ordinary_professor_assistant',
         'number_contractor_professor',
+        //
         'ordinary_professor_exclusive_dedication',
         'ordinary_professor_fulltime',
 		'ordinary_professor_parttime',

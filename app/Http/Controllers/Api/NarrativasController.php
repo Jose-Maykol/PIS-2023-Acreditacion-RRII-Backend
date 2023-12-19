@@ -165,11 +165,33 @@ class NarrativasController extends Controller
     }*/
 
     // api/narratives/export
-    public function reportAll()
+    public function reportAll(Request $request)
     {
         $tempfiledocx = tempnam(sys_get_temp_dir(), 'PHPWord');
         $template = new \PhpOffice\PhpWord\TemplateProcessor('plantilla-narrativa-v3.docx');
-        $dates = DateModel::all(); //por rango a elegir {inicioyear: 2023, iniciosemester: 'A', finyear:2024, finsemester: 'B'}
+        //Rango de periodos
+        $startYear = $request->input('startYear');
+        $startSemester = $request->input('startSemester');
+        $endYear = $request->input('endYear');
+        $endSemester = $request->input('endSemester');
+        $dates = DateModel::where(function ($query) use ($startYear, $startSemester, $endYear, $endSemester) {
+            $query->where(function ($query) use ($startYear, $startSemester) {
+                $query->where('year', '>', $startYear)
+                      ->orWhere(function ($query) use ($startYear, $startSemester) {
+                          $query->where('year', $startYear)
+                                ->where('semester', '>=', $startSemester);
+                      });
+            })
+            ->where(function ($query) use ($endYear, $endSemester) {
+                $query->where('year', '<', $endYear)
+                      ->orWhere(function ($query) use ($endYear, $endSemester) {
+                          $query->where('year', $endYear)
+                                ->where('semester', '<=', $endSemester);
+                      });
+            });
+        })->get();
+        
+
         $standards = StandardModel::where("date_id", 1)->orderBy('nro_standard')->get();
         if($standards->count() > 0){
             $template->cloneBlock('block_periodo', $dates->count(), true, true);
@@ -190,11 +212,11 @@ class NarrativasController extends Controller
                     $template->setValue('year#' . ($j + 1) . '#'.($key + 1) , $date->year);
                     $template->setValue('semester#' . ($j + 1) . '#'.($key + 1) , $date->semester);
                     $estandar = StandardModel::where("nro_standard", $standard->nro_standard)->where("date_id", $date->id)->first();
-                    if($estandar != null){
+                    if($estandar != null && $estandar->narrative != null){
                         $template->setValue('narrativa#' . ($j + 1) . '#'.($key + 1) , $estandar->narrative);
                     }
                     else{
-                        $template->setValue('narrativa#' . ($j + 1) . '#'.($key + 1) , "Este periodo no tiene ningún estándar");
+                        $template->setValue('narrativa#' . ($j + 1) . '#'.($key + 1) , "Este periodo no tiene ningún estándar o narrativa");
                     }
                 } 
             }
@@ -204,7 +226,7 @@ class NarrativasController extends Controller
                 'Content-Type' => 'application/msword',
                 'Content-Disposition' => 'attachment;filename="narrativas.docx"',
             ];
-            return response()->download($tempfiledocx, 'todas-narrativas.docx', $headers);
+            return response()->download($tempfiledocx, "reporte-narrativas {$startYear}-{$startSemester}_{$endYear}-{$endSemester}.docx", $headers);
         } else{
             return response([
                 "message" => "!No cuenta con ningún estándar todavía en este periodo",

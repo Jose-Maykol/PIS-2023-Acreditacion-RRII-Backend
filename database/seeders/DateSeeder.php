@@ -26,5 +26,10 @@ class DateSeeder extends Seeder
             'semester' => 'B',
             'registration_status_id' => RegistrationStatusModel::registrationActiveId(),
         ]);
+        DB::table('date_semesters')->insert([
+            'year' => 2024,
+            'semester' => 'A',
+            'registration_status_id' => RegistrationStatusModel::registrationActiveId(),
+        ]);
     }
 }

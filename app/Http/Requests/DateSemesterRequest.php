@@ -42,4 +42,10 @@ class DateSemesterRequest extends CustomFormRequest
             'semester' => "present|required|string|size:1"
         ];
     }
+    public function validationForCloseDateSemester()
+    {
+        return [
+            'closing_date' => "present|required|date",
+        ];
+    }
 }

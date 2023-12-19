@@ -83,4 +83,35 @@ class DateSemestersController extends Controller
             ], 500);
         }
     }
+    public function infoDateSemester($year, $semester){
+        try {
+            $result = $this->dateSemesterService->infoDateSemester($year, $semester);
+            return response()->json([
+                "status" => 1,
+                "message" => "Información del periodo $year - $semester",
+                "data" => $result
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 0,
+                'message' => "Problema en el servidor",
+            ], 500);
+        }
+    }
+    public function closeDateSemester($year, $semester, DateSemesterRequest $request){
+        try {
+            $request->validated();
+            $result = $this->dateSemesterService->closeDateSemester($year, $semester, $request->closing_date);
+            return response()->json([
+                "status" => 1,
+                "message" => "Periodo $year - $semester cerrado",
+                "data" => $result
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 0,
+                'message' => "Problema en el servidor",
+            ], 500);
+        }
+    }
 }

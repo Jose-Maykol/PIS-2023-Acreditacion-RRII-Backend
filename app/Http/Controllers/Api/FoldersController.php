@@ -33,12 +33,21 @@ class FoldersController extends Controller
         $parentFolder = Folder::where('path', $generalPath)->where('standard_id', $standard)->where('evidence_type_id', $evidenceType)->first();
 
         if (!$parentFolder) {
-            return response()->json([
+            $folder = new Folder([
+                'name' => $generalPath == '/' ? 'root' : $generalPath,
+                'standard_id' => $request->standard_id,
+                'evidence_type_id' => $request->evidence_type_id,
+                'path' => $generalPath,
+                'user_id' => $userId,
+                'date_id' => $dateId,
+            ]);
+            $folder->save();
+            $parentFolder = Folder::where('path', $generalPath)->where('standard_id', $standard)->where('evidence_type_id', $evidenceType)->first();
+            /* return response()->json([
                 'status' => 0,
                 'message' => 'No existe la carpeta padre',
-            ]);
+            ]); */
         }
-
         $parentFolderId = $parentFolder->id;
 
         $folder = Folder::where('path', $generalPath . '/' . $folderName)->where('standard_id', $standard)->where('evidence_type_id', $evidenceType)->first();

@@ -274,13 +274,17 @@ class StandardController extends Controller
                 return response()->json([
                     "status" => 0,
                     "message" => "Aun no hay evidencias para este estándar",
-                ], 404);
+                    "data" => [
+                        "evidences" => [],
+                        "folders" => []
+                    ]
+                ], 200);
             } else {
                 $parentIdFolder = $queryRootFolder->id;
             }
         }
 
-        $evidences = Evidence::join('users', 'evidences.user_id', '=', 'users.id')
+        $evidencesQuery = Evidence::join('users', 'evidences.user_id', '=', 'users.id')
             ->where('evidences.folder_id', $parentIdFolder)
             ->where('evidences.evidence_type_id', $idTypeEvidence)
             ->where('evidences.standard_id', $standardId)
@@ -291,6 +295,7 @@ class StandardController extends Controller
                 'evidences.path',
                 'evidences.file',
                 'evidences.size',
+                DB::raw('evidences.type as extension'),
                 'evidences.user_id',
                 'evidences.plan_id',
                 'evidences.folder_id',
@@ -299,8 +304,14 @@ class StandardController extends Controller
                 'evidences.date_id',
                 'evidences.created_at',
                 'evidences.updated_at',
-                DB::raw("CONCAT(users.name, ' ', users.lastname) as full_name"))
-            ->get();
+                DB::raw("CONCAT(users.name, ' ', users.lastname) as full_name"));
+        
+        if ($idPlan != null) {
+            $evidencesQuery->where('evidences.plan_id', $idPlan); 
+        }
+
+        $evidences = $evidencesQuery->get();
+
         $folders = Folder::join('users', 'folders.user_id', '=', 'users.id')
             ->where('folders.parent_id', $parentIdFolder)
             ->where('folders.standard_id', $standardId)
@@ -319,19 +330,15 @@ class StandardController extends Controller
                 DB::raw("CONCAT(users.name, ' ', users.lastname) as full_name"))
             ->get();
 
-        if ($idPlan != null) {
-            $evidences = $evidences->where('plan_id', $idPlan);
-        }
-
-        if ($evidences->isEmpty() && $folders->isEmpty()) {
+        /* if ($evidences->isEmpty() && $folders->isEmpty()) {
             return response()->json([
                 "status" => 0,
                 "message" => "No se encontraron evidencias",
             ], 404);
-        }
+        } */
 
         foreach ($evidences as &$evidence) {
-            $evidence['extension'] = $evidence['type'];
+            //$evidence['extension'] = $evidence['type'];
             unset($evidence['type']);
             $evidence['type'] = 'evidence';
         }

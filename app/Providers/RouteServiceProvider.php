@@ -51,6 +51,7 @@ class RouteServiceProvider extends ServiceProvider
                     require base_path('routes/api/IdentificationContextRoute.php');
                     require base_path('routes/api/FacultyStaffRoute.php');
                     require base_path('routes/api/DateSemesterAuthRoute.php');
+                    require base_path('routes/api/StatisticsRoute.php');
                 });
             Route::middleware('api')//   /api/
                 ->prefix('api')

@@ -28,4 +28,27 @@ class StatisticsController extends Controller
             "data" => $planStatistics
         ], 200);
     }
+
+    public function planPerStandardStatistics($year, $semester)
+    {
+        $planPerStandardStatistics =  DB::table('plans')
+        ->join('plan_status', 'plan_status.id', '=', 'plans.plan_status_id')
+        ->join('date_semesters', function ($joinDates) use ($year, $semester) {
+            $joinDates->on('plans.date_id', '=', 'date_semesters.id')
+                ->where('date_semesters.year', $year)
+                ->where('date_semesters.semester', $semester);
+        })
+        ->join('standards', 'plans.standard_id', '=', 'standards.id')
+        ->select('standards.id as standard_id', 'standards.name as standard_name')
+        ->selectRaw('COUNT(plans.id) as total_plans')
+        ->groupBy('standards.id', 'standards.name')
+        ->orderBy('standards.nro_standard')
+        ->get();
+
+        return response([
+            "status" => 1,
+            "message" => "Estadísticas de planes por estándar",
+            "data" => $planPerStandardStatistics
+        ], 200);
+    }
 }

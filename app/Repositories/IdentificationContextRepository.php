@@ -73,7 +73,7 @@ class IdentificationContextRepository
     }
     public function getIdentificationContext($id_date_semester)
     {
-        $identificationContext = IdentificationContextModel::where('date_id', $id_date_semester)->get();
+        $identificationContext = IdentificationContextModel::where('date_id', $id_date_semester)->first();
         return $identificationContext;
     }
 }

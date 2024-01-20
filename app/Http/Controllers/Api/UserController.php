@@ -95,24 +95,37 @@ class UserController extends Controller
 				"access_token": "11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
 			}
 	*/
-    public function listUser()
-	{
-		$user = auth()->user();
-		$users = User::where('users.id', '!=', $user->id)
-			->join('registration_status', 'users.registration_status_id', '=', 'registration_status.id')
-			->select("users.id", "users.name", "users.lastname", "users.email", "registration_status.description as status")
-			->orderBy('users.id', 'asc')
-			->get();
-		foreach ($users as $index => $user) {
-			$roles = $user->getRoleNames();
-			$user->role = $roles->isNotEmpty() ? $roles[0] : null;
-			$user->unsetRelation('roles'); 
-			$user->index = $index + 1;
-		}
-        return response([
-            "msg" => "Lista de usuarios obtenida exitosamente",
-            "data" => $users,
-        ], 200);
+    public function listUser(UserRequest $request)
+		{
+			$user = auth()->user();
+
+			$items = $request->input('items') ?? 8;
+			$currentPage = $request->input('page') ?? 1;
+
+			$users = User::where('users.id', '!=', $user->id)
+				->join('registration_status', 'users.registration_status_id', '=', 'registration_status.id')
+				->select("users.id", "users.name", "users.lastname", "users.email", "registration_status.description as status")
+				->orderBy('users.id', 'asc')
+				->paginate($items, ['*'], 'page', $currentPage);
+
+			foreach ($users as $index => $user) {
+				$roles = $user->getRoleNames();
+				$user->role = $roles->isNotEmpty() ? $roles[0] : null;
+				$user->unsetRelation('roles'); 
+				$user->index = ($currentPage - 1) * $items + ($index + 1);
+			}
+
+			return response([
+					"status" => 1,
+					"message" => "Lista de usuarios obtenida exitosamente",
+					"data" => [
+							"users" => $users->items(),
+							"total" => $users->total(),
+							"current_page" => $users->currentPage(),
+							"last_page" => $users->lastPage(),
+							"has_more_pages" => $users->hasMorePages(),
+					],
+			], 200);
     }
 
 	/*

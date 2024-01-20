@@ -101,23 +101,31 @@ class UserController extends Controller
 
 			$items = $request->input('items') ?? 8;
 			$currentPage = $request->input('page') ?? 1;
+			$search = $request->input('search', '');
 
-			$users = User::where('users.id', '!=', $user->id)
-				->join('registration_status', 'users.registration_status_id', '=', 'registration_status.id')
-				->select("users.id", "users.name", "users.lastname", "users.email", "registration_status.description as status")
-				->orderBy('users.id', 'asc')
-				->paginate($items, ['*'], 'page', $currentPage);
+			$usersQuery = User::where('users.id', '!=', $user->id)
+        ->join('registration_status', 'users.registration_status_id', '=', 'registration_status.id')
+        ->select("users.id", "users.name", "users.lastname", "users.email", "registration_status.description as status")
+        ->orderBy('users.id', 'asc');
+
+			if (!empty($search)) {
+					$usersQuery->where(function ($query) use ($search) {
+							$query->where('users.name', 'ilike', '%' . $search . '%')
+									->orWhere('users.lastname', 'ilike', '%' . $search . '%');
+					});
+			}
+
+			$users = $usersQuery->paginate($items, ['*'], 'page', $currentPage); 
 
 			foreach ($users as $index => $user) {
-				$roles = $user->getRoleNames();
-				$user->role = $roles->isNotEmpty() ? $roles[0] : null;
-				$user->unsetRelation('roles'); 
-				$user->index = ($currentPage - 1) * $items + ($index + 1);
+					$roles = $user->getRoleNames();
+					$user->role = $roles->isNotEmpty() ? $roles[0] : null;
+					$user->unsetRelation('roles'); 
+					$user->index = ($currentPage - 1) * $items + $index + 1;
 			}
 
 			return response([
 					"status" => 1,
-					"message" => "Lista de usuarios obtenida exitosamente",
 					"data" => [
 							"users" => $users->items(),
 							"total" => $users->total(),

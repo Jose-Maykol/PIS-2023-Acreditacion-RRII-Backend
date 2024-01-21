@@ -32,6 +32,17 @@ class StandardService
         return $this->standardRepository->listStandardsAssignment($year, $semester);
     }
 
+    public function listStandardHeaders($year, $semester)
+    {
+        $userAuth = auth()->user();
+
+        if (!$this->userRepository->isAdministrator($userAuth)) {
+            throw new \App\Exceptions\User\UserNotAuthorizedException();
+        }
+
+        return $this->standardRepository->listStandardHeaders($year, $semester);
+    }
+
     public function listPartialStandards($year, $semester)
     {
         return $this->standardRepository->listPartialStandards($year, $semester);

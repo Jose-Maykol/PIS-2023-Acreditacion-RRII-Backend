@@ -15,6 +15,7 @@ Route::middleware("auth:sanctum")->prefix('standards')->group(function () {
     //Route::get('status', [StandardController::class, 'standardStatus']);
     Route::post('', [StandardController::class, 'createEstandar']);
     //Route::get('', [StandardController::class, 'listStandard']);
+    Route::get('headers', [StandardController::class, 'listStandardHeaders']);
     Route::get('{standard_id}/header', [StandardController::class, 'showStandardHeader']);
     Route::put('{standard_id}/header', [StandardController::class, 'updateStandardHeader']);
 

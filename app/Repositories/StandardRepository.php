@@ -71,6 +71,16 @@ class StandardRepository
         return $standards;
     }
 
+    public function listStandardHeaders($year, $semester)
+    {
+        $standards = StandardModel::where('standards.date_id', DateModel::dateId($year, $semester))
+            ->select('standards.id', 'standards.name', 'standards.nro_standard', 'standards.factor', 'standards.dimension', 'standards.related_standards')
+            ->orderBy('standards.nro_standard', 'desc')
+            ->get();
+
+        return $standards;
+    }
+
     public function listPartialStandards($year, $semester)
     {
         $standards = StandardModel::where("standards.date_id", DateModel::dateId($year, $semester))

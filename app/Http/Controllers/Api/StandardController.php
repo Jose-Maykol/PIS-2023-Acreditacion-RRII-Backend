@@ -21,6 +21,7 @@ use App\Services\EvidenceService;
 use App\Services\StandardService;
 use Exception;
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Validator;
 
 //
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -53,7 +54,6 @@ class StandardController extends Controller
             "related_standards" => "required",
             "nro_standard" => "required|integer",
         ]);
-        $user = auth()->user();
         $standard = new StandardModel();
 
         $standard->name = $request->name;
@@ -68,9 +68,45 @@ class StandardController extends Controller
         $standard->save();
         return response([
             "status" => 1,
-            "msg" => "Estandar creado exitosamente",
+            "message" => "Estándar creado exitosamente",
             "data" => $standard,
         ], 201);
+    }
+
+    public function listStandardHeaders(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'year' => 'required|integer|digits:4',
+            'semester' => 'required|string|in:A,B',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 0,
+                'message' => 'Campos requeridos',
+                'errors' => $validator->errors()
+            ], 400);
+        }
+
+        try {
+
+            $year = $request->input('year');
+            $semester = $request->input('semester');
+
+
+            $result = $this->standardService->listStandardHeaders($year, $semester);
+            return response()->json([
+                'status' => 1,
+                'message' => "Lista de estandares",
+                'data' => $result
+            ], 200);
+        } catch (\App\Exceptions\User\UserNotAuthorizedException $e) {
+            return response()->json([
+                'status' => 0,
+                'message' => $e->getMessage(),
+            ], $e->getCode());
+        }
     }
 
     /*
@@ -89,7 +125,7 @@ class StandardController extends Controller
             $result = $this->standardService->listPartialStandards($year, $semester);
             return response()->json([
                 'status' => 1,
-                'message' => 'Lista parcial de estandares',
+                'message' => 'Lista parcial de estándares',
                 'data' => $result
             ], 200);
         } catch (Exception $e) {
@@ -114,7 +150,7 @@ class StandardController extends Controller
             $result = $this->standardService->listStandardsAssignment($year, $semester);
             return response()->json([
                 "status" => 1,
-                "message" => "Lista de estandares",
+                "message" => "Lista de estándares",
                 "data" => $result,
             ], 200);
         } catch (\App\Exceptions\User\UserNotAuthorizedException $e) {
@@ -132,7 +168,7 @@ class StandardController extends Controller
             $result = $this->standardService->changeStandardAssignment($standard_id, $request);
             return response()->json([
                 'status' => 1,
-                'message' => 'Estandares asignados'
+                'message' => 'Estándares asignados'
             ], 200);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['errors' => $e->errors()], 400);
@@ -163,7 +199,7 @@ class StandardController extends Controller
             $result = $this->standardService->showStandard($standard_id);
             return response()->json([
                 'status' => 1,
-                'message' => "Estandar retornado",
+                'message' => "Estándar retornado",
                 'data' => $result
             ], 200);
         } catch (\App\Exceptions\Standard\StandardNotFoundException $e) {
@@ -196,7 +232,7 @@ class StandardController extends Controller
             $result = $this->standardService->updateStandardHeader($standard_id, $request);
             return response()->json([
                 'status' => 1,
-                'message' => 'Estandar modificado exitosamente',
+                'message' => 'Estándar modificado exitosamente',
                 'data' => $result
             ], 200);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -234,11 +270,11 @@ class StandardController extends Controller
             $standard = StandardModel::where(["id" => $standard_id, "user_id" => $user->id])->first(); //ERROR:  no existe la columna «user_id»
             $standard->deleteRegister(); //función no implementada
             return response([
-                "msg" => "!Estandar eliminado",
+                "msg" => "Estándar eliminado",
             ], 204);
         } else {
             return response([
-                "msg" => "!No se encontro el estandar o no esta autorizado",
+                "msg" => "No se encontro el estándar o no esta autorizado",
             ], 404);
         }
     }

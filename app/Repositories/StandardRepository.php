@@ -75,7 +75,7 @@ class StandardRepository
     {
         $standards = StandardModel::where('standards.date_id', DateModel::dateId($year, $semester))
             ->select('standards.id', 'standards.name', 'standards.nro_standard', 'standards.factor', 'standards.dimension', 'standards.related_standards')
-            ->orderBy('standards.nro_standard', 'desc')
+            ->orderBy('standards.nro_standard', 'asc')
             ->get();
 
         return $standards;

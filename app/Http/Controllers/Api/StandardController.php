@@ -98,7 +98,7 @@ class StandardController extends Controller
             $result = $this->standardService->listStandardHeaders($year, $semester);
             return response()->json([
                 'status' => 1,
-                'message' => "Lista de estandares",
+                'message' => "Estándares obtenidos",
                 'data' => $result
             ], 200);
         } catch (\App\Exceptions\User\UserNotAuthorizedException $e) {

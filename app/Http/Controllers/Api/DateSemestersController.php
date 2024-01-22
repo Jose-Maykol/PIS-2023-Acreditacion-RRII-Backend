@@ -41,6 +41,24 @@ class DateSemestersController extends Controller
         }
     }
 
+    public function statusDateSemester(DateSemesterRequest $request)
+    {
+        try {
+            $request->validated();
+            $result = $this->dateSemesterService->statusDateSemester($request->year, $request->semester);
+            return response()->json([
+                "status" => 1,
+                "message" => "Estado del periodo $request->year - $request->semester",
+                "data" => $result
+            ], 200);
+        } catch (\App\Exceptions\User\UserNotAuthorizedException $e) {
+            return response()->json([
+                'status' => 0,
+                'message' => $e->getMessage(),
+            ], $e->getCode());
+        }
+    }
+
     public function updateDateSemester(DateSemesterRequest $request)
     {
         try {

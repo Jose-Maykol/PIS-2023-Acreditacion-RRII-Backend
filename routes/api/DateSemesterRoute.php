@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\DateSemestersController;
 Route::middleware("auth:sanctum")->prefix('date-semester')->group(function () {
     Route::post('', [DateSemestersController::class, 'createDateSemester']);
     Route::put('', [DateSemestersController::class, 'updateDateSemester']);
+    Route::get('status', [DateSemestersController::class, 'statusDateSemester']);
 });
 Route::prefix('date-semester')->group(function () {
     Route::get('', [DateSemestersController::class, 'listDateSemester']);

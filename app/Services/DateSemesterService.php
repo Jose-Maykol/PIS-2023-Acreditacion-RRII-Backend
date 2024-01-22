@@ -30,6 +30,20 @@ class DateSemesterService
         $date_semester = $this->dateSemesterRepository->createDateSemester($year, $semester);
         return $date_semester;
     }
+
+    public function statusDateSemester($year, $semester)
+    {
+        $userAuth = auth()->user();
+        if (!$this->userRepository->isAdministrator($userAuth)) {
+            throw new \App\Exceptions\User\UserNotAuthorizedException();
+        }
+        if (!$this->dateSemesterRepository->checkIfDateSemesterExists($year, $semester)) {
+            throw new \App\Exceptions\DateSemester\DateSemesterNotFoundException();
+        }
+        $result = $this->dateSemesterRepository->statusDateSemester($year, $semester);
+        return $result;
+    }
+
     public function updateDateSemester($id_data_semester, $year, $semester)
     {
         $userAuth = auth()->user();

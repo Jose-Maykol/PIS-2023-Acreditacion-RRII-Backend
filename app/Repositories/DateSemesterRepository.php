@@ -6,7 +6,10 @@ use App\Models\Evidence;
 use App\Models\Folder;
 use Illuminate\Support\Facades\DB;
 use App\Models\DateModel;
+use App\Models\FacultyStaffModel;
+use App\Models\IdentificationContextModel;
 use App\Models\RegistrationStatusModel;
+use App\Models\StandardModel;
 
 class DateSemesterRepository
 {
@@ -28,9 +31,21 @@ class DateSemesterRepository
         $date_semester->year = $year;
         $date_semester->semester = $semester;
         $date_semester->registration_status_id = RegistrationStatusModel::registrationActiveId();
-
         $date_semester->save();
         return $date_semester;
+    }
+    public function statusDateSemester($year, $semester)
+    {
+        $date_id = DateModel::dateId($year, $semester);
+        $standardsExists = StandardModel::where('date_id', $date_id)->exists();
+        $identificationContextExists = IdentificationContextModel::where('date_id', $date_id)->exists();
+        $facultyStaffExists = FacultyStaffModel::where('date_id', $date_id)->exists();
+        $result = [
+            'standards' => $standardsExists == true ? 'completado' : 'faltante',
+            'identification_context' => $identificationContextExists == true ? 'completado' : 'faltante',
+            'faculty_staff' => $facultyStaffExists == true ? 'completado' : 'faltante'
+        ];
+        return $result;
     }
     public function readDateSemester($id_date_semester)
     {

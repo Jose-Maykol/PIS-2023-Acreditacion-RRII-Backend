@@ -195,19 +195,12 @@ class StandardController extends Controller
 	*/
     public function showStandardHeader($year, $semester, $standard_id, Request $request)
     {
-        try {
-            $result = $this->standardService->showStandard($standard_id);
-            return response()->json([
+        $result = $this->standardService->showStandard($standard_id);
+        return response()->json([
                 'status' => 1,
                 'message' => "Estándar retornado",
                 'data' => $result
-            ], 200);
-        } catch (\App\Exceptions\Standard\StandardNotFoundException $e) {
-            return response()->json([
-                'status' => 0,
-                'message' => $e->getMessage(),
-            ], $e->getCode());
-        }
+                ], 200);
     }
 
     /*

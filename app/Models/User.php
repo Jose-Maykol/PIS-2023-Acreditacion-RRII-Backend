@@ -25,6 +25,10 @@ class User extends Authenticatable
     'password',
 	  'registration_status_id',
   ];
+  protected $hidden = [
+    'password',
+    'roles'
+  ];
 
   public $timestamps = false;
 

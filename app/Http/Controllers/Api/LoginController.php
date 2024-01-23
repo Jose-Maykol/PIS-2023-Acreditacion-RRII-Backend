@@ -157,8 +157,11 @@ class LoginController extends Controller
 			return response()->json(['error' => 'El usuario se encuentra no puede logearse, consulte con el administrador'], 422);
 		}
 
-		$user = User::where("email", "=", $userProvider->email)
-				->first();
+		$user = User::select('id', 'name', 'lastname', 
+							'email', 'registration_status_id')
+							->where("email", "=", $userProvider->email)
+							->first();
+
 		if (isset($user)) {
 			$registrationStatusId = RegistrationStatusModel::registrationActiveId();
 			$userCreated = User::updateOrCreate(
@@ -166,7 +169,6 @@ class LoginController extends Controller
 					'email' => $userProvider->email
 				],
 				[
-					//'email_verified_at' => now(),
 					'name' => $userProvider->user['given_name'],
 					'lastname' => $userProvider->user['family_name'],
 					'registration_status_id' => $registrationStatusId
@@ -183,23 +185,18 @@ class LoginController extends Controller
 				]
 			);
 			$role = $userCreated->hasRole('administrador') ? 'administrador' : 'docente';
-			$userRole = Role::where('name', $role)->first();
-			$permissions = $userRole->permissions;
-			$rolePermisions = $permissions->pluck('name')->all();
-			$permissions = Permission::all();
 			$token = $userCreated->createToken('token-auth_token')->plainTextToken;
 			return response()->json([
 				"message" => "Usuario ha iniciado sesion",
 				"user" =>  $userCreated,
 				"image" =>  $userProvider->getAvatar(),
 				"role" => $role,
-				"permissions" => $rolePermisions,
 				"access_token" => $token
 			], 200);
 		} else {
 			return response()->json([
 				"status" => 0,
-				"message" => "Usuario no registrado o Usuario deshabilitado",
+				"message" => "Usuario no registrado o deshabilitado",
 			], 404);
 		}
 	}
@@ -227,7 +224,7 @@ class LoginController extends Controller
     {
         auth()->user()->tokens()->delete();
         return response()->json([
-						"status" => 1,
+			"status" => 1,
             "message" => "Sesion cerrada"
         ], 200);
     }

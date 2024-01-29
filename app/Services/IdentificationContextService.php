@@ -38,25 +38,25 @@ class IdentificationContextService
         #\Illuminate\Support\Facades\Log::info($data);
 
         $fields = ['name', 'lastname', 'position', 'email', 'telephone'];
-        $filteredData = array_map(function ($member) use ($fields) {
+        /* $filteredData = array_map(function ($member) use ($fields) {
             return Arr::only($member, $fields);
         }, $data['members_quality_committee']);
 
-        $data['members_quality_committee'] = $filteredData;
+        $data['members_quality_committee'] = $filteredData; */
 
         $fields = ['interested', 'main_requirement_study_program', 'type'];
-        $filteredData = array_map(function ($group_study) use ($fields) {
+        /* $filteredData = array_map(function ($group_study) use ($fields) {
             return Arr::only($group_study, $fields);
         }, $data['interest_groups_study_program']);
 
-        $data['interest_groups_study_program'] = $filteredData;
+        $data['interest_groups_study_program'] = $filteredData; */
 
         $fields = ['region', 'province', 'district'];
-        $filteredData = array_map(function ($region) use ($fields) {
+        /* $filteredData = array_map(function ($region) use ($fields) {
             return Arr::only($region, $fields);
         }, $data['region_province_district']);
 
-        $data['region_province_district'] = $filteredData;
+        $data['region_province_district'] = $filteredData; */
 
         $ident_cont = $this->identContRepository->createIdentificationContext($data);
 
@@ -76,10 +76,9 @@ class IdentificationContextService
 
         $ident_cont->interest_groups_study_program = $groups_study;
 
-
-
         return $ident_cont;
     }
+    
     public function updateIdentificationContext($year, $semester, $data)
     {
         $userAuth = auth()->user();

@@ -9,13 +9,12 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use App\Models\StandardModel;
 use App\Models\User;
-use App\Models\Folder;
-use App\Models\Evidence;
 use Illuminate\Support\Facades\DB;
-use App\Models\Evidencias;
 use App\Models\RegistrationStatusModel;
 use App\Models\StandardStatusModel;
 use App\Models\FacultyStaffModel;
+use App\Models\FileModel;
+use App\Models\FolderModel;
 use App\Models\IdentificationContextModel;
 use App\Services\EvidenceService;
 use App\Services\StandardService;
@@ -284,9 +283,8 @@ class StandardController extends Controller
 
     public function getStandardEvidences(Request $request, $year, $semester, $standard_id, $evidence_type_id)
     {
-
         $request->validate([
-            'parent_id' => 'nullable|integer',
+            'parent_id' => 'nullable|integer'
         ]);
 
         $idPlan = $request->input('plan_id');
@@ -297,9 +295,9 @@ class StandardController extends Controller
         $idTypeEvidence = $evidence_type_id;
         $dateId = DateModel::dateId($year, $semester);
 
-        if (!$request->parent_id) {
-            $queryRootFolder = Folder::where('standard_id', $standardId)->where('evidence_type_id', $idTypeEvidence)->where('date_id', $dateId)->where('parent_id', null)->first();
-            if ($queryRootFolder == null) {
+        if ($request->parent_id) {
+            $queryRootFolder = FolderModel::where('standard_id', $standardId)->where('evidence_type_id', $idTypeEvidence)->where('date_id', $dateId)->where('parent_id', $parentIdFolder)->first();
+            if (!$queryRootFolder) {
                 return response()->json([
                     "status" => 0,
                     "message" => "Aun no hay evidencias para este estándar",
@@ -313,35 +311,34 @@ class StandardController extends Controller
             }
         }
 
-        $evidencesQuery = Evidence::join('users', 'evidences.user_id', '=', 'users.id')
-            ->where('evidences.folder_id', $parentIdFolder)
-            ->where('evidences.evidence_type_id', $idTypeEvidence)
-            ->where('evidences.standard_id', $standardId)
+        $evidencesQuery = FileModel::join('users', 'files.user_id', '=', 'users.id')
+            ->where('files.folder_id', $parentIdFolder)
+            ->where('files.evidence_type_id', $idTypeEvidence)
+            ->where('files.standard_id', $standardId)
             ->select(
-                DB::raw("CONCAT('E-', evidences.id) as code"),
-                'evidences.id as evidence_id', 
-                'evidences.name',
-                'evidences.path',
-                'evidences.file',
-                'evidences.size',
-                DB::raw('evidences.type as extension'),
-                'evidences.user_id',
-                'evidences.plan_id',
-                'evidences.folder_id',
-                'evidences.evidence_type_id',
-                'evidences.standard_id',
-                'evidences.date_id',
-                'evidences.created_at',
-                'evidences.updated_at',
+                'files.id as evidence_id', 
+                'files.name',
+                'files.path',
+                'files.file',
+                'files.size',
+                DB::raw('files.type as extension'),
+                'files.user_id',
+                'files.plan_id',
+                'files.folder_id',
+                'files.evidence_type_id',
+                'files.standard_id',
+                'files.date_id',
+                'files.created_at',
+                'files.updated_at',
                 DB::raw("CONCAT(users.name, ' ', users.lastname) as full_name"));
         
-        if ($idPlan != null) {
-            $evidencesQuery->where('evidences.plan_id', $idPlan); 
+        if ($idPlan) {
+            $evidencesQuery->where('files.plan_id', $idPlan); 
         }
 
         $evidences = $evidencesQuery->get();
 
-        $folders = Folder::join('users', 'folders.user_id', '=', 'users.id')
+        $folders = FolderModel::join('users', 'folders.user_id', '=', 'users.id')
             ->where('folders.parent_id', $parentIdFolder)
             ->where('folders.standard_id', $standardId)
             ->where('folders.evidence_type_id', $idTypeEvidence)

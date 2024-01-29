@@ -2,9 +2,11 @@
 
 namespace App\Exceptions;
 
+use BadMethodCallException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -53,9 +55,20 @@ class Handler extends ExceptionHandler
                 'message' => $e->getMessage()
             ], 404);
         });
+
+        $this->renderable(function (NotFoundHttpException $e, $request) {
+            return response()->json([
+                'status' => 0,
+                'message' => "No se encontro la ruta/controlador"
+            ], 404);
+        });
+
+        /*$this->renderable(function (BadMethodCallException $e, $request) {
+            return response()->json(['error' => 'Problema en el servidor'], 500);
+        });*/
     }
     protected function unauthenticated($request, AuthenticationException $exception)
     {
-        return response()->json(['message' => 'No autenticado'], 401);
+        return response()->json(['status' => 0, 'message' => 'No autenticado'], 401);
     }
 }

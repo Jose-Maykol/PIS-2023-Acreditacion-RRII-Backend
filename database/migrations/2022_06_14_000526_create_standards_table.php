@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('related_standards', 550);
             $table->unsignedTinyInteger('nro_standard',);
             $table->mediumText('narrative')->nullable();
+            $table->boolean('narrative_is_active')->default(false);
             $table->timestamps();
             $table->foreignId('date_id')
                 ->constrained('date_semesters');

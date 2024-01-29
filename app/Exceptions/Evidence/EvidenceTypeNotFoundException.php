@@ -4,8 +4,8 @@ namespace App\Exceptions\Evidence;
 
 use App\Exceptions\CustomNotFoundException;
 
-class EvidenceNotFoundException
+class EvidenceTypeNotFoundException
 extends CustomNotFoundException
 {
-    protected $message = "No se encontró la evidencia.";
+    protected $message = "No se encontró el tipo de evidencia.";
 }

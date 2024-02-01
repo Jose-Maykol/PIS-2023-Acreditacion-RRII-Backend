@@ -368,7 +368,7 @@ class StandardController extends Controller
             ->where('files.evidence_type_id', $idTypeEvidence)
             ->where('files.standard_id', $standardId)
             ->select(
-                'files.id as evidence_id',
+                'files.id as file_id',
                 'files.name',
                 'files.path',
                 'files.file',

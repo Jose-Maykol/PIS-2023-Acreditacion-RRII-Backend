@@ -73,6 +73,57 @@ class StandardController extends Controller
         ], 201);
     }
 
+    public function createStandards($year, $semester, Request $request)
+    {
+        $request->validate([
+            '*.name' => 'required',
+            '*.factor' => 'required',
+            '*.dimension' => 'required',
+            '*.related_standards' => 'required',
+            '*.nro_standard' => 'required|integer',
+            '*.description' => 'nullable|string',
+        ]);
+
+        $standards = [];
+
+        $date_id = DateModel::dateId($year, $semester);
+        $standardsExists = StandardModel::where('date_id', $date_id)->exists();
+
+        if ($standardsExists) {
+            return response([
+                "status" => 0,
+                "message" => "Ya existen estándares para este periodo",
+            ], 400);
+        }
+
+        foreach ($request->all() as $standardData) {
+            if ($standardData['description'] == null) {
+                $standard->description = "";
+            }
+
+            $standard = new StandardModel();
+
+            $standard->name = $standardData['name'];
+            $standard->factor = $standardData['factor'];
+            $standard->dimension = $standardData['dimension'];
+            $standard->description = $standardData['description'];
+            $standard->related_standards = $standardData['related_standards'];
+            $standard->nro_standard = $standardData['nro_standard'];
+            $standard->date_id = DateModel::dateId($year, $semester);
+            $standard->registration_status_id = RegistrationStatusModel::registrationActiveId();
+            $standard->standard_status_id = 1;
+            $standard->save();
+
+            $standards[] = $standard;
+        }
+
+        return response([
+            'status' => 1,
+            'message' => 'Estándares creados exitosamente',
+            'data' => $standards,
+        ], 201);
+    }
+
     public function listStandardHeaders(Request $request)
     {
 

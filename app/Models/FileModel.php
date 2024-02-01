@@ -30,7 +30,7 @@ class FileModel extends Model {
     }
 
     public function evidence() {
-        return $this->hasOne(EvidenceModel::class, 'file_id');
+        return $this->hasOne(EvidenceModel::class, 'file_id', 'id');
     }
 
     public function folder() {

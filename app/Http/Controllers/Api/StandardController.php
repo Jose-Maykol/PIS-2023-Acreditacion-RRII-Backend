@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StandardRequest;
 use App\Models\DateModel;
+use App\Models\EvidenceModel;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use App\Models\StandardModel;
@@ -196,10 +197,10 @@ class StandardController extends Controller
     {
         $result = $this->standardService->showStandard($standard_id);
         return response()->json([
-                'status' => 1,
-                'message' => "Estándar retornado",
-                'data' => $result
-                ], 200);
+            'status' => 1,
+            'message' => "Estándar retornado",
+            'data' => $result
+        ], 200);
     }
 
     /*
@@ -316,7 +317,7 @@ class StandardController extends Controller
             ->where('files.evidence_type_id', $idTypeEvidence)
             ->where('files.standard_id', $standardId)
             ->select(
-                'files.id as evidence_id', 
+                'files.id as evidence_id',
                 'files.name',
                 'files.path',
                 'files.file',
@@ -330,13 +331,20 @@ class StandardController extends Controller
                 'files.date_id',
                 'files.created_at',
                 'files.updated_at',
-                DB::raw("CONCAT(users.name, ' ', users.lastname) as full_name"));
-        
+                DB::raw("CONCAT(users.name, ' ', users.lastname) as full_name")
+            );
+
         if ($idPlan) {
-            $evidencesQuery->where('files.plan_id', $idPlan); 
+            $evidencesQuery->where('files.plan_id', $idPlan);
         }
 
         $evidences = $evidencesQuery->get();
+
+        foreach ($evidences as &$file) {
+            if (EvidenceModel::where('file_id', $file->evidence_id)->exists()) {
+                $file->evidence_code = EvidenceModel::where('file_id',$file->evidence_id)->value('code');
+            }
+        }
 
         $folders = FolderModel::join('users', 'folders.user_id', '=', 'users.id')
             ->where('folders.parent_id', $parentIdFolder)
@@ -353,9 +361,15 @@ class StandardController extends Controller
                 'folders.date_id',
                 'folders.created_at',
                 'folders.updated_at',
-                DB::raw("CONCAT(users.name, ' ', users.lastname) as full_name"))
+                DB::raw("CONCAT(users.name, ' ', users.lastname) as full_name")
+            )
             ->get();
 
+        foreach ($folders as &$folder) {
+            if (EvidenceModel::where('folder_id', $folder->folder_id)->exists()) {
+                $folder->evidence_code = EvidenceModel::where('folder_id',$folder->folder_id)->value('code');
+            }
+        }
         /* if ($evidences->isEmpty() && $folders->isEmpty()) {
             return response()->json([
                 "status" => 0,
@@ -384,14 +398,13 @@ class StandardController extends Controller
 
     public function searchEvidence($year, $semester, $standard_id)
     {
-        try{
+        try {
             $result = $this->evidenceService->searchEvidence($standard_id);
             return response()->json([
                 "status" => 1,
                 "data" => $result,
             ], 200);
-        }
-        catch(\App\Exceptions\Standard\StandardNotFoundException $e){
+        } catch (\App\Exceptions\Standard\StandardNotFoundException $e) {
             return response()->json([
                 'status' => 0,
                 'message' => $e->getMessage(),
@@ -497,7 +510,7 @@ class StandardController extends Controller
         $tempfiledocx = tempnam(sys_get_temp_dir(), 'PHPWord');
         $template = new \PhpOffice\PhpWord\TemplateProcessor('plantilla-contexto.docx');
         $contexto = IdentificationContextModel::where("date_id", DateModel::dateId($year, $semester))->get();
-        if($contexto->count() > 0){
+        if ($contexto->count() > 0) {
             $key = $contexto[0];
             $template->setValue("direccion-sede", $key->address_headquarters);
             $lugar = json_decode($key->region_province_district);
@@ -511,7 +524,7 @@ class StandardController extends Controller
             $template->setValue("nombre-autoridad-institucion", $key->highest_authority_institution);
             $template->setValue("correo-autoridad-institucion", $key->highest_authority_institution_email);
             $template->setValue("telefono-autoridad-institucion", $key->highest_authority_institution_telephone);
-            
+
             //Programa de estudios
             $template->setValue("resolucion-programa", $key->licensing_resolution);
             $template->setValue("nivel-academico", $key->academic_level);
@@ -526,36 +539,36 @@ class StandardController extends Controller
             //Tabla de miembros de comité
             $miembrosComite = $key->members_quality_committee;
             $template->cloneRow('n-c', count($miembrosComite));
-            foreach ($miembrosComite as $i => $miembro){
-                $template->setValue("n-c#" . ($i+1) , ($i+1));
-                $template->setValue("nombre-miembro#" . ($i+1) , $miembro["Nombre"]);
-                $template->setValue("cargo-miembro#" . ($i+1) , $miembro["Cargo"]);
-                $template->setValue("correo#" . ($i+1) , $miembro["Correo"]);
-                $template->setValue("telefono#" . ($i+1) , $miembro["Teléfono"]);
+            foreach ($miembrosComite as $i => $miembro) {
+                $template->setValue("n-c#" . ($i + 1), ($i + 1));
+                $template->setValue("nombre-miembro#" . ($i + 1), $miembro["Nombre"]);
+                $template->setValue("cargo-miembro#" . ($i + 1), $miembro["Cargo"]);
+                $template->setValue("correo#" . ($i + 1), $miembro["Correo"]);
+                $template->setValue("telefono#" . ($i + 1), $miembro["Teléfono"]);
             }
 
             //Tabla de interesados
             $interesados = $key->interest_groups_study_program;
             $template->cloneRow('n-g', count($interesados));
-            foreach ($interesados as $j => $miembro){
-                $template->setValue("n-g#" . ($j+1) , ($j+1));
-                $template->setValue("interesado#" . ($j+1) , $miembro["Interesado"]);
-                $template->setValue("requerimiento#" . ($j+1) , $miembro["Requerimiento"]);
-                $template->setValue("tipo#" . ($j+1) , $miembro["Tipo"]);
+            foreach ($interesados as $j => $miembro) {
+                $template->setValue("n-g#" . ($j + 1), ($j + 1));
+                $template->setValue("interesado#" . ($j + 1), $miembro["Interesado"]);
+                $template->setValue("requerimiento#" . ($j + 1), $miembro["Requerimiento"]);
+                $template->setValue("tipo#" . ($j + 1), $miembro["Tipo"]);
             }
-            
+
             $template->saveAs($tempfiledocx);
             $headers = [
                 'Content-Type' => 'application/msword',
                 'Content-Disposition' => 'attachment;filename="contexto.docx"',
             ];
             return response()->download($tempfiledocx, 'contexto.docx', $headers);
-        } else{
+        } else {
             return response([
                 "message" => "!No cuenta con ningún contexto en este periodo",
             ], 404);
         }
-    } 
+    }
 
     public function reportAnual(Request $request)
     {
@@ -567,66 +580,66 @@ class StandardController extends Controller
         $dates = DateModel::where(function ($query) use ($startYear, $startSemester, $endYear, $endSemester) {
             $query->where(function ($query) use ($startYear, $startSemester) {
                 $query->where('year', '>', $startYear)
-                      ->orWhere(function ($query) use ($startYear, $startSemester) {
-                          $query->where('year', $startYear)
-                                ->where('semester', '>=', $startSemester);
-                      });
+                    ->orWhere(function ($query) use ($startYear, $startSemester) {
+                        $query->where('year', $startYear)
+                            ->where('semester', '>=', $startSemester);
+                    });
             })
-            ->where(function ($query) use ($endYear, $endSemester) {
-                $query->where('year', '<', $endYear)
-                      ->orWhere(function ($query) use ($endYear, $endSemester) {
-                          $query->where('year', $endYear)
+                ->where(function ($query) use ($endYear, $endSemester) {
+                    $query->where('year', '<', $endYear)
+                        ->orWhere(function ($query) use ($endYear, $endSemester) {
+                            $query->where('year', $endYear)
                                 ->where('semester', '<=', $endSemester);
-                      });
-            });
+                        });
+                });
         })->get();
         try {
             $spreadsheet = IOFactory::load('Reporte-Anual-Plantilla.xlsx');
-            $cant_fil = $dates->count()-1;
+            $cant_fil = $dates->count() - 1;
             $hoja = $spreadsheet->getActiveSheet();
             //Definimos el ancho de las celdas
             foreach (range('A', 'G') as $columna) {
                 $hoja->getColumnDimension($columna)->setWidth(15);
-            } 
+            }
             //Insertamos las filas correspondientes a cada periodo         
-            $hoja->insertNewRowBefore(5, $cant_fil); 
+            $hoja->insertNewRowBefore(5, $cant_fil);
             $hoja->insertNewRowBefore(10 + $cant_fil, $cant_fil);
 
-            $filaInicio = 13+$cant_fil*2;
-            $filaFin = 39+$cant_fil*2;
+            $filaInicio = 13 + $cant_fil * 2;
+            $filaFin = 39 + $cant_fil * 2;
             $columnaFuente = 'E';
-            
+
             // Calcula las columnas de destino
             $columnasDestino = [];
             for ($i = 0; $i < $cant_fil; $i++) {
                 $columnasDestino[] = chr(ord($columnaFuente) + $i + 1);
             }
-            
+
             // Copia el estilo a las columnas de destino
             for ($fila = $filaInicio; $fila <= $filaFin; $fila++) {
                 $celdaFuente = $columnaFuente . $fila;
                 $estilo = $hoja->getStyle($celdaFuente);
-            
+
                 foreach ($columnasDestino as $columnaDestino) {
                     $celdaDestino = $columnaDestino . $fila;
                     $hoja->duplicateStyle($estilo, $celdaDestino);
                 }
             }
             //Variables para la suma de niveles
-            $filaI = $filaInicio+3;
-            $filaF = $filaI+6;
+            $filaI = $filaInicio + 3;
+            $filaF = $filaI + 6;
 
-            foreach ($dates as $k => $date){
+            foreach ($dates as $k => $date) {
                 $faculty = FacultyStaffModel::where("date_id", $date->id)->first();
-                $fila1Act = $k+4;
+                $fila1Act = $k + 4;
                 $hoja->setCellValue('A' . $fila1Act, $date->year . "-" . $date->semester);
                 $hoja->setCellValue('B' . $fila1Act, $faculty->number_extraordinary_professor);
                 $hoja->setCellValue('C' . $fila1Act, $faculty->number_ordinary_professor_main);
                 $hoja->setCellValue('D' . $fila1Act, $faculty->number_ordinary_professor_associate);
                 $hoja->setCellValue('E' . $fila1Act, $faculty->number_ordinary_professor_assistant);
-                
+
                 //2da tabla
-                $filaActual = $k+9+$cant_fil;
+                $filaActual = $k + 9 + $cant_fil;
                 $hoja->setCellValue('A' . $filaActual, $date->year . "-" . $date->semester);
                 $hoja->setCellValue('B' . $filaActual, $faculty->ordinary_professor_exclusive_dedication);
                 $hoja->setCellValue('C' . $filaActual, $faculty->ordinary_professor_fulltime);
@@ -640,31 +653,31 @@ class StandardController extends Controller
                 //3era tabla
                 $col = chr(ord($columnaFuente) + $k);
                 $hoja->setCellValue($col . $filaInicio, $date->year . "-" . $date->semester);
-                $hoja->setCellValue($col . $filaInicio+1, "=SUM($col$filaI:$col$filaF)");
-                $hoja->setCellValue($col . $filaInicio+2, $faculty->distinguished_researcher);
-                $hoja->setCellValue($col . $filaInicio+3, $faculty->researcher_level_i);
-                $hoja->setCellValue($col . $filaInicio+4, $faculty->researcher_level_ii);
-                $hoja->setCellValue($col . $filaInicio+5, $faculty->researcher_level_iii);
-                $hoja->setCellValue($col . $filaInicio+6, $faculty->researcher_level_vi);
-                $hoja->setCellValue($col . $filaInicio+7, $faculty->researcher_level_v);
-                $hoja->setCellValue($col . $filaInicio+8, $faculty->researcher_level_vi);
-                $hoja->setCellValue($col . $filaInicio+9, $faculty->researcher_level_vii);
+                $hoja->setCellValue($col . $filaInicio + 1, "=SUM($col$filaI:$col$filaF)");
+                $hoja->setCellValue($col . $filaInicio + 2, $faculty->distinguished_researcher);
+                $hoja->setCellValue($col . $filaInicio + 3, $faculty->researcher_level_i);
+                $hoja->setCellValue($col . $filaInicio + 4, $faculty->researcher_level_ii);
+                $hoja->setCellValue($col . $filaInicio + 5, $faculty->researcher_level_iii);
+                $hoja->setCellValue($col . $filaInicio + 6, $faculty->researcher_level_vi);
+                $hoja->setCellValue($col . $filaInicio + 7, $faculty->researcher_level_v);
+                $hoja->setCellValue($col . $filaInicio + 8, $faculty->researcher_level_vi);
+                $hoja->setCellValue($col . $filaInicio + 9, $faculty->researcher_level_vii);
                 //space
-                $hoja->setCellValue($col . $filaInicio+11, $faculty->number_publications_indexed);
-                $hoja->setCellValue($col . $filaInicio+12, $faculty->intellectual_property_indecopi);
-                $hoja->setCellValue($col . $filaInicio+13, $faculty->number_research_project_inexecution);
-                $hoja->setCellValue($col . $filaInicio+14, $faculty->number_research_project_completed);
-                $hoja->setCellValue($col . $filaInicio+15, $faculty->number_professor_inperson_academic_movility);
-                $hoja->setCellValue($col . $filaInicio+16, $faculty->number_professor_virtual_academic_movility);
+                $hoja->setCellValue($col . $filaInicio + 11, $faculty->number_publications_indexed);
+                $hoja->setCellValue($col . $filaInicio + 12, $faculty->intellectual_property_indecopi);
+                $hoja->setCellValue($col . $filaInicio + 13, $faculty->number_research_project_inexecution);
+                $hoja->setCellValue($col . $filaInicio + 14, $faculty->number_research_project_completed);
+                $hoja->setCellValue($col . $filaInicio + 15, $faculty->number_professor_inperson_academic_movility);
+                $hoja->setCellValue($col . $filaInicio + 16, $faculty->number_professor_virtual_academic_movility);
                 //Ultima tabla
-                $hoja->setCellValue($col . $filaInicio+19, $date->year . "-" . $date->semester);
-                $hoja->setCellValue($col . $filaInicio+20, $faculty->number_vacancies);
-                $hoja->setCellValue($col . $filaInicio+21, $faculty->number_applicants);
-                $hoja->setCellValue($col . $filaInicio+22, $faculty->number_admitted_candidates);
-                $hoja->setCellValue($col . $filaInicio+23, $faculty->number_enrolled_students);
-                $hoja->setCellValue($col . $filaInicio+24, $faculty->number_graduates);
-                $hoja->setCellValue($col . $filaInicio+25, $faculty->number_alumni);
-                $hoja->setCellValue($col . $filaInicio+26, $faculty->number_degree_recipients);
+                $hoja->setCellValue($col . $filaInicio + 19, $date->year . "-" . $date->semester);
+                $hoja->setCellValue($col . $filaInicio + 20, $faculty->number_vacancies);
+                $hoja->setCellValue($col . $filaInicio + 21, $faculty->number_applicants);
+                $hoja->setCellValue($col . $filaInicio + 22, $faculty->number_admitted_candidates);
+                $hoja->setCellValue($col . $filaInicio + 23, $faculty->number_enrolled_students);
+                $hoja->setCellValue($col . $filaInicio + 24, $faculty->number_graduates);
+                $hoja->setCellValue($col . $filaInicio + 25, $faculty->number_alumni);
+                $hoja->setCellValue($col . $filaInicio + 26, $faculty->number_degree_recipients);
             }
 
             $rutaTemporal = tempnam(sys_get_temp_dir(), 'excel');
@@ -672,10 +685,8 @@ class StandardController extends Controller
             $writer->save($rutaTemporal);
 
             return response()->download($rutaTemporal, "reporte_anual{$startYear}-{$startSemester}_{$endYear}-{$endSemester}.xlsx")->deleteFileAfterSend(true);
-
         } catch (\PhpOffice\PhpSpreadsheet\Reader\Exception $e) {
             die('Error al cargar el archivo: ' . $e->getMessage());
         }
-        
     }
 }

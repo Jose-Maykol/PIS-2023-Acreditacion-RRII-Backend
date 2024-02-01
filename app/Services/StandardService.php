@@ -73,7 +73,6 @@ class StandardService
         //$standard->standardStatus = $this->standardRepository->getAllStandardStatus();
         $standard->isManager = $this->userRepository->checkIfUserIsManagerStandard($standard_id, $userAuth);
         $standard->isAdministrator = $this->userRepository->isAdministrator($userAuth);
-
         return $standard;
     }
 

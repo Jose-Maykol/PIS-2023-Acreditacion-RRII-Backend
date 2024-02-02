@@ -49,6 +49,9 @@ Route::middleware("auth:sanctum")->prefix('standards')->group(function () {
         Route::get('', [NarrativasController::class, 'get'])->where('narrative_id', '[0-9]+');
         Route::put('', [NarrativasController::class, 'update']);
         Route::delete('', [NarrativasController::class, 'delete'])->where('narrative_id', '[0-9]+');
+        Route::post('block', [StandardController::class, 'blockNarrative'])->where('narrative_id', '[0-9]+');
+        Route::post('unlock', [StandardController::class, 'unlockNarrative'])->where('narrative_id', '[0-9]+');
+        Route::post('enable', [StandardController::class, 'enableNarrative'])->where('narrative_id', '[0-9]+');
         //Route::get('', [NarrativasController::class, 'listNarratives']);
         //Route::get('last/{narrative_id}', [NarrativasController::class, 'lastNarrative'])->where('narrative_id', '[0-9]+');
 

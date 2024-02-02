@@ -17,6 +17,7 @@ use App\Models\FacultyStaffModel;
 use App\Models\FileModel;
 use App\Models\FolderModel;
 use App\Models\IdentificationContextModel;
+use App\Models\UserStandardModel;
 use App\Services\EvidenceService;
 use App\Services\StandardService;
 use Exception;
@@ -333,118 +334,79 @@ class StandardController extends Controller
 			}
 	*/
 
-    public function getStandardEvidences(Request $request, $year, $semester, $standard_id, $evidence_type_id)
+    public function getStandardEvidences(StandardRequest $request, $year, $semester, $standard_id, $evidence_type_id)
     {
-        $request->validate([
-            'parent_id' => 'nullable|integer'
-        ]);
-
-        $idPlan = $request->input('plan_id');
-
-        $standardId = $standard_id;
-        $parentIdFolder = $request->parent_id;
-
-        $idTypeEvidence = $evidence_type_id;
-        $dateId = DateModel::dateId($year, $semester);
-
-        if ($request->parent_id) {
-            $queryRootFolder = FolderModel::where('standard_id', $standardId)->where('evidence_type_id', $idTypeEvidence)->where('date_id', $dateId)->where('parent_id', $parentIdFolder)->first();
-            if (!$queryRootFolder) {
-                return response()->json([
-                    "status" => 0,
-                    "message" => "Aun no hay evidencias para este estándar",
-                    "data" => [
-                        "evidences" => [],
-                        "folders" => []
-                    ]
-                ], 200);
-            } else {
-                $parentIdFolder = $queryRootFolder->id;
-            }
-        }
-
-        $evidencesQuery = FileModel::join('users', 'files.user_id', '=', 'users.id')
-            ->where('files.folder_id', $parentIdFolder)
-            ->where('files.evidence_type_id', $idTypeEvidence)
-            ->where('files.standard_id', $standardId)
-            ->select(
-                'files.id as file_id',
-                'files.name',
-                'files.path',
-                'files.file',
-                'files.size',
-                DB::raw('files.type as extension'),
-                'files.user_id',
-                'files.plan_id',
-                'files.folder_id',
-                'files.evidence_type_id',
-                'files.standard_id',
-                'files.date_id',
-                'files.created_at',
-                'files.updated_at',
-                DB::raw("CONCAT(users.name, ' ', users.lastname) as full_name")
-            );
-
-        if ($idPlan) {
-            $evidencesQuery->where('files.plan_id', $idPlan);
-        }
-
-        $evidences = $evidencesQuery->get();
-
-        foreach ($evidences as &$file) {
-            if (EvidenceModel::where('file_id', $file->evidence_id)->exists()) {
-                $file->evidence_code = EvidenceModel::where('file_id',$file->evidence_id)->value('code');
-            }
-        }
-
-        $folders = FolderModel::join('users', 'folders.user_id', '=', 'users.id')
-            ->where('folders.parent_id', $parentIdFolder)
-            ->where('folders.standard_id', $standardId)
-            ->where('folders.evidence_type_id', $idTypeEvidence)
-            ->select(
-                DB::raw("CONCAT('F-', folders.id) as code"),
-                'folders.id as folder_id',
-                'folders.path',
-                'folders.user_id',
-                'folders.parent_id',
-                'folders.evidence_type_id',
-                'folders.standard_id',
-                'folders.date_id',
-                'folders.created_at',
-                'folders.updated_at',
-                DB::raw("CONCAT(users.name, ' ', users.lastname) as full_name")
-            )
-            ->get();
-
-        foreach ($folders as &$folder) {
-            if (EvidenceModel::where('folder_id', $folder->folder_id)->exists()) {
-                $folder->evidence_code = EvidenceModel::where('folder_id',$folder->folder_id)->value('code');
-            }
-        }
-        /* if ($evidences->isEmpty() && $folders->isEmpty()) {
+        try {
+            $result = $this->standardService->getStandardEvidences($request);
+            return response()->json([
+                "status" => 1,
+                "data" => $result,
+            ], 200);
+        } catch (\App\Exceptions\Evidence\FolderNotFoundException $e) {
             return response()->json([
                 "status" => 0,
-                "message" => "No se encontraron evidencias",
-            ], 404);
-        } */
-
-        foreach ($evidences as &$evidence) {
-            //$evidence['extension'] = $evidence['type'];
-            unset($evidence['type']);
-            $evidence['type'] = 'evidence';
+                "message" => "Aun no hay evidencias para este estándar",
+                "data" => [
+                    "evidences" => [],
+                    "folders" => []
+                ]
+            ], $e->getCode());
         }
+        
+    }
 
-        foreach ($folders as &$folder) {
-            $folder['type'] = 'folder';
+    public function blockNarrative(Request $request)
+    {
+        try {
+            $result = $this->standardService->blockNarrative($request);
+            return response()->json([
+                "status" => 1,
+                "data" => $result,
+            ], 200);
+        } catch (\App\Exceptions\Standard\NarrativeIsBeingEditingException $e) {
+            return response()->json([
+                "status" => 0,
+                "message" => "La narrativa está siendo editada...",
+                "data" => [
+                    "user_name" => $e->getMessage()
+                ]
+            ], $e->getCode());
         }
+        
+    }
 
-        return response()->json([
-            "status" => 1,
-            "data" => [
-                "evidences" => $evidences,
-                "folders" => $folders,
-            ]
-        ]);
+    public function unlockNarrative(Request $request)
+    {
+        try {
+            $result = $this->standardService->unlockNarrative($request);
+            return response()->json([
+                "status" => 1,
+                "data" => $result,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                "status" => 0,
+                "message" => "No se pudo desbloquear la narrativa.",
+            ], $e->getCode());
+        }
+        
+    }
+
+    public function enableNarrative(Request $request)
+    {
+        try {
+            $result = $this->standardService->enableNarrative($request);
+            return response()->json([
+                "status" => 1,
+                "data" => $result,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                "status" => 0,
+                "message" => "No se pudo habilitar la narrativa.",
+            ], $e->getCode());
+        }
+        
     }
 
     public function searchEvidence($year, $semester, $standard_id)

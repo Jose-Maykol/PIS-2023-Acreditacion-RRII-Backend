@@ -19,7 +19,7 @@ class EvidenceRepository
             ->where('parent_id', null)
             ->first();
     }
-
+    /*
     public function getStandardEvidences($parent_folder_id, $evidence_type_id, $standard_id)
     {
         return EvidenceModel::join('users', 'evidences.user_id', '=', 'users.id')
@@ -39,19 +39,20 @@ class EvidenceRepository
             ->select('folders.*', DB::raw("CONCAT(users.name, ' ', users.lastname) as full_name"))
             ->get();
     }
+    */
 
     public function getEvidences($standard_id)
     {
         return EvidenceModel::join('files', 'evidences.file_id', '=', 'files.id')
-                            ->join('folders', 'evidences.folder_id', '=', 'folders.id')
-                            ->where('evidences.standard_id', $standard_id)
-                            ->select('evidences.id as value', 'files.file as label', 'folders.name', 'type')
-                            ->get();
+            ->join('folders', 'evidences.folder_id', '=', 'folders.id')
+            ->where('evidences.standard_id', $standard_id)
+            ->select('evidences.id as value', 'files.file as label', 'folders.name', 'type')
+            ->get();
     }
-    public function getEvidence($evidence_id)
+    public function getEvidence($file_folder_id)
     {
-        return EvidenceModel::with('folder.files')->where('id', $evidence_id)
-            ->orWhere('file_id', $evidence_id)
+        return EvidenceModel::with('folder.files')->where('folder_id', $file_folder_id)
+            ->orWhere('file_id', $file_folder_id)
             ->first();
     }
 
@@ -65,6 +66,61 @@ class EvidenceRepository
         return EvidenceModel::where($evidence_id)->exists();
     }
 
+    public function getStandardEvidences($parent_folder_id, $evidence_type_id, $standard_id)
+    {
+        return FileModel::join('users', 'files.user_id', '=', 'users.id')
+            ->where('files.folder_id', $parent_folder_id)
+            ->where('files.evidence_type_id', $evidence_type_id)
+            ->where('files.standard_id', $standard_id)
+            ->select(
+                'files.id as file_id',
+                'files.name',
+                'files.path',
+                'files.file',
+                'files.size',
+                DB::raw('files.type as extension'),
+                'files.user_id',
+                'files.plan_id',
+                'files.folder_id',
+                'files.evidence_type_id',
+                'files.standard_id',
+                'files.date_id',
+                'files.created_at',
+                'files.updated_at',
+                DB::raw("CONCAT(users.name, ' ', users.lastname) as full_name")
+            );
+    }
+    public function getStandardFolders($parent_folder_id, $evidence_type_id, $standard_id)
+    {
+        return FolderModel::join('users', 'folders.user_id', '=', 'users.id')
+            ->where('folders.parent_id', $parent_folder_id)
+            ->where('folders.standard_id', $standard_id)
+            ->where('folders.evidence_type_id', $evidence_type_id)
+            ->select(
+                'folders.id as folder_id',
+                'folders.path',
+                'folders.user_id',
+                'folders.parent_id',
+                'folders.evidence_type_id',
+                'folders.standard_id',
+                'folders.date_id',
+                'folders.created_at',
+                'folders.updated_at',
+                DB::raw("CONCAT(users.name, ' ', users.lastname) as full_name")
+            )
+            ->get();
+    }
+
+    public function getEvidenceFile($file_id)
+    {
+        return EvidenceModel::where('file_id', $file_id)
+            ->first();
+    }
+    public function getEvidenceFolder($folder_id)
+    {
+        return EvidenceModel::where('folder_id', $folder_id)
+            ->first();
+    }
     public function createFileEvidence(
         $name,
         $path,
@@ -205,6 +261,17 @@ class EvidenceRepository
             ->where('file_id', $file_id)
             ->exists();
     }
+
+    public function existsEvidenceFolderId($folder_id)
+    {
+        return EvidenceModel::where('folder_id', $folder_id)->exists();
+    }
+
+    public function existsEvidenceFileId($file_id)
+    {
+        return EvidenceModel::where('file_id', $file_id)->exists();
+    }
+
     public function moveFile($file, $newFolder, $pathRoot)
     {
         $oldPath = $file->path;
@@ -219,5 +286,4 @@ class EvidenceRepository
         $file->save();
         return $file;
     }
-    
 }

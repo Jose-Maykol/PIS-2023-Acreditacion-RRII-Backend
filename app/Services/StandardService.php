@@ -2,21 +2,31 @@
 
 namespace App\Services;
 
+use App\Models\DateModel;
+use App\Models\EvidenceModel;
+use App\Models\EvidenceTypeModel;
+use App\Models\FileModel;
+use App\Models\FolderModel;
 use App\Models\StandardStatusModel;
+use App\Repositories\EvidenceRepository;
+use App\Repositories\FolderRepository;
 use App\Repositories\StandardRepository;
 use App\Repositories\UserRepository;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StandardService
 {
 
     protected $standardRepository;
     protected $userRepository;
-
-    public function __construct(StandardRepository $standardRepository, UserRepository $userRepository)
+    protected $folderRepository;
+    protected $evidenceRepository;
+    public function __construct(EvidenceRepository $evidenceRepository, StandardRepository $standardRepository, UserRepository $userRepository, FolderRepository $folderRepository)
     {
-
+        $this->folderRepository = $folderRepository;
+        $this->evidenceRepository = $evidenceRepository;
         $this->standardRepository = $standardRepository;
         $this->userRepository = $userRepository;
     }
@@ -154,4 +164,133 @@ class StandardService
         $standardStatus = $this->standardRepository->getAllStandardStatus();
         return $standardStatus;
     }
+
+    public function getStandardEvidences(Request $request){
+        $year = $request->route('year');
+        $semester = $request->route('semester');
+
+        $standard_id = $request->route('standard_id');
+        $evidence_type_id = $request->route('evidence_type_id');
+        $parent_folder_id = $request->parent_id;
+        $plan_id = $request->plan_id;
+
+        $dateId = DateModel::dateId($year, $semester);
+        if ($parent_folder_id && !$this->folderRepository->exists($parent_folder_id)) {
+            throw new \App\Exceptions\Evidence\FolderNotFoundException();
+        }
+
+        $evidencesQuery = $this->evidenceRepository->getStandardEvidences($parent_folder_id, $evidence_type_id, $standard_id);
+
+        if ($plan_id) {
+            $evidencesQuery->where('files.plan_id', $plan_id);
+        }
+
+        $evidences = $evidencesQuery->get();
+
+        foreach ($evidences as &$file) {
+            if ($this->evidenceRepository->existsEvidenceFileId($file->file_id)) {
+                $evidence = $this->evidenceRepository->getEvidenceFile($file->file_id);
+                $file->evidence_code = $this->codeFormat($standard_id, $evidence_type_id, $evidence->code);
+                $file->evidence_id = $evidence->id;
+            }
+        }
+
+        $folders = $this->evidenceRepository->getStandardFolders($parent_folder_id, $evidence_type_id, $standard_id);
+
+        foreach ($folders as &$folder) {
+            if ($this->evidenceRepository->existsEvidenceFolderId($folder->folder_id)) {
+                $evidence = $this->evidenceRepository->getEvidenceFolder($folder->folder_id);
+                $folder->evidence_code = $this->codeFormat($standard_id, $evidence_type_id, $evidence->code);
+                $folder->evidence_id = $evidence->id;
+            }
+        }
+
+        foreach ($evidences as &$evidence) {
+            unset($evidence['type']);
+            $evidence['type'] = 'evidence';
+        }
+
+        foreach ($folders as &$folder) {
+            $folder['type'] = 'folder';
+        }
+
+        return [
+                "evidences" => $evidences,
+                "folders" => $folders,
+            ]
+        ;
+    }
+    private function codeFormat($standard_id, $evidence_type_id, $nro_code){
+        $code = "E";
+        if($evidence_type_id == EvidenceTypeModel::getPlanificationId()){
+            $code = $code . "P.";
+        }
+        if($evidence_type_id == EvidenceTypeModel::getResultId()){
+            $code = $code . "R.";
+        }
+        /*
+        if($evidence_type_id == EvidenceTypeModel::getImprovementId()){
+            $code = $code . "M";
+        }*/
+        $standard = $this->standardRepository->getStandardActiveById($standard_id);
+
+        if($nro_code < 10){
+            $nro_code = "0". $nro_code;
+        }
+        $code = $code . "E" . $standard->nro_standard . "." . $nro_code;
+        return $code;
+    }
+
+    public function activateNarrative(Request $request){
+        $standard_id = $request->standard_id;
+        if (!$this->standardRepository->getStandardActiveById($standard_id)) {
+            throw new \App\Exceptions\Standard\StandardNotFoundException();
+        }
+        $standard = $this->standardRepository->activateNarrative($standard_id);
+        return $standard;
+    }
+
+    public function blockNarrative(Request $request){
+        $standard_id = $request->route('standard_id');
+        $user = auth()->user();
+
+        if (!$this->standardRepository->getStandardActiveById($standard_id)) {
+            throw new \App\Exceptions\Standard\StandardNotFoundException();
+        }
+        if (!$this->userRepository->checkIfUserIsManagerStandard($standard_id, $user)) {
+            throw new \App\Exceptions\User\UserNotAuthorizedException();
+        }
+        if ($this->standardRepository->isBeingEdited($standard_id)){
+            throw new \App\Exceptions\Standard\NarrativeIsBeingEditingException($this->standardRepository->getUserBlockNarrative($standard_id));
+        }
+        $user_standard = $this->standardRepository->blockNarrative($standard_id, $user->id);
+        return $user_standard;
+    }
+    public function unlockNarrative(Request $request){
+        $standard_id = $request->route('standard_id');
+        $user = auth()->user();
+        if (!$this->standardRepository->getStandardActiveById($standard_id)) {
+            throw new \App\Exceptions\Standard\StandardNotFoundException();
+        }
+        if (!$this->userRepository->checkIfUserIsManagerStandard($standard_id, $user)) {
+            throw new \App\Exceptions\User\UserNotAuthorizedException();
+        }
+        $user_standard = $this->standardRepository->unblockNarrative($standard_id, $user->id);
+        return $user_standard;
+    }
+
+    public function enableNarrative(Request $request){
+        $standard_id = $request->route('standard_id');
+        $user = auth()->user();
+        if (!$this->standardRepository->getStandardActiveById($standard_id)) {
+            throw new \App\Exceptions\Standard\StandardNotFoundException();
+        }
+        if (!$this->userRepository->checkIfUserIsManagerStandard($standard_id, $user)) {
+            throw new \App\Exceptions\User\UserNotAuthorizedException();
+        }
+        $standard = $this->standardRepository->enableNarrative($standard_id);
+        return $standard;
+    }
+    
+
 }

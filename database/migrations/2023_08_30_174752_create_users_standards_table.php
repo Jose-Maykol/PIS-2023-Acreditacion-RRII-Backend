@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('standard_id')->constrained('standards');
+            $table->boolean('is_being_edited')->default(false);
             $table->timestamps();
         });
     }

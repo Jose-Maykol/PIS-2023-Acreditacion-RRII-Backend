@@ -264,7 +264,7 @@ class StandardService
             throw new \App\Exceptions\Standard\NarrativeIsBeingEditingException($this->standardRepository->getUserBlockNarrative($standard_id));
         }
         $user_standard = $this->standardRepository->blockNarrative($standard_id, $user->id);
-        return $user_standard;
+        return $this->standardRepository->getStandardActiveById($standard_id);
     }
     public function unlockNarrative(Request $request){
         $standard_id = $request->route('standard_id');

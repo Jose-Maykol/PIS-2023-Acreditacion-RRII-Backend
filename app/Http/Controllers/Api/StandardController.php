@@ -18,6 +18,7 @@ use App\Models\FileModel;
 use App\Models\FolderModel;
 use App\Models\IdentificationContextModel;
 use App\Models\UserStandardModel;
+use App\Repositories\StandardRepository;
 use App\Services\EvidenceService;
 use App\Services\StandardService;
 use Exception;
@@ -38,9 +39,10 @@ class StandardController extends Controller
 {
     protected $standardService;
     protected $evidenceService;
-
-    public function __construct(StandardService $standardService, EvidenceService $evidenceService)
+    protected $standardRepository;
+    public function __construct(StandardRepository $standardRepository, StandardService $standardService, EvidenceService $evidenceService)
     {
+        $this->standardRepository = $standardRepository;
 
         $this->standardService = $standardService;
         $this->evidenceService = $evidenceService;
@@ -390,6 +392,37 @@ class StandardController extends Controller
             ], $e->getCode());
         }
         
+    }
+    public function updateNarrative($year, $semester, $standard_id, Request $request)
+    {
+        /*
+            ruta(put): /api/standards/{standard_id}/narratives/
+            ruta(put): /api/2023/A/standards/1/narratives/
+            datos:
+            {
+                "id":"1",
+                "narrative":"Update Narrativa"
+            }
+        */
+        $request->validate([
+            "narrative" => "present|required",
+        ]);
+        if (StandardModel::where("id", $standard_id)->exists()) {
+            $standard = StandardModel::find($standard_id);
+            $standard->update([
+                "narrative" => $request->narrative,
+            ]);
+            $this->standardRepository->unblockNarrative($standard_id, auth()->user()->id);
+            return response([
+                "status" => 1,
+                "message" => "Narrativa actualizada",
+            ], 200);
+        } else {
+            return response([
+                "status" => 0,
+                "message" => "No se encontro la narrativa",
+            ], 404);
+        }
     }
 
     public function enableNarrative(Request $request)

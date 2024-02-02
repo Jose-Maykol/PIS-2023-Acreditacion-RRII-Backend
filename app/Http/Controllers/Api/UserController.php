@@ -23,16 +23,7 @@ class UserController extends Controller
 		$this->userService = $userService;
 	}
 
-    /*
-		ruta(post): localhost:8000/api/2023/A/users/register
-		ruta(post): localhost:8000/api/2023/A/users/register
-		datos:
-			{
-				"email":"pfloresq5@unsa.edu.pe",
-    			"role":"administrador"
-                "access_token": "11|s3NwExv5FWC7tmsqFUfyB48KFTM6kajH7A1oN3u3"
-			}
-	*/
+    //Registrar usuario
     public function register(UserRequest $request)
     {
 		try{
@@ -175,7 +166,7 @@ class UserController extends Controller
 			}
 	*/
 
-    public function update(Request $request){
+    public function updateUser(Request $request){
 		$request->validate([
 
 			"id"=>"exists:users,id",

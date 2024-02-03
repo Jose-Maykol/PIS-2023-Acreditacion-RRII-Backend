@@ -128,7 +128,7 @@ class EvidenceService
         $pathRoot = 'evidencias/' . $year . '/' . $semester . '/' . 'estandar_' . $standard->nro_standard . '/tipo_evidencia_' . $evidence_type->description;
 
         $data = null;
-        if ($evidence->file) {
+        if ($evidence->file_id) {
             $path = storage_path('app/' . $pathRoot . $evidence->file->path);
             $extension = pathinfo($path, PATHINFO_EXTENSION);
             $fileContents = file_get_contents($path);
@@ -138,7 +138,7 @@ class EvidenceService
                 "extension" => $extension,
                 "content" => $base64Content
             ];
-        } elseif ($evidence->folder) {
+        } elseif ($evidence->folder_id) {
             $data = $evidence->folder->files;
         }
 

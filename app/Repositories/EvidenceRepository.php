@@ -49,10 +49,9 @@ class EvidenceRepository
             ->select('evidences.id as value', 'files.file as label', 'folders.name', 'type')
             ->get();
     }
-    public function getEvidence($file_folder_id)
+    public function getEvidence($evidence_id)
     {
-        return EvidenceModel::with('folder.files')->where('folder_id', $file_folder_id)
-            ->orWhere('file_id', $file_folder_id)
+        return EvidenceModel::where('id', $evidence_id)
             ->first();
     }
 

@@ -16,12 +16,10 @@ Route::middleware("auth:sanctum")->prefix('evidences')->group(function () {
     Route::get('files/{file_id}/download', [EvidencesController::class, 'downloadFile'])->where('file_id', '[0-9]+');
     Route::patch('files/{file_id}/rename', [EvidencesController::class, 'renameFile'])->where('file_id', '[0-9]+');
     Route::patch('files/{file_id}/move', [EvidencesController::class, 'moveFile'])->where('file_id', '[0-9]+');
-    Route::delete('files/{file_id}', [EvidencesController::class, 'deleteFile'])->where('file_id', '[0-9]+');
+    Route::delete('files/{file_id}', [EvidencesController::class, 'deleteFile'])->where('file_id', '[0-9]+');  
+    Route::get('export', [EvidencesController::class, 'reportAllEvidences']);
 
-    
-    /*Route::get('export', [EvidenciasController::class, 'reportAllEvidences']);
-
-
+/*
     Route::post('various', [EvidenciasController::class, 'createEvidence']);
     Route::get('{evidence_id}/download', [EvidenciasController::class, 'download'])->where('evidence_id', '[0-9]+');
     Route::get('{evidence_id}/view', [EvidenciasController::class, 'view'])->where('evidence_id', '[0-9]+');

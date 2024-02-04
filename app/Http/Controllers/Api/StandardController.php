@@ -559,9 +559,13 @@ class StandardController extends Controller
         if ($contexto->count() > 0) {
             $key = $contexto[0];
             $template->setValue("direccion-sede", $key->address_headquarters);
-            $lugar = json_decode($key->region_province_district);
-            $p = $lugar[0];
-            $template->setValue("región-provincia", $p->region . " / " . $p->provincia . " / " . $p->distrito);
+            $region_province_district = json_encode($key->region_province_district);
+            $lugar = json_decode($region_province_district);
+            /* return response([
+                "message" => $lugar,
+            ], 200); */
+            $p = $lugar;
+            $template->setValue("región-provincia", $p->region . " / " . $p->province . " / " . $p->district);
 
             $template->setValue("telefono-institucional", $key->institutional_telephone);
             $template->setValue("página-web", $key->web_page);
@@ -587,10 +591,10 @@ class StandardController extends Controller
             $template->cloneRow('n-c', count($miembrosComite));
             foreach ($miembrosComite as $i => $miembro) {
                 $template->setValue("n-c#" . ($i + 1), ($i + 1));
-                $template->setValue("nombre-miembro#" . ($i + 1), $miembro["Nombre"]);
-                $template->setValue("cargo-miembro#" . ($i + 1), $miembro["Cargo"]);
-                $template->setValue("correo#" . ($i + 1), $miembro["Correo"]);
-                $template->setValue("telefono#" . ($i + 1), $miembro["Teléfono"]);
+                $template->setValue("nombre-miembro#" . ($i + 1), $miembro["name"]);
+                $template->setValue("cargo-miembro#" . ($i + 1), $miembro["position"]);
+                $template->setValue("correo#" . ($i + 1), $miembro["email"]);
+                $template->setValue("telefono#" . ($i + 1), $miembro["telephone"]);
             }
 
             //Tabla de interesados
@@ -598,9 +602,9 @@ class StandardController extends Controller
             $template->cloneRow('n-g', count($interesados));
             foreach ($interesados as $j => $miembro) {
                 $template->setValue("n-g#" . ($j + 1), ($j + 1));
-                $template->setValue("interesado#" . ($j + 1), $miembro["Interesado"]);
-                $template->setValue("requerimiento#" . ($j + 1), $miembro["Requerimiento"]);
-                $template->setValue("tipo#" . ($j + 1), $miembro["Tipo"]);
+                $template->setValue("interesado#" . ($j + 1), $miembro["interested"]);
+                $template->setValue("requerimiento#" . ($j + 1), $miembro["main_requirement_study_program"]);
+                $template->setValue("tipo#" . ($j + 1), $miembro["type"]);
             }
 
             $template->saveAs($tempfiledocx);

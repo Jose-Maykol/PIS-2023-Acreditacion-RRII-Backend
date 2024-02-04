@@ -4,6 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\EvidenceRequest;
+use App\Models\DateModel;
+use App\Models\EvidenceModel;
+use App\Models\EvidenceTypeModel;
+use App\Models\StandardModel;
 use App\Services\EvidenceService;
 use Exception;
 use Illuminate\Support\Facades\Storage;
@@ -208,14 +212,6 @@ class EvidencesController extends Controller
         }
     }
 
-
-
-
-
-
-
-
-
     private function getContentType($extension)
     {
         $contentTypes = [
@@ -228,8 +224,6 @@ class EvidencesController extends Controller
         }
         return 'application/octet-stream';
     }
-
-
 
     public function reportAllEvidences(Request $request)
     {
@@ -275,15 +269,15 @@ class EvidencesController extends Controller
                 foreach ($dates as $j => $date) {
                     $template->setValue('year#' . ($j + 1) . '#' . ($key + 1), $date->year);
                     $template->setValue('semester#' . ($j + 1) . '#' . ($key + 1), $date->semester);
-                    $evidencesCount = Evidence::where("standard_id", $standard->id)->where("date_id", $date->id)->count();
+                    $evidencesCount = EvidenceModel::where("standard_id", $standard->id)->where("date_id", $date->id)->count();
                     if ($evidencesCount > 0) {
                         $template->cloneRow('n#' . ($j + 1) . '#' . ($key + 1), $evidencesCount);
-                        $evidencias = Evidence::where("standard_id", $standard->id)->where("date_id", $date->id)->get();
+                        $evidencias = EvidenceModel::where("standard_id", $standard->id)->where("date_id", $date->id)->get();
                         foreach ($evidencias as $m => $evidence) {
                             $template->setValue('n#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), ($m + 1));
                             $template->setValue('codigo#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), "No data");
                             $template->setValue('nombre#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), $evidence->name);
-                            $template->setValue('tipo#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), EvidenciasTipo::evidenceId($evidence->evidence_type_id));
+                            $template->setValue('tipo#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), EvidenceTypeModel::evidenceId($evidence->evidence_type_id));
                             $template->setValue('tamaño#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), $evidence->size);
                             $template->setValue('fecha#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), $evidence->created_at);
                         }

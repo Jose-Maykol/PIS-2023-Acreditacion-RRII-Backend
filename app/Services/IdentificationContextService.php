@@ -92,7 +92,7 @@ class IdentificationContextService
         $date_id = $this->dateSemesterRepository->dateId($year, $semester);
 
         $fields = ['name', 'lastname', 'position', 'email', 'telephone'];
-        $filteredData = array_map(function ($member) use ($fields) {
+        /* $filteredData = array_map(function ($member) use ($fields) {
             return Arr::only($member, $fields);
         }, $data['members_quality_committee']);
 
@@ -110,7 +110,7 @@ class IdentificationContextService
             return Arr::only($region, $fields);
         }, $data['region_province_district']);
 
-        $data['region_province_district'] = $filteredData;
+        $data['region_province_district'] = $filteredData; */
 
         $ident_cont = $this->identContRepository->updateIdentificationContext($date_id, $data);
 

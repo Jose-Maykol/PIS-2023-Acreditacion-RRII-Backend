@@ -133,11 +133,12 @@ class EvidenceService
             $extension = pathinfo($path, PATHINFO_EXTENSION);
             $fileContents = file_get_contents($path);
             $base64Content = base64_encode($fileContents);
-            $data = [
+            $evidence_array = array(
                 "name" => $evidence->file->name,
                 "extension" => $extension,
                 "content" => $base64Content
-            ];
+            );
+            $data = [$evidence_array];
         } elseif ($evidence->folder_id) {
             $data = $evidence->folder->files;
         }

@@ -10,12 +10,18 @@ use App\Models\StandardModel;
 use App\Models\NarrativeModel;
 use App\Models\RegistrationStatusModel;
 use App\Models\User;
+use App\Repositories\StandardRepository;
 use Illuminate\Support\Facades\Validator;
 
 
 
 class NarrativasController extends Controller
 {
+    protected $standardRepository;
+    public function __construct(StandardRepository $standardRepository)
+    {
+        $this->standardRepository = $standardRepository;
+    }
     /* public function create($year, $semester, $standard_id, Request $request)
     {
         
@@ -122,7 +128,25 @@ class NarrativasController extends Controller
             $standard = StandardModel::where("id", $standard_id)->select("id", "narrative")->first();
             $standard->isManager = auth()->user()->isAssignStandard($standard_id);
             $standard->isAdministrator = auth()->user()->isAdmin();
-            return response([
+            if ($this->standardRepository->isBeingEdited($standard_id)) {
+                $standard->isBlock = true;
+                $user = $this->standardRepository->getUserBlockNarrative($standard_id);
+                if ($user->providers()->first() !== null) {
+                    $user->avatar = $user->providers()->first()->avatar;
+                } else {
+                    $user->avatar = null;
+                }
+                $standard->block_user = [
+                    'user_name' => $user->lastname . ' ' . $user->name,
+                    'user_email' => $user->email,
+                    'user_avatar' => $user->avatar
+                ];
+                return $user;
+            }
+            else {
+                $standard->isBlock = false;
+            }
+            return response()->json([
                 "status" => 1,
                 "data" => $standard,
             ], 200);

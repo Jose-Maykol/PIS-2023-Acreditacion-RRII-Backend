@@ -129,16 +129,16 @@ class EvidenceService
 
         $data = null;
         if ($evidence->file_id) {
-            $path = storage_path('app/' . $pathRoot . $evidence->file->path);
-            $extension = pathinfo($path, PATHINFO_EXTENSION);
-            $fileContents = file_get_contents($path);
-            $base64Content = base64_encode($fileContents);
-            $evidence_array = array(
+            //$path = storage_path('app/' . $pathRoot . $evidence->file->path);
+            //$extension = pathinfo($path, PATHINFO_EXTENSION);
+            //$fileContents = file_get_contents($path);
+            //$base64Content = base64_encode($fileContents);
+            /*$evidence_array = array(
                 "name" => $evidence->file->name,
                 "extension" => $extension,
                 "content" => $base64Content
-            );
-            $data = [$evidence_array];
+            );*/
+            $data = [$evidence->file];
         } elseif ($evidence->folder_id) {
             $data = $evidence->folder->files;
         }

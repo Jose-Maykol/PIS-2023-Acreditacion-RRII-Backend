@@ -158,10 +158,10 @@ class PlanService
 
     }
 
-    public function listPlanUser($year, $semester){
+    public function listPlanUser($year, $semester, $items, $currentPage, $search){
         $userAuth = auth()->user();
 
-        $plans = $this->planRepository->listPlanUser($year, $semester, $userAuth->id);
+        $plans = $this->planRepository->listPlanUser($year, $semester, $userAuth->id, $items, $currentPage, $search);
         foreach ($plans as $plan) {
             $plan->isCreator = ($plan->user_id == $userAuth->id) ? true : false;
             unset($plan->user_id);

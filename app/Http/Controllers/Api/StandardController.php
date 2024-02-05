@@ -361,10 +361,15 @@ class StandardController extends Controller
     {
         try {
             $result = $this->standardService->blockNarrative($request);
-            return response()->json([
+            $data = !empty($result['user_name']) ? [
+                "status" => 1,
+                "message" => "El usuario " . $result['user_name'] . " " . "está editando esta narrativa.",
+                "data" => $result
+            ] : [
                 "status" => 1,
                 "data" => $result,
-            ], 200);
+            ];
+            return response()->json($data, 200);
         } catch (\App\Exceptions\Standard\NarrativeIsBeingEditingException $e) {
             return response()->json([
                 "status" => 0,

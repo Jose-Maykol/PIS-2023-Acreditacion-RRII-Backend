@@ -152,7 +152,7 @@ class StandardRepository
         $user_standard = UserStandardModel::where('standard_id', $standard_id)->where('is_being_edited', true)->first();
         $user = User::find($user_standard->user_id);
 
-        return "" . $user->name . " ". $user->lastname;
+        return $user;
     }
 
     public function enableNarrative($standard_id){

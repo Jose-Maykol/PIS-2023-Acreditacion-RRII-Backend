@@ -141,7 +141,6 @@ class NarrativasController extends Controller
                     'user_email' => $user->email,
                     'user_avatar' => $user->avatar
                 ];
-                return $user;
             }
             else {
                 $standard->isBlock = false;

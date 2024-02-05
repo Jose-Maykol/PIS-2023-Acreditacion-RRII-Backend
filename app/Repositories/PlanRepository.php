@@ -64,10 +64,20 @@ class PlanRepository
             ->get();
     }
 
-    public function listPlanUser($year, $semester, $user_id){
-        return $this->listPlanQuery($year, $semester)
-            ->where('user_id', $user_id)
-            ->get();
+    public function listPlanUser($year, $semester, $user_id, $items, $currentPage, $search){
+        $query = $this->listPlanQuery($year, $semester)
+            ->where('plans.user_id', $user_id);
+
+        if (!empty($search)) {
+            $query->where(function ($query) use ($search) {
+                $query->where('plans.name', 'ilike', '%' . $search . '%')
+                    ->orWhere('plans.code', 'ilike', '%' . $search . '%');
+            });
+        }
+        
+        $plans = $query->paginate($items, ['*'], 'page', $currentPage);
+
+        return $plans;
     }
 
     protected function listPlanQuery($year, $semester){

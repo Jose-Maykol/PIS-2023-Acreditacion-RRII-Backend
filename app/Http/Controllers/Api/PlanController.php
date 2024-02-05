@@ -254,14 +254,25 @@ class PlanController extends Controller
         }
     }
 */
-    public function listPlanUser($year, $semester)
+    public function listPlanUser($year, $semester, PlanRequest $request)
     {
+        $items = $request->input('items') ?? 8;
+		$currentPage = $request->input('page') ?? 1;
+		$search = $request->input('search', '');
+
         try{
-            $result = $this->planService->listPlanUser($year, $semester);
+            $result = $this->planService->listPlanUser($year, $semester, $items, $currentPage, $search);
             return response([
                 "status" => 1,
-                "message" => "!Planes de mejora",
-                "data" => $result,
+                "message" => "Planes de mejora del usuario",
+                "data" => [
+                    "improvement_plans" => $result->items(),
+                    "total" => $result->total(),
+                    "per_page" => $result->perPage(),
+                    "current_page" => $result->currentPage(),
+                    "last_page" => $result->lastPage(),
+                    "has_more_pages" => $result->hasMorePages(),
+                ]
             ], 200);
         }
         catch (Exception $e) {

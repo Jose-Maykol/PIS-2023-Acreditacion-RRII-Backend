@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\Evidence;
 use App\Models\Folder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 use App\Models\DateModel;
 use App\Models\FacultyStaffModel;
 use App\Models\IdentificationContextModel;
@@ -94,5 +95,27 @@ class DateSemesterRepository
     }
     public function dateId($year, $semester){
         return DateModel::where('year', $year)->where('semester', $semester)->value('id');
+    }
+
+    public function getDatesByRange($startYear, $startSemester, $endYear, $endSemester){
+
+        $dates = DateModel::where(function ($query) use ($startYear, $startSemester, $endYear, $endSemester) {
+            $query->where(function ($query) use ($startYear, $startSemester) {
+                $query->where('year', '>', $startYear)
+                      ->orWhere(function ($query) use ($startYear, $startSemester) {
+                          $query->where('year', $startYear)
+                                ->where('semester', '>=', $startSemester);
+                      });
+            })
+            ->where(function ($query) use ($endYear, $endSemester) {
+                $query->where('year', '<', $endYear)
+                      ->orWhere(function ($query) use ($endYear, $endSemester) {
+                          $query->where('year', $endYear)
+                                ->where('semester', '<=', $endSemester);
+                      });
+            });
+        })->get();
+
+        return $dates;
     }
 }

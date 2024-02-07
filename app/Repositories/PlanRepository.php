@@ -54,6 +54,10 @@ class PlanRepository
         return $plan;
     }
 
+    public function getPlansByDate($year, $semester){
+        return PlanModel::where("date_id", DateModel::dateId($year, $semester))->get();
+    }
+
     public function listPlanAll($year, $semester){
         return $this->listPlanQuery($year, $semester)->get();
     }

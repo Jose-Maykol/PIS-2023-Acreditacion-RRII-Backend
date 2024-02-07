@@ -302,6 +302,7 @@ class StandardService
         $standard = $this->standardRepository->enableNarrative($standard_id);
         return $standard;
     }
+
     
 
 }

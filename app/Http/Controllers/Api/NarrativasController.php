@@ -11,6 +11,8 @@ use App\Models\NarrativeModel;
 use App\Models\RegistrationStatusModel;
 use App\Models\User;
 use App\Repositories\StandardRepository;
+use App\Services\NarrativeService;
+
 use Illuminate\Support\Facades\Validator;
 
 
@@ -18,9 +20,12 @@ use Illuminate\Support\Facades\Validator;
 class NarrativasController extends Controller
 {
     protected $standardRepository;
-    public function __construct(StandardRepository $standardRepository)
+    protected $narrativeService;
+
+    public function __construct(StandardRepository $standardRepository, NarrativeService $narrativeService)
     {
         $this->standardRepository = $standardRepository;
+        $this->narrativeService = $narrativeService;
     }
     /* public function create($year, $semester, $standard_id, Request $request)
     {
@@ -188,72 +193,9 @@ class NarrativasController extends Controller
     }*/
 
     // api/narratives/export
-    public function reportAll(Request $request)
+    public function reportAllNarratives(Request $request)
     {
-        $tempfiledocx = tempnam(sys_get_temp_dir(), 'PHPWord');
-        $template = new \PhpOffice\PhpWord\TemplateProcessor('plantilla-narrativa-v3.docx');
-        //Rango de periodos
-        $startYear = $request->input('startYear');
-        $startSemester = $request->input('startSemester');
-        $endYear = $request->input('endYear');
-        $endSemester = $request->input('endSemester');
-        $dates = DateModel::where(function ($query) use ($startYear, $startSemester, $endYear, $endSemester) {
-            $query->where(function ($query) use ($startYear, $startSemester) {
-                $query->where('year', '>', $startYear)
-                      ->orWhere(function ($query) use ($startYear, $startSemester) {
-                          $query->where('year', $startYear)
-                                ->where('semester', '>=', $startSemester);
-                      });
-            })
-            ->where(function ($query) use ($endYear, $endSemester) {
-                $query->where('year', '<', $endYear)
-                      ->orWhere(function ($query) use ($endYear, $endSemester) {
-                          $query->where('year', $endYear)
-                                ->where('semester', '<=', $endSemester);
-                      });
-            });
-        })->get();
-        
-
-        $standards = StandardModel::where("date_id", 1)->orderBy('nro_standard')->get();
-        if($standards->count() > 0){
-            $template->cloneBlock('block_periodo', $dates->count(), true, true);
-            $template->cloneBlock('block_estandar', $standards->count(), true, true);
-
-            foreach ($standards as $key => $standard){
-                // Dimensión
-                $template->setValue('dimension#'. ($key + 1) , $standard->dimension);
-                // Factor
-                $template->setValue('factor#'. ($key + 1) , $standard->factor);
-                // Estandar
-                $template->setValue('n#'. ($key + 1) , $standard->nro_standard);
-                $template->setValue('estandar#'. ($key + 1) , $standard->name);
-                
-                
-                //Periodos
-                foreach ($dates as $j => $date){
-                    $template->setValue('year#' . ($j + 1) . '#'.($key + 1) , $date->year);
-                    $template->setValue('semester#' . ($j + 1) . '#'.($key + 1) , $date->semester);
-                    $estandar = StandardModel::where("nro_standard", $standard->nro_standard)->where("date_id", $date->id)->first();
-                    if($estandar != null && $estandar->narrative != null){
-                        $template->setValue('narrativa#' . ($j + 1) . '#'.($key + 1) , $estandar->narrative);
-                    }
-                    else{
-                        $template->setValue('narrativa#' . ($j + 1) . '#'.($key + 1) , "Este periodo no tiene ningún estándar o narrativa");
-                    }
-                } 
-            }
-
-            $template->saveAs($tempfiledocx);
-            $headers = [
-                'Content-Type' => 'application/msword',
-                'Content-Disposition' => 'attachment;filename="narrativas.docx"',
-            ];
-            return response()->download($tempfiledocx, "reporte-narrativas {$startYear}-{$startSemester}_{$endYear}-{$endSemester}.docx", $headers);
-        } else{
-            return response([
-                "message" => "!No cuenta con ningún estándar todavía en este periodo",
-            ], 404);
-        }
+        $result = $this->narrativeService->reportAllNarratives($request);
+        return $result;
     } 
 }

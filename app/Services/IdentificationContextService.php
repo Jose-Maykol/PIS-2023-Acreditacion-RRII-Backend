@@ -172,7 +172,7 @@ class IdentificationContextService
         } else {
             $tempfiledocx = tempnam(sys_get_temp_dir(), 'PHPWord');
             $template = new \PhpOffice\PhpWord\TemplateProcessor('plantilla-contexto.docx');
-            $key = $contexto[0];
+            $key = $contexto;
             $template->setValue("direccion-sede", $key->address_headquarters);
             $region_province_district = json_encode($key->region_province_district);
             $lugar = json_decode($region_province_district);

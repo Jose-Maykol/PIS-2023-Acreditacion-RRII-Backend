@@ -89,4 +89,18 @@ class IdentificationContextController extends Controller
         }
     }
 
+    public function reportContext($year, $semester)
+    {
+        try {
+            $result = $this->identContextService->reportContext($year, $semester);
+            return $result;
+        } 
+        catch (\App\Exceptions\IdentificationContext\ContextNotFoundException $e) {
+            return response()->json([
+                'status' => 0,
+                'message' => $e->getMessage(),
+            ], $e->getCode());
+        }
+    }
+
 }

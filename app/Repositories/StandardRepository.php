@@ -7,6 +7,7 @@ use App\Models\RegistrationStatusModel;
 use App\Models\StandardModel;
 use App\Models\StandardStatusModel;
 use App\Models\User;
+use App\Models\UserStandardModel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -124,5 +125,40 @@ class StandardRepository
         return StandardStatusModel::where('id', $standard_status_id)
             ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
             ->first();
+    }
+    public function activateNarrative($standard_id){
+        $standard = $this->getStandardById($standard_id);
+        $standard->narrative_is_active = true;
+        $standard->save();
+        return $standard;
+    }
+
+    public function isBeingEdited($standard_id){
+        return UserStandardModel::where('standard_id', $standard_id)->where('is_being_edited', true)->exists();
+    }
+    public function blockNarrative($standard_id, $user_id){
+        $user_standard = UserStandardModel::where('standard_id', $standard_id)->where('user_id', $user_id)->first();
+        $user_standard->is_being_edited = true;
+        $user_standard->save();
+        return $user_standard;
+    }
+    public function unblockNarrative($standard_id, $user_id){
+        $user_standard = UserStandardModel::where('standard_id', $standard_id)->where('user_id', $user_id)->first();
+        $user_standard->is_being_edited = false;
+        $user_standard->save();
+        return $user_standard;
+    }
+    public function getUserBlockNarrative($standard_id){
+        $user_standard = UserStandardModel::where('standard_id', $standard_id)->where('is_being_edited', true)->first();
+        $user = User::find($user_standard->user_id);
+
+        return $user;
+    }
+
+    public function enableNarrative($standard_id){
+        $standard = StandardModel::find($standard_id);
+        $standard->narrative_is_active = true;
+        $standard->save();
+        return $standard;
     }
 }

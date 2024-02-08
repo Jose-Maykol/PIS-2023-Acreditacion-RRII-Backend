@@ -158,15 +158,102 @@ class PlanService
 
     }
 
-    public function listPlanUser($year, $semester){
+    public function listPlanUser($year, $semester, $items, $currentPage, $search){
         $userAuth = auth()->user();
 
-        $plans = $this->planRepository->listPlanUser($year, $semester, $userAuth->id);
+        $plans = $this->planRepository->listPlanUser($year, $semester, $userAuth->id, $items, $currentPage, $search);
         foreach ($plans as $plan) {
             $plan->isCreator = ($plan->user_id == $userAuth->id) ? true : false;
             unset($plan->user_id);
         }
         return $plans;
+    }
+
+    public function exportPlanResume($year, $semester){
+        $planes = $this->planRepository->getPlansByDate($year, $semester);
+        if(!($planes->count() > 0)){
+            throw new \App\Exceptions\Plan\PlansNotFoundByDateException();
+        } 
+        else {
+            $suma_planificados = 0;
+            $suma_reprogramados = 0;
+            $suma_concluidos = 0;
+            $suma_proceso = 0;
+
+            $tempfiledocx = tempnam(sys_get_temp_dir(), 'PHPWord');
+            $template = new \PhpOffice\PhpWord\TemplateProcessor('resumen_planes_mejorav4.docx');
+
+            $template->cloneRow('n', $planes->count());
+
+            //0 Periodo
+            $template->setValue('year', $year);
+            $template->setValue('semester', $semester);
+
+            foreach ($planes as $key => $plan){
+                
+                // Numero
+                $template->setValue('n#'. ($key + 1) , ($key + 1));
+    
+                //1 Código
+                $template->setValue('codigo#'. ($key + 1) , $plan->code);
+
+                //2 Denominación
+                $template->setValue('name#'. ($key + 1) , $plan->name);
+
+                //3 Plan Status
+                //planificado
+                if($plan->plan_status_id == 1){
+                    $template->setValue('planificado#'. ($key + 1) , "X");
+                    $template->setValue('concluido#'. ($key + 1) , "");
+                    $template->setValue('proceso#'. ($key + 1) , "");
+                    $template->setValue('reprogramado#'. ($key + 1) , "");
+
+                    $suma_planificados++;
+                }
+                //en proceso = en desarrollo
+                if($plan->plan_status_id == 2){
+                    $template->setValue('proceso#' . ($key + 1) , "X");
+                    $template->setValue('concluido#' . ($key + 1) , "");
+                    $template->setValue('planificado#' . ($key + 1) , "");
+                    $template->setValue('reprogramado#' . ($key + 1) , "");
+
+                    $suma_proceso++;
+                }
+                //concluido = completado
+                if($plan->plan_status_id == 3){
+                    $template->setValue('proceso#' . ($key + 1) , "");
+                    $template->setValue('concluido#' . ($key + 1) , "X");
+                    $template->setValue('planificado#' . ($key + 1) , "");
+                    $template->setValue('reprogramado#' . ($key + 1) , "");
+
+                    $suma_concluidos++;
+                }
+                //reprogramado = postergado
+                if($plan->plan_status_id == 4){
+                    $template->setValue('reprogramado#' . ($key + 1) , "X");
+                    $template->setValue('concluido#' . ($key + 1) , "");
+                    $template->setValue('planificado#' . ($key + 1) , "");
+                    $template->setValue('proceso#' . ($key + 1) , "");
+
+                    $suma_reprogramados++;
+                }
+            }
+            //4 Suma finales
+            $template->setValue('suma_c', $suma_concluidos);
+            $template->setValue('suma_pr', $suma_proceso);
+            $template->setValue('suma_r', $suma_reprogramados);
+            $template->setValue('suma_pl', $suma_planificados);
+
+            $template->saveAs($tempfiledocx);
+            $headers = [
+                'Content-Type' => 'application/msword',
+                'Content-Disposition' => 'attachment;filename="planes.docx"',
+                'status' => 1,
+                'message' => "Reporte de resumen de planes de mejora del periodo $year-$semester",
+            ];
+            return response()
+                ->download($tempfiledocx, $year . '-' . $semester . '_resumen_planes.docx', $headers);
+        }
     }
 
 }

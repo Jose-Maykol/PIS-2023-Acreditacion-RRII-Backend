@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\FacultyStaffRequest;
 use App\Services\DateSemesterService;
 use App\Services\FacultyStaffService;
+use Illuminate\Http\Request;
+
 use Exception;
 
 class FacultyStaffController extends Controller
@@ -86,4 +88,9 @@ class FacultyStaffController extends Controller
         }
     }
 
+    public function reportAnual(Request $request)
+    {
+        $result = $this->facultyStaffService->reportAnual($request);
+        return $result;
+    }
 }

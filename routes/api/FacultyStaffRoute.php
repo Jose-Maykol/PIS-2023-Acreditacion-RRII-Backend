@@ -8,4 +8,5 @@ Route::middleware("auth:sanctum")->prefix('faculty-staff')->group(function () {
     Route::post('', [FacultyStaffController::class, 'createFacultyStaff']);
     Route::put('', [FacultyStaffController::class, 'updateFacultyStaff']);
     Route::get('', [FacultyStaffController::class, 'getFacultyStaff']);
+    Route::get('/export', [FacultyStaffController::class, 'reportAnual']);
 });

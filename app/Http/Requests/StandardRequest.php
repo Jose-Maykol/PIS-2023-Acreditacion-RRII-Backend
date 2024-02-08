@@ -39,5 +39,11 @@ class StandardRequest extends CustomFormRequest
         ];
     }
     
+    public function validationForGetStandardEvidences(){
+        return [
+            'parent_id' => 'nullable|integer',
+            'plan_id' => 'nullable|integer'
+        ];
+    }
 
 }

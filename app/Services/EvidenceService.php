@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Models\DateModel;
-use App\Models\Evidence;
+use App\Models\EvidenceModel;
+use App\Models\EvidenceTypeModel;
+use App\Models\StandardModel;
 use App\Models\Folder;
 use App\Repositories\EvidenceRepository;
 use App\Repositories\FileRepository;
@@ -11,6 +13,7 @@ use App\Repositories\FolderRepository;
 use App\Repositories\PlanRepository;
 use App\Repositories\StandardRepository;
 use App\Repositories\UserRepository;
+use App\Repositories\DateSemesterRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use ZipArchive;
@@ -24,7 +27,9 @@ class EvidenceService
     protected $folderRepository;
     protected $fileRepository;
     protected $planRepository;
-    public function __construct(PlanRepository $planRepository, FileRepository $fileRepository, EvidenceRepository $evidenceRepository, StandardRepository $standardRepository, UserRepository $userRepository, FolderRepository $folderRepository)
+    protected $dateRepository;
+
+    public function __construct(PlanRepository $planRepository, FileRepository $fileRepository, EvidenceRepository $evidenceRepository, StandardRepository $standardRepository, UserRepository $userRepository, FolderRepository $folderRepository, DateSemesterRepository $dateRepository)
     {
         $this->folderRepository = $folderRepository;
         $this->planRepository = $planRepository;
@@ -32,6 +37,7 @@ class EvidenceService
         $this->standardRepository = $standardRepository;
         $this->userRepository = $userRepository;
         $this->fileRepository = $fileRepository;
+        $this->dateRepository = $dateRepository; 
     }
 
     public function getStandardEvidences($year, $semester, $standard_id, $evidence_type_id, $parent_id)
@@ -128,17 +134,18 @@ class EvidenceService
         $pathRoot = 'evidencias/' . $year . '/' . $semester . '/' . 'estandar_' . $standard->nro_standard . '/tipo_evidencia_' . $evidence_type->description;
 
         $data = null;
-        if ($evidence->file) {
-            $path = storage_path('app/' . $pathRoot . $evidence->file->path);
-            $extension = pathinfo($path, PATHINFO_EXTENSION);
-            $fileContents = file_get_contents($path);
-            $base64Content = base64_encode($fileContents);
-            $data = [
+        if ($evidence->file_id) {
+            //$path = storage_path('app/' . $pathRoot . $evidence->file->path);
+            //$extension = pathinfo($path, PATHINFO_EXTENSION);
+            //$fileContents = file_get_contents($path);
+            //$base64Content = base64_encode($fileContents);
+            /*$evidence_array = array(
                 "name" => $evidence->file->name,
                 "extension" => $extension,
                 "content" => $base64Content
-            ];
-        } elseif ($evidence->folder) {
+            );*/
+            $data = [$evidence->file];
+        } elseif ($evidence->folder_id) {
             $data = $evidence->folder->files;
         }
 
@@ -364,5 +371,68 @@ class EvidenceService
         $path = $file->storeAs($pathRoot . $generalPath, $file->getClientOriginalName());
 
         return $evidenceFile;
+    }
+
+    public function reportAllEvidences(Request $request)
+    {
+        $tempfiledocx = tempnam(sys_get_temp_dir(), 'PHPWord');
+        $template = new \PhpOffice\PhpWord\TemplateProcessor('plantilla-evidencias.docx');
+        
+        //Rango de periodos
+        $startYear = $request->input('startYear');
+        $startSemester = $request->input('startSemester');
+        $endYear = $request->input('endYear');
+        $endSemester = $request->input('endSemester');
+        $dates = $this->dateRepository->getDatesByRange($startYear, $startSemester, $endYear, $endSemester);
+
+        $standards = StandardModel::where("date_id", 1)->orderBy('nro_standard')->get();
+        if ($standards->count() > 0) {
+            $template->cloneBlock('block_periodo', $dates->count(), true, true);
+            $template->cloneBlock('block_estandar', $standards->count(), true, true);
+
+            foreach ($standards as $key => $standard) {
+                // Dimensión
+                $template->setValue('dimension#' . ($key + 1), $standard->dimension);
+                // Factor
+                $template->setValue('factor#' . ($key + 1), $standard->factor);
+                // Estandar
+                $template->setValue('n-e#' . ($key + 1), $standard->nro_standard);
+                $template->setValue('estandar#' . ($key + 1), $standard->name);
+
+
+                //Periodos
+                foreach ($dates as $j => $date) {
+                    $template->setValue('year#' . ($j + 1) . '#' . ($key + 1), $date->year);
+                    $template->setValue('semester#' . ($j + 1) . '#' . ($key + 1), $date->semester);
+                    $evidencesCount = EvidenceModel::where("standard_id", $standard->id)->where("date_id", $date->id)->count();
+                    if ($evidencesCount > 0) {
+                        $template->cloneRow('n#' . ($j + 1) . '#' . ($key + 1), $evidencesCount);
+                        $evidencias = EvidenceModel::where("standard_id", $standard->id)->where("date_id", $date->id)->get();
+                        foreach ($evidencias as $m => $evidence) {
+                            $template->setValue('n#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), ($m + 1));
+                            $template->setValue('codigo#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), $evidence->code);
+                            $template->setValue('nombre#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), $evidence->name);
+                            $template->setValue('tipo#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), EvidenceTypeModel::evidenceId($evidence->evidence_type_id));
+                            $template->setValue('tamaño#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), $evidence->size);
+                            $template->setValue('fecha#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), $evidence->created_at);
+                        }
+                    } else {
+                        $template->cloneRow('n#' . ($j + 1) . '#' . ($key + 1), -1);
+                        $template->setValue("block_tabla#" . ($j + 1) . "#" . ($key + 1), "No hay evidencias");
+                    }
+                }
+            }
+
+            $template->saveAs($tempfiledocx);
+            $headers = [
+                'Content-Type' => 'application/msword',
+                'Content-Disposition' => 'attachment;filename="evidencias.docx"',
+            ];
+            return response()->download($tempfiledocx, "reporte_evidencias_{$startYear}-{$startSemester}_{$endYear}-{$endSemester}.docx", $headers);
+        } else {
+            return response([
+                "message" => "!No cuenta con ningún estándar todavía en este periodo",
+            ], 404);
+        }
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StandardRequest;
 use App\Models\DateModel;
+use App\Models\EvidenceModel;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use App\Models\StandardModel;
@@ -16,16 +17,14 @@ use App\Models\FacultyStaffModel;
 use App\Models\FileModel;
 use App\Models\FolderModel;
 use App\Models\IdentificationContextModel;
+use App\Models\UserStandardModel;
+use App\Repositories\StandardRepository;
 use App\Services\EvidenceService;
 use App\Services\StandardService;
 use Exception;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Validator;
 
-//
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 
 //require 'vendor/autoload.php';
@@ -36,9 +35,10 @@ class StandardController extends Controller
 {
     protected $standardService;
     protected $evidenceService;
-
-    public function __construct(StandardService $standardService, EvidenceService $evidenceService)
+    protected $standardRepository;
+    public function __construct(StandardRepository $standardRepository, StandardService $standardService, EvidenceService $evidenceService)
     {
+        $this->standardRepository = $standardRepository;
 
         $this->standardService = $standardService;
         $this->evidenceService = $evidenceService;
@@ -247,10 +247,10 @@ class StandardController extends Controller
     {
         $result = $this->standardService->showStandard($standard_id);
         return response()->json([
-                'status' => 1,
-                'message' => "Estándar retornado",
-                'data' => $result
-                ], 200);
+            'status' => 1,
+            'message' => "Estándar retornado",
+            'data' => $result
+        ], 200);
     }
 
     /*
@@ -332,117 +332,126 @@ class StandardController extends Controller
 			}
 	*/
 
-    public function getStandardEvidences(Request $request, $year, $semester, $standard_id, $evidence_type_id)
+    public function getStandardEvidences(StandardRequest $request, $year, $semester, $standard_id, $evidence_type_id)
     {
-        $request->validate([
-            'parent_id' => 'nullable|integer'
-        ]);
-
-        $idPlan = $request->input('plan_id');
-
-        $standardId = $standard_id;
-        $parentIdFolder = $request->parent_id;
-
-        $idTypeEvidence = $evidence_type_id;
-        $dateId = DateModel::dateId($year, $semester);
-
-        if ($request->parent_id) {
-            $queryRootFolder = FolderModel::where('standard_id', $standardId)->where('evidence_type_id', $idTypeEvidence)->where('date_id', $dateId)->where('parent_id', $parentIdFolder)->first();
-            if (!$queryRootFolder) {
-                return response()->json([
-                    "status" => 0,
-                    "message" => "Aun no hay evidencias para este estándar",
-                    "data" => [
-                        "evidences" => [],
-                        "folders" => []
-                    ]
-                ], 200);
-            } else {
-                $parentIdFolder = $queryRootFolder->id;
-            }
-        }
-
-        $evidencesQuery = FileModel::join('users', 'files.user_id', '=', 'users.id')
-            ->where('files.folder_id', $parentIdFolder)
-            ->where('files.evidence_type_id', $idTypeEvidence)
-            ->where('files.standard_id', $standardId)
-            ->select(
-                'files.id as evidence_id', 
-                'files.name',
-                'files.path',
-                'files.file',
-                'files.size',
-                DB::raw('files.type as extension'),
-                'files.user_id',
-                'files.plan_id',
-                'files.folder_id',
-                'files.evidence_type_id',
-                'files.standard_id',
-                'files.date_id',
-                'files.created_at',
-                'files.updated_at',
-                DB::raw("CONCAT(users.name, ' ', users.lastname) as full_name"));
-        
-        if ($idPlan) {
-            $evidencesQuery->where('files.plan_id', $idPlan); 
-        }
-
-        $evidences = $evidencesQuery->get();
-
-        $folders = FolderModel::join('users', 'folders.user_id', '=', 'users.id')
-            ->where('folders.parent_id', $parentIdFolder)
-            ->where('folders.standard_id', $standardId)
-            ->where('folders.evidence_type_id', $idTypeEvidence)
-            ->select(
-                DB::raw("CONCAT('F-', folders.id) as code"),
-                'folders.id as folder_id',
-                'folders.path',
-                'folders.user_id',
-                'folders.parent_id',
-                'folders.evidence_type_id',
-                'folders.standard_id',
-                'folders.date_id',
-                'folders.created_at',
-                'folders.updated_at',
-                DB::raw("CONCAT(users.name, ' ', users.lastname) as full_name"))
-            ->get();
-
-        /* if ($evidences->isEmpty() && $folders->isEmpty()) {
+        try {
+            $result = $this->standardService->getStandardEvidences($request);
+            return response()->json([
+                "status" => 1,
+                "data" => $result,
+            ], 200);
+        } catch (\App\Exceptions\Evidence\FolderNotFoundException $e) {
             return response()->json([
                 "status" => 0,
-                "message" => "No se encontraron evidencias",
-            ], 404);
-        } */
-
-        foreach ($evidences as &$evidence) {
-            //$evidence['extension'] = $evidence['type'];
-            unset($evidence['type']);
-            $evidence['type'] = 'evidence';
+                "message" => "Aun no hay evidencias para este estándar",
+                "data" => [
+                    "evidences" => [],
+                    "folders" => []
+                ]
+            ], $e->getCode());
         }
+        
+    }
 
-        foreach ($folders as &$folder) {
-            $folder['type'] = 'folder';
+    public function blockNarrative(Request $request)
+    {
+        try {
+            $result = $this->standardService->blockNarrative($request);
+            $data = !empty($result['user_name']) ? [
+                "status" => 1,
+                "message" => "El usuario " . $result['user_name'] . " " . "está editando esta narrativa.",
+                "data" => $result
+            ] : [
+                "status" => 1,
+                "data" => $result,
+            ];
+            return response()->json($data, 200);
+        } catch (\App\Exceptions\Standard\NarrativeIsBeingEditingException $e) {
+            return response()->json([
+                "status" => 0,
+                "message" => "La narrativa está siendo editada...",
+                "data" => [
+                    "user_name" => $e->getMessage()
+                ]
+            ], $e->getCode());
         }
+        
+    }
 
-        return response()->json([
-            "status" => 1,
-            "data" => [
-                "evidences" => $evidences,
-                "folders" => $folders,
-            ]
+    public function unlockNarrative(Request $request)
+    {
+        try {
+            $result = $this->standardService->unlockNarrative($request);
+            return response()->json([
+                "status" => 1,
+                "data" => $result,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                "status" => 0,
+                "message" => "No se pudo desbloquear la narrativa.",
+            ], $e->getCode());
+        }
+        
+    }
+    public function updateNarrative($year, $semester, $standard_id, Request $request)
+    {
+        /*
+            ruta(put): /api/standards/{standard_id}/narratives/
+            ruta(put): /api/2023/A/standards/1/narratives/
+            datos:
+            {
+                "id":"1",
+                "narrative":"Update Narrativa"
+            }
+        */
+        $request->validate([
+            "narrative" => "present|required",
         ]);
+        if (StandardModel::where("id", $standard_id)->exists()) {
+            $standard = StandardModel::find($standard_id);
+            $standard->update([
+                "narrative" => $request->narrative,
+            ]);
+            $this->standardRepository->unblockNarrative($standard_id, auth()->user()->id);
+            return response([
+                "status" => 1,
+                "message" => "Narrativa actualizada",
+            ], 200);
+        } else {
+            return response([
+                "status" => 0,
+                "message" => "No se encontro la narrativa",
+            ], 404);
+        }
+    }
+
+    public function enableNarrative(Request $request)
+    {
+        try {
+            $result = $this->standardService->enableNarrative($request);
+            return response()->json([
+                "status" => 1,
+                "data" => $result,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                "status" => 0,
+                "message" => "No se pudo habilitar la narrativa.",
+            ], $e->getCode());
+        }
+        
     }
 
     public function searchEvidence($year, $semester, $standard_id)
     {
-        try{
+        try {
             $result = $this->evidenceService->searchEvidence($standard_id);
             return response()->json([
                 "status" => 1,
                 "data" => $result,
             ], 200);
-        }
-        catch(\App\Exceptions\Standard\StandardNotFoundException $e){
+        } catch (\App\Exceptions\Standard\StandardNotFoundException $e) {
             return response()->json([
                 'status' => 0,
                 'message' => $e->getMessage(),
@@ -543,190 +552,4 @@ class StandardController extends Controller
         }
     }
 
-    public function reportContext($year, $semester)
-    {
-        $tempfiledocx = tempnam(sys_get_temp_dir(), 'PHPWord');
-        $template = new \PhpOffice\PhpWord\TemplateProcessor('plantilla-contexto.docx');
-        $contexto = IdentificationContextModel::where("date_id", DateModel::dateId($year, $semester))->get();
-        if($contexto->count() > 0){
-            $key = $contexto[0];
-            $template->setValue("direccion-sede", $key->address_headquarters);
-            $lugar = json_decode($key->region_province_district);
-            $p = $lugar[0];
-            $template->setValue("región-provincia", $p->region . " / " . $p->provincia . " / " . $p->distrito);
-
-            $template->setValue("telefono-institucional", $key->institutional_telephone);
-            $template->setValue("página-web", $key->web_page);
-            $template->setValue("resolucion", "NO SE SABE, no se sabe, hasta yo quiero saber pero no se");
-            $template->setValue("fecha-resolucion", $key->date_resolution);
-            $template->setValue("nombre-autoridad-institucion", $key->highest_authority_institution);
-            $template->setValue("correo-autoridad-institucion", $key->highest_authority_institution_email);
-            $template->setValue("telefono-autoridad-institucion", $key->highest_authority_institution_telephone);
-            
-            //Programa de estudios
-            $template->setValue("resolucion-programa", $key->licensing_resolution);
-            $template->setValue("nivel-academico", $key->academic_level);
-            $template->setValue("cui", $key->cui);
-            $template->setValue("denominacion-grado", $key->grade_denomination);
-            $template->setValue("denominacion-titulo", $key->title_denomination);
-            $template->setValue("oferta", $key->authorized_offer);
-            $template->setValue("nombre-autoridad-programa", $key->highest_authority_study_program);
-            $template->setValue("correo-autoridad-programa", $key->highest_authority_study_program_email);
-            $template->setValue("telefono-autoridad-programa", $key->highest_authority_study_program_telephone);
-
-            //Tabla de miembros de comité
-            $miembrosComite = $key->members_quality_committee;
-            $template->cloneRow('n-c', count($miembrosComite));
-            foreach ($miembrosComite as $i => $miembro){
-                $template->setValue("n-c#" . ($i+1) , ($i+1));
-                $template->setValue("nombre-miembro#" . ($i+1) , $miembro["Nombre"]);
-                $template->setValue("cargo-miembro#" . ($i+1) , $miembro["Cargo"]);
-                $template->setValue("correo#" . ($i+1) , $miembro["Correo"]);
-                $template->setValue("telefono#" . ($i+1) , $miembro["Teléfono"]);
-            }
-
-            //Tabla de interesados
-            $interesados = $key->interest_groups_study_program;
-            $template->cloneRow('n-g', count($interesados));
-            foreach ($interesados as $j => $miembro){
-                $template->setValue("n-g#" . ($j+1) , ($j+1));
-                $template->setValue("interesado#" . ($j+1) , $miembro["Interesado"]);
-                $template->setValue("requerimiento#" . ($j+1) , $miembro["Requerimiento"]);
-                $template->setValue("tipo#" . ($j+1) , $miembro["Tipo"]);
-            }
-            
-            $template->saveAs($tempfiledocx);
-            $headers = [
-                'Content-Type' => 'application/msword',
-                'Content-Disposition' => 'attachment;filename="contexto.docx"',
-            ];
-            return response()->download($tempfiledocx, 'contexto.docx', $headers);
-        } else{
-            return response([
-                "message" => "!No cuenta con ningún contexto en este periodo",
-            ], 404);
-        }
-    } 
-
-    public function reportAnual(Request $request)
-    {
-        //Rango de periodos
-        $startYear = $request->input('startYear');
-        $startSemester = $request->input('startSemester');
-        $endYear = $request->input('endYear');
-        $endSemester = $request->input('endSemester');
-        $dates = DateModel::where(function ($query) use ($startYear, $startSemester, $endYear, $endSemester) {
-            $query->where(function ($query) use ($startYear, $startSemester) {
-                $query->where('year', '>', $startYear)
-                      ->orWhere(function ($query) use ($startYear, $startSemester) {
-                          $query->where('year', $startYear)
-                                ->where('semester', '>=', $startSemester);
-                      });
-            })
-            ->where(function ($query) use ($endYear, $endSemester) {
-                $query->where('year', '<', $endYear)
-                      ->orWhere(function ($query) use ($endYear, $endSemester) {
-                          $query->where('year', $endYear)
-                                ->where('semester', '<=', $endSemester);
-                      });
-            });
-        })->get();
-        try {
-            $spreadsheet = IOFactory::load('Reporte-Anual-Plantilla.xlsx');
-            $cant_fil = $dates->count()-1;
-            $hoja = $spreadsheet->getActiveSheet();
-            //Definimos el ancho de las celdas
-            foreach (range('A', 'G') as $columna) {
-                $hoja->getColumnDimension($columna)->setWidth(15);
-            } 
-            //Insertamos las filas correspondientes a cada periodo         
-            $hoja->insertNewRowBefore(5, $cant_fil); 
-            $hoja->insertNewRowBefore(10 + $cant_fil, $cant_fil);
-
-            $filaInicio = 13+$cant_fil*2;
-            $filaFin = 39+$cant_fil*2;
-            $columnaFuente = 'E';
-            
-            // Calcula las columnas de destino
-            $columnasDestino = [];
-            for ($i = 0; $i < $cant_fil; $i++) {
-                $columnasDestino[] = chr(ord($columnaFuente) + $i + 1);
-            }
-            
-            // Copia el estilo a las columnas de destino
-            for ($fila = $filaInicio; $fila <= $filaFin; $fila++) {
-                $celdaFuente = $columnaFuente . $fila;
-                $estilo = $hoja->getStyle($celdaFuente);
-            
-                foreach ($columnasDestino as $columnaDestino) {
-                    $celdaDestino = $columnaDestino . $fila;
-                    $hoja->duplicateStyle($estilo, $celdaDestino);
-                }
-            }
-            //Variables para la suma de niveles
-            $filaI = $filaInicio+3;
-            $filaF = $filaI+6;
-
-            foreach ($dates as $k => $date){
-                $faculty = FacultyStaffModel::where("date_id", $date->id)->first();
-                $fila1Act = $k+4;
-                $hoja->setCellValue('A' . $fila1Act, $date->year . "-" . $date->semester);
-                $hoja->setCellValue('B' . $fila1Act, $faculty->number_extraordinary_professor);
-                $hoja->setCellValue('C' . $fila1Act, $faculty->number_ordinary_professor_main);
-                $hoja->setCellValue('D' . $fila1Act, $faculty->number_ordinary_professor_associate);
-                $hoja->setCellValue('E' . $fila1Act, $faculty->number_ordinary_professor_assistant);
-                
-                //2da tabla
-                $filaActual = $k+9+$cant_fil;
-                $hoja->setCellValue('A' . $filaActual, $date->year . "-" . $date->semester);
-                $hoja->setCellValue('B' . $filaActual, $faculty->ordinary_professor_exclusive_dedication);
-                $hoja->setCellValue('C' . $filaActual, $faculty->ordinary_professor_fulltime);
-                $hoja->setCellValue('D' . $filaActual, $faculty->ordinary_professor_parttime);
-                $hoja->setCellValue('E' . $filaActual, $faculty->contractor_professor_fulltime);
-                $hoja->setCellValue('F' . $filaActual, $faculty->contractor_professor_parttime);
-                $hoja->setCellValue('G' . $filaActual, "=SUM(B$filaActual:F$filaActual)");
-                $hoja->setCellValue('F' . $fila1Act, "=SUM(E$filaActual:F$filaActual)");
-                $hoja->setCellValue('G' . $fila1Act, "=SUM(B$fila1Act:F$fila1Act)");
-                //
-                //3era tabla
-                $col = chr(ord($columnaFuente) + $k);
-                $hoja->setCellValue($col . $filaInicio, $date->year . "-" . $date->semester);
-                $hoja->setCellValue($col . $filaInicio+1, "=SUM($col$filaI:$col$filaF)");
-                $hoja->setCellValue($col . $filaInicio+2, $faculty->distinguished_researcher);
-                $hoja->setCellValue($col . $filaInicio+3, $faculty->researcher_level_i);
-                $hoja->setCellValue($col . $filaInicio+4, $faculty->researcher_level_ii);
-                $hoja->setCellValue($col . $filaInicio+5, $faculty->researcher_level_iii);
-                $hoja->setCellValue($col . $filaInicio+6, $faculty->researcher_level_vi);
-                $hoja->setCellValue($col . $filaInicio+7, $faculty->researcher_level_v);
-                $hoja->setCellValue($col . $filaInicio+8, $faculty->researcher_level_vi);
-                $hoja->setCellValue($col . $filaInicio+9, $faculty->researcher_level_vii);
-                //space
-                $hoja->setCellValue($col . $filaInicio+11, $faculty->number_publications_indexed);
-                $hoja->setCellValue($col . $filaInicio+12, $faculty->intellectual_property_indecopi);
-                $hoja->setCellValue($col . $filaInicio+13, $faculty->number_research_project_inexecution);
-                $hoja->setCellValue($col . $filaInicio+14, $faculty->number_research_project_completed);
-                $hoja->setCellValue($col . $filaInicio+15, $faculty->number_professor_inperson_academic_movility);
-                $hoja->setCellValue($col . $filaInicio+16, $faculty->number_professor_virtual_academic_movility);
-                //Ultima tabla
-                $hoja->setCellValue($col . $filaInicio+19, $date->year . "-" . $date->semester);
-                $hoja->setCellValue($col . $filaInicio+20, $faculty->number_vacancies);
-                $hoja->setCellValue($col . $filaInicio+21, $faculty->number_applicants);
-                $hoja->setCellValue($col . $filaInicio+22, $faculty->number_admitted_candidates);
-                $hoja->setCellValue($col . $filaInicio+23, $faculty->number_enrolled_students);
-                $hoja->setCellValue($col . $filaInicio+24, $faculty->number_graduates);
-                $hoja->setCellValue($col . $filaInicio+25, $faculty->number_alumni);
-                $hoja->setCellValue($col . $filaInicio+26, $faculty->number_degree_recipients);
-            }
-
-            $rutaTemporal = tempnam(sys_get_temp_dir(), 'excel');
-            $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
-            $writer->save($rutaTemporal);
-
-            return response()->download($rutaTemporal, "reporte_anual{$startYear}-{$startSemester}_{$endYear}-{$endSemester}.xlsx")->deleteFileAfterSend(true);
-
-        } catch (\PhpOffice\PhpSpreadsheet\Reader\Exception $e) {
-            die('Error al cargar el archivo: ' . $e->getMessage());
-        }
-        
-    }
 }

@@ -254,14 +254,25 @@ class PlanController extends Controller
         }
     }
 */
-    public function listPlanUser($year, $semester)
+    public function listPlanUser($year, $semester, PlanRequest $request)
     {
+        $items = $request->input('items') ?? 8;
+		$currentPage = $request->input('page') ?? 1;
+		$search = $request->input('search', '');
+
         try{
-            $result = $this->planService->listPlanUser($year, $semester);
+            $result = $this->planService->listPlanUser($year, $semester, $items, $currentPage, $search);
             return response([
                 "status" => 1,
-                "message" => "!Planes de mejora",
-                "data" => $result,
+                "message" => "Planes de mejora del usuario",
+                "data" => [
+                    "improvement_plans" => $result->items(),
+                    "total" => $result->total(),
+                    "per_page" => $result->perPage(),
+                    "current_page" => $result->currentPage(),
+                    "last_page" => $result->lastPage(),
+                    "has_more_pages" => $result->hasMorePages(),
+                ]
             ], 200);
         }
         catch (Exception $e) {
@@ -416,96 +427,17 @@ class PlanController extends Controller
         }
     }
     
-    public function exportResume($year, $semester)
+    public function exportPlanResume($year, $semester)
     {
-        $planes = PlanModel::where("date_id", DateModel::dateId($year, $semester))->get();
-        if($planes->count() > 0){
-            $suma_planificados = 0;
-            $suma_reprogramados = 0;
-            $suma_concluidos = 0;
-            $suma_proceso = 0;
-
-            $tempfiledocx = tempnam(sys_get_temp_dir(), 'PHPWord');
-            $template = new \PhpOffice\PhpWord\TemplateProcessor('resumen_planes_mejorav4.docx');
-
-            $template->cloneRow('n', $planes->count());
-
-            //0 Periodo
-            $template->setValue('year', $year);
-            $template->setValue('semester', $semester);
-
-            foreach ($planes as $key => $plan){
-                
-                try {
-                    // Numero
-                    $template->setValue('n#'. ($key + 1) , ($key + 1));
-        
-                    //1 Código
-                    $template->setValue('codigo#'. ($key + 1) , $plan->code);
-
-                    //2 Denominación
-                    $template->setValue('name#'. ($key + 1) , $plan->name);
-
-                    //3 Plan Status
-                    //planificado
-                    if($plan->plan_status_id == 1){
-                        $template->setValue('planificado#'. ($key + 1) , "X");
-                        $template->setValue('concluido#'. ($key + 1) , "");
-                        $template->setValue('proceso#'. ($key + 1) , "");
-                        $template->setValue('reprogramado#'. ($key + 1) , "");
-
-                        $suma_planificados++;
-                    }
-                    //en proceso = en desarrollo
-                    if($plan->plan_status_id == 2){
-                        $template->setValue('proceso#' . ($key + 1) , "X");
-                        $template->setValue('concluido#' . ($key + 1) , "");
-                        $template->setValue('planificado#' . ($key + 1) , "");
-                        $template->setValue('reprogramado#' . ($key + 1) , "");
-
-                        $suma_proceso++;
-                    }
-                    //concluido = completado
-                    if($plan->plan_status_id == 3){
-                        $template->setValue('proceso#' . ($key + 1) , "");
-                        $template->setValue('concluido#' . ($key + 1) , "X");
-                        $template->setValue('planificado#' . ($key + 1) , "");
-                        $template->setValue('reprogramado#' . ($key + 1) , "");
-
-                        $suma_concluidos++;
-                    }
-                    //reprogramado = postergado
-                    if($plan->plan_status_id == 4){
-                        $template->setValue('reprogramado#' . ($key + 1) , "X");
-                        $template->setValue('concluido#' . ($key + 1) , "");
-                        $template->setValue('planificado#' . ($key + 1) , "");
-                        $template->setValue('proceso#' . ($key + 1) , "");
-
-                        $suma_reprogramados++;
-                    }
-
-                } catch (\PhpOffice\PhpWord\Exception\Exception $e) {
-                    return response([
-                        "message" => $e->getMessage(),
-                    ], 500);
-                }
-            }
-            //4 Suma finales
-            $template->setValue('suma_c', $suma_concluidos);
-            $template->setValue('suma_pr', $suma_proceso);
-            $template->setValue('suma_r', $suma_reprogramados);
-            $template->setValue('suma_pl', $suma_planificados);
-
-            $template->saveAs($tempfiledocx);
-            $headers = [
-                'Content-Type' => 'application/msword',
-                'Content-Disposition' => 'attachment;filename="planes.docx"',
-            ];
-            return response()->download($tempfiledocx, $year . $semester . '_resumen_planes.docx', $headers);
-        } else {
-            return response([
-                "message" => "!No cuenta con ningún plan de mejora todavía en este periodo",
-            ], 404);
+        try{
+            $result = $this->planService->exportPlanResume($year, $semester);
+            return $result;
+        }
+        catch (\App\Exceptions\Plan\PlansNotFoundByDateException $e) {
+            return response()->json([
+                'status' => 0,
+                'message' => $e->getMessage(),
+            ], $e->getCode());
         }
     }
 }

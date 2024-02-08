@@ -28,7 +28,8 @@ class StandardModel extends Model
         'nro_standard',
 		'date_id',
         'standard_status_id',
-        'registration_status_id'
+        'registration_status_id',
+        'narrative_is_active'
     ];
 
     public function users(): BelongsToMany    {

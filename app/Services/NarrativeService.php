@@ -29,6 +29,21 @@ class NarrativeService
         $startSemester = $request->input('startSemester');
         $endYear = $request->input('endYear');
         $endSemester = $request->input('endSemester');
+        //Comprobaciones
+        if($startYear>$endYear){
+            $temp = $startYear;
+            $startYear = $endYear;
+            $endYear = $temp;
+
+            $tempSemester = $startSemester;
+            $startSemester  = $endSemester;
+            $endSemester = $tempSemester;
+        }
+        else if($startYear == $endYear && $startSemester == 'B'){
+            $tempSemester = $startSemester;
+            $startSemester  = $endSemester;
+            $endSemester = $tempSemester;
+        }
         $dates = $this->dateRepository->getDatesByRange($startYear, $startSemester, $endYear, $endSemester);
 
         $standards = StandardModel::where("date_id", 1)->orderBy('nro_standard')->get();
@@ -68,7 +83,10 @@ class NarrativeService
                 'Content-Type' => 'application/msword',
                 'Content-Disposition' => 'attachment;filename="narrativas.docx"',
             ];
-            return response()->download($tempfiledocx, "reporte_narrativas_{$startYear}-{$startSemester}_{$endYear}-{$endSemester}.docx", $headers);
+            if($dates->count()>1){
+                return response()->download($tempfiledocx, "reporte_narrativas_{$startYear}-{$startSemester}_{$endYear}-{$endSemester}.docx", $headers);
+            }
+            return response()->download($tempfiledocx, "reporte_narrativas_{$startYear}-{$startSemester}.docx", $headers);
         } else{
             return response([
                 "message" => "!No cuenta con ningún estándar todavía en este periodo",

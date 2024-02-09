@@ -161,4 +161,9 @@ class StandardRepository
         $standard->save();
         return $standard;
     }
+
+    public function narrativeIsEnabled($standard_id){
+        $standard = StandardModel::find($standard_id);
+        return $standard->narrative_is_active;
+    }
 }

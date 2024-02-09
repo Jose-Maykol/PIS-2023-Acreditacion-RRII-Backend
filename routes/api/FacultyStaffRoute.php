@@ -5,8 +5,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware("auth:sanctum")->prefix('faculty-staff')->group(function () {
-    Route::post('', [FacultyStaffController::class, 'createFacultyStaff']);
-    Route::put('', [FacultyStaffController::class, 'updateFacultyStaff']);
+    Route::middleware('semesterisopen')->group(function () {
+        Route::post('', [FacultyStaffController::class, 'createFacultyStaff']);
+        Route::put('', [FacultyStaffController::class, 'updateFacultyStaff']);
+    });
     Route::get('', [FacultyStaffController::class, 'getFacultyStaff']);
     Route::get('/export', [FacultyStaffController::class, 'reportAnual']);
 });

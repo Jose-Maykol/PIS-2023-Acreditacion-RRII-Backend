@@ -24,8 +24,10 @@ class FolderService
     protected $folderRepository;
     protected $standardRepository;
     protected $evidenceRepository;
-    public function __construct(EvidenceRepository $evidenceRepository, FolderRepository $folderRepository, StandardRepository $standardRepository, UserRepository $userRepository, DateSemesterRepository $dateSemesterRepository)
+    protected $standardService;
+    public function __construct(StandardService $standardService, EvidenceRepository $evidenceRepository, FolderRepository $folderRepository, StandardRepository $standardRepository, UserRepository $userRepository, DateSemesterRepository $dateSemesterRepository)
     {
+        $this->standardService = $standardService;
         $this->standardRepository = $standardRepository;
         $this->folderRepository = $folderRepository;
         $this->dateSemesterRepository = $dateSemesterRepository;
@@ -139,10 +141,26 @@ class FolderService
         if (!$this->evidenceRepository->existsTypeEvidence($typeEvidenceId)) {
             throw new \App\Exceptions\Evidence\EvidenceTypeNotFoundException();
         }
+        $generalPath = '/';
+
+        $parentfolder = null;
+        if ($folder->parent_id) {
+            $parentfolder = $this->folderRepository->getFolder($folder->parent_id);
+            $generalPath = $parentfolder->path;
+        }
         $standard = $this->standardRepository->getStandardActiveById($standardId);
         $evidence_type = $this->evidenceRepository->getTypeEvidence($typeEvidenceId);
 
         $currentPath = 'evidencias/' . $year . '/' . $semester . '/' . 'estandar_' . $standard->nro_standard . '/tipo_evidencia_' . $evidence_type->description;
+
+        $pathRoot = storage_path('app/' . $currentPath);
+        $relativePath = $generalPath == '/' ? $generalPath . $newFolderName : $generalPath . '/' . $newFolderName;
+        $generalPath = $generalPath == '/' ? '' : $generalPath;
+
+        $pathNewFolder = $pathRoot . $relativePath;
+        if (File::exists($pathNewFolder) && $this->folderRepository->existsFolder($relativePath, $standardId, $typeEvidenceId)) {
+            throw new \App\Exceptions\Evidence\EvidenceAlreadyExistsException(("Ya existe la carpeta con el nombre: " . $newFolderName), null);
+        }
 
         $result = $this->folderRepository->renameFolder($folderId, $newFolderName, $currentPath);
 
@@ -173,16 +191,23 @@ class FolderService
         $folder = $this->folderRepository->getFolder($folderId);
 
         if ($parentFolder && $parentFolder->evidence_type_id != $folder->evidence_type_id) {
-            throw new \App\Exceptions\Evidence\FolderNotFoundException("No se puede mover la carpeta a una carpeta de otro tipo de evidencia");
+            throw new \App\Exceptions\Evidence\FolderNotFoundException("No se puede mover la carpeta a una carpeta de otro tipo de evidencia.");
         }
         if ($parentFolder && $parentFolder->date_id != $folder->date_id) {
-            throw new \App\Exceptions\Evidence\FolderNotFoundException("No se puede mover la carpeta a una carpeta de otro periodo");
+            throw new \App\Exceptions\Evidence\FolderNotFoundException("No se puede mover la carpeta a una carpeta de otro periodo.");
         }
 
         if ($parentFolder && $parentFolder->standard_id != $folder->standard_id) {
-            throw new \App\Exceptions\Evidence\FolderNotFoundException("No se puede mover la carpeta a una carpeta de otro estándar");
+            throw new \App\Exceptions\Evidence\FolderNotFoundException("No se puede mover la carpeta a una carpeta de otro estándar.");
         }
+        $this->standardService->narrativeIsEnabled($folder->standard_id);
 
+        if ($parentFolder && $this->evidenceRepository->existsEvidenceFolderId($parentFolder->id) && $this->evidenceRepository->existsEvidenceFolderId($folder->id)){
+            throw new \App\Exceptions\Evidence\FolderNotFoundException("No se puede mover la carpeta evidencia a otra carpeta evidencia.");
+        }
+        if ($parentFolder && $this->evidenceRepository->existsEvidenceFolderId($parentFolder->id) && !$this->evidenceRepository->existsEvidenceFolderId($folder->id)){
+            throw new \App\Exceptions\Evidence\FolderNotFoundException("No se puede mover la carpeta a una carpeta evidencia.");
+        }
 
         $standardId = $folder->standard_id;
         $typeEvidenceId = $folder->evidence_type_id;
@@ -244,6 +269,7 @@ class FolderService
             throw new \App\Exceptions\Evidence\FolderNotFoundException();
         }
         $folder = $this->folderRepository->getFolder($folderId);
+        $this->standardService->narrativeIsEnabled($folder->standard_id);
 
         $standardId = $folder->standard_id;
         $typeEvidenceId = $folder->evidence_type_id;

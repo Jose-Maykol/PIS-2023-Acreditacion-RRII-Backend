@@ -19,10 +19,10 @@ class PlanService
     protected $planRepository;
     protected $userRepository;
     protected $standardRepository;
-
-    public function __construct(PlanRepository $planRepository, StandardRepository $standardRepository, UserRepository $userRepository)
+    protected $standardService;
+    public function __construct(StandardService $standardService, PlanRepository $planRepository, StandardRepository $standardRepository, UserRepository $userRepository)
     {
-
+        $this->standardService = $standardService;
         $this->planRepository = $planRepository;
         $this->standardRepository = $standardRepository;
         $this->userRepository = $userRepository;
@@ -36,6 +36,7 @@ class PlanService
                 or $this->userRepository->isAdministrator($userAuth))) {
             throw new \App\Exceptions\User\UserNotAuthorizedException();
         }
+        $this->standardService->narrativeIsEnabled($request->standard_id);
 
         if (!$this->standardRepository->getStandardActiveById($request->standard_id)) {
             throw new \App\Exceptions\Standard\StandardNotFoundException();
@@ -72,6 +73,7 @@ class PlanService
                 or $this->userRepository->isAdministrator($userAuth))) {
             throw new \App\Exceptions\User\UserNotAuthorizedException();
         }
+        $this->standardService->narrativeIsEnabled($request->standard_id);
 
         if (!$this->standardRepository->getStandardActiveById($request->standard_id)) {
             throw new \App\Exceptions\Standard\StandardNotFoundException();
@@ -126,7 +128,10 @@ class PlanService
             unset($plan->user_id);
         }
 
-        return $plans;
+        return [
+            'plans' => $plans,
+            'isManager' => $this->userRepository->checkIfUserIsManagerStandard($request->standard_id, $userAuth)
+        ];
     }
 
     public function deletePlan($plan_id){
@@ -140,6 +145,8 @@ class PlanService
                 or $this->userRepository->isAdministrator($userAuth))) {
             throw new \App\Exceptions\User\UserNotAuthorizedException();
         }
+        $this->standardService->narrativeIsEnabled($standard_id);
+
 
         $plan = $this->planRepository->deletePlan($plan_id);
 

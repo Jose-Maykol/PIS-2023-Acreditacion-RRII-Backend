@@ -410,6 +410,21 @@ class EvidenceService
         $startSemester = $request->input('startSemester');
         $endYear = $request->input('endYear');
         $endSemester = $request->input('endSemester');
+        //Comprobaciones
+        if($startYear>$endYear){
+            $temp = $startYear;
+            $startYear = $endYear;
+            $endYear = $temp;
+
+            $tempSemester = $startSemester;
+            $startSemester  = $endSemester;
+            $endSemester = $tempSemester;
+        }
+        else if($startYear == $endYear && $startSemester == 'B'){
+            $tempSemester = $startSemester;
+            $startSemester  = $endSemester;
+            $endSemester = $tempSemester;
+        }
         $dates = $this->dateRepository->getDatesByRange($startYear, $startSemester, $endYear, $endSemester);
 
         $standards = StandardModel::where("date_id", 1)->orderBy('nro_standard')->get();
@@ -438,10 +453,10 @@ class EvidenceService
                         foreach ($evidencias as $m => $evidence) {
                             $template->setValue('n#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), ($m + 1));
                             $template->setValue('codigo#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), $evidence->code);
-                            $template->setValue('nombre#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), $evidence->name);
+                            $template->setValue('nombre#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), getName($evidence));
                             $template->setValue('tipo#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), EvidenceTypeModel::evidenceId($evidence->evidence_type_id));
-                            $template->setValue('tamaño#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), $evidence->size);
-                            $template->setValue('fecha#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), $evidence->created_at);
+                            $template->setValue('tamaño#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), getSize($evidence));
+                            $template->setValue('fecha#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), $evidence->created_at->toDateString());
                         }
                     } else {
                         $template->cloneRow('n#' . ($j + 1) . '#' . ($key + 1), -1);
@@ -461,5 +476,21 @@ class EvidenceService
                 "message" => "!No cuenta con ningún estándar todavía en este periodo",
             ], 404);
         }
+    }
+
+    public function getName($evidence){
+        if($evidence->folder_id){
+            return $evidence->file()->name;
+        }else{
+            return $evidence->folder()->name;
+        }        
+    }
+
+    public function getSize($evidence){
+        if($evidence->folder_id){
+            return $evidence->file()->size;
+        }else{
+            return $evidence->folder()->files();
+        }        
     }
 }

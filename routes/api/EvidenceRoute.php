@@ -6,20 +6,25 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\EvidenciasController;
 use App\Http\Controllers\Api\FolderController;
 use App\Http\Controllers\Api\FoldersController;
+use App\Models\DateModel;
+use App\Models\RegistrationStatusModel;
+use Illuminate\Support\Facades\DB;
 
 Route::middleware("auth:sanctum")->prefix('evidences')->group(function () {
 
     //ruta evidencias
-    Route::post('', [EvidencesController::class, 'createFileEvidence']);
+    Route::middleware('semesterisopen')->group(function () {
+        Route::delete('files/{file_id}', [EvidencesController::class, 'deleteFile'])->where('file_id', '[0-9]+');
+        Route::post('', [EvidencesController::class, 'createFileEvidence']);
+        Route::patch('files/{file_id}/rename', [EvidencesController::class, 'renameFile'])->where('file_id', '[0-9]+');
+        Route::patch('files/{file_id}/move', [EvidencesController::class, 'moveFile'])->where('file_id', '[0-9]+');
+    });
     Route::get('files/{file_id}/view', [EvidencesController::class, 'viewFile'])->where('file_id', '[0-9]+');
     Route::get('{evidence_id}/view', [EvidencesController::class, 'viewEvidence'])->where('evidence_id', '[0-9]+');
     Route::get('files/{file_id}/download', [EvidencesController::class, 'downloadFile'])->where('file_id', '[0-9]+');
-    Route::patch('files/{file_id}/rename', [EvidencesController::class, 'renameFile'])->where('file_id', '[0-9]+');
-    Route::patch('files/{file_id}/move', [EvidencesController::class, 'moveFile'])->where('file_id', '[0-9]+');
-    Route::delete('files/{file_id}', [EvidencesController::class, 'deleteFile'])->where('file_id', '[0-9]+');  
     Route::get('export', [EvidencesController::class, 'reportAllEvidences']);
 
-/*
+    /*
     Route::post('various', [EvidenciasController::class, 'createEvidence']);
     Route::get('{evidence_id}/download', [EvidenciasController::class, 'download'])->where('evidence_id', '[0-9]+');
     Route::get('{evidence_id}/view', [EvidenciasController::class, 'view'])->where('evidence_id', '[0-9]+');
@@ -32,11 +37,11 @@ Route::middleware("auth:sanctum")->prefix('evidences')->group(function () {
 }); // /api/evidences/{id}
 
 Route::middleware("auth:sanctum")->prefix('folders')->group(function () {
-
+    Route::middleware('semesterisopen')->group(function () {
+        Route::post('', [FolderController::class, 'createFolder']);
+        Route::patch('{folder_id}/rename', [FolderController::class, 'renameFolder'])->where('folder_id', '[0-9]+');
+        Route::patch('{folder_id}/move', [FolderController::class, 'moveFolder'])->where('folder_id', '[0-9]+');
+        Route::delete('{folder_id}', [FolderController::class, 'deleteFolder'])->where('folder_id', '[0-9]+');
+    });
     Route::get('', [FolderController::class, 'listFolder']);
-    Route::post('', [FolderController::class, 'createFolder']);
-    Route::patch('{folder_id}/rename', [FolderController::class, 'renameFolder'])->where('folder_id', '[0-9]+');
-    Route::patch('{folder_id}/move', [FolderController::class, 'moveFolder'])->where('folder_id', '[0-9]+');
-    Route::delete('{folder_id}', [FolderController::class, 'deleteFolder'])->where('folder_id', '[0-9]+');
-
 });

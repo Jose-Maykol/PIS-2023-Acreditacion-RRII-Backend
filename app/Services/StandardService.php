@@ -307,6 +307,13 @@ class StandardService
         return $standard;
     }
 
+    public function narrativeIsEnabled($standard_id){
+        if ($this->standardRepository->narrativeIsEnabled($standard_id)){
+            throw new \App\Exceptions\Standard\NarrativeIsEnabledException();
+        }
+        return null;
+    }
+
     
 
 }

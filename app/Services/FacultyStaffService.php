@@ -66,48 +66,71 @@ class FacultyStaffService
 
     public function reportAnual(Request $request)
     {
+        $spreadsheet = IOFactory::load('Reporte-Anual-Plantilla.xlsx');
+        $hoja = $spreadsheet->getActiveSheet();
+        //Definimos el ancho de las celdas
+        foreach (range('A', 'G') as $columna) {
+            $hoja->getColumnDimension($columna)->setWidth(15);
+        }
         //Rango de periodos
         $startYear = $request->input('startYear');
         $startSemester = $request->input('startSemester');
         $endYear = $request->input('endYear');
         $endSemester = $request->input('endSemester');
-        $dates = $this->dateSemesterRepository->getDatesByRange($startYear, $startSemester, $endYear, $endSemester);
-        try {
-            $spreadsheet = IOFactory::load('Reporte-Anual-Plantilla.xlsx');
-            $cant_fil = $dates->count() - 1;
-            $hoja = $spreadsheet->getActiveSheet();
-            //Definimos el ancho de las celdas
-            foreach (range('A', 'G') as $columna) {
-                $hoja->getColumnDimension($columna)->setWidth(15);
-            }
-            //Insertamos las filas correspondientes a cada periodo         
-            $hoja->insertNewRowBefore(5, $cant_fil);
-            $hoja->insertNewRowBefore(10 + $cant_fil, $cant_fil);
+        //Comprobaciones
+        if($startYear>$endYear){
+            $temp = $startYear;
+            $startYear = $endYear;
+            $endYear = $temp;
 
+            $tempSemester = $startSemester;
+            $startSemester  = $endSemester;
+            $endSemester = $tempSemester;
+        }
+        else if($startYear == $endYear && $startSemester == 'B'){
+            $tempSemester = $startSemester;
+            $startSemester  = $endSemester;
+            $endSemester = $tempSemester;
+        }
+        if($startYear == $endYear && $startSemester == $endSemester){
+            $dates = $this->dateSemesterRepository->getDate($startYear, $startSemester);
+        }else{
+            $dates = $this->dateSemesterRepository->getDatesByRange($startYear, $startSemester, $endYear, $endSemester);
+        }
+        try {
+            $cant_fil = $dates->count() - 1;
+            if($dates->count()>1){
+                //Insertamos las filas correspondientes a cada periodo         
+                $hoja->insertNewRowBefore(5, $cant_fil);
+                $hoja->insertNewRowBefore(10 + $cant_fil, $cant_fil);
+            }
+            
             $filaInicio = 13 + $cant_fil * 2;
             $filaFin = 39 + $cant_fil * 2;
             $columnaFuente = 'E';
 
-            // Calcula las columnas de destino
-            $columnasDestino = [];
-            for ($i = 0; $i < $cant_fil; $i++) {
-                $columnasDestino[] = chr(ord($columnaFuente) + $i + 1);
-            }
+            if($dates->count()>1){
+                // Calcula las columnas de destino
+                $columnasDestino = [];
+                for ($i = 0; $i < $cant_fil; $i++) {
+                    $columnasDestino[] = chr(ord($columnaFuente) + $i + 1);
+                }
 
-            // Copia el estilo a las columnas de destino
-            for ($fila = $filaInicio; $fila <= $filaFin; $fila++) {
-                $celdaFuente = $columnaFuente . $fila;
-                $estilo = $hoja->getStyle($celdaFuente);
+                // Copia el estilo a las columnas de destino
+                for ($fila = $filaInicio; $fila <= $filaFin; $fila++) {
+                    $celdaFuente = $columnaFuente . $fila;
+                    $estilo = $hoja->getStyle($celdaFuente);
 
-                foreach ($columnasDestino as $columnaDestino) {
-                    $celdaDestino = $columnaDestino . $fila;
-                    $hoja->duplicateStyle($estilo, $celdaDestino);
+                    foreach ($columnasDestino as $columnaDestino) {
+                        $celdaDestino = $columnaDestino . $fila;
+                        $hoja->duplicateStyle($estilo, $celdaDestino);
+                    }
                 }
             }
             //Variables para la suma de niveles
             $filaI = $filaInicio + 3;
             $filaF = $filaI + 6;
-
+            
             foreach ($dates as $k => $date) {
                 $faculty = $this->facultyStaffRepository->getFacultyStaff($date->id)->first();
                 $fila1Act = $k + 4;
@@ -116,7 +139,7 @@ class FacultyStaffService
                 $hoja->setCellValue('C' . $fila1Act, $faculty->number_ordinary_professor_main);
                 $hoja->setCellValue('D' . $fila1Act, $faculty->number_ordinary_professor_associate);
                 $hoja->setCellValue('E' . $fila1Act, $faculty->number_ordinary_professor_assistant);
-
+                
                 //2da tabla
                 $filaActual = $k + 9 + $cant_fil;
                 $hoja->setCellValue('A' . $filaActual, $date->year . "-" . $date->semester);
@@ -162,8 +185,10 @@ class FacultyStaffService
             $rutaTemporal = tempnam(sys_get_temp_dir(), 'excel');
             $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
             $writer->save($rutaTemporal);
-
-            return response()->download($rutaTemporal, "reporte_anual_{$startYear}-{$startSemester}_{$endYear}-{$endSemester}.xlsx")->deleteFileAfterSend(true);
+            if($dates->count()>1){
+                return response()->download($rutaTemporal, "reporte_anual_{$startYear}-{$startSemester}_{$endYear}-{$endSemester}.xlsx")->deleteFileAfterSend(true);
+            }
+            return response()->download($rutaTemporal, "reporte_anual_{$startYear}-{$startSemester}.xlsx")->deleteFileAfterSend(true);
         } catch (\PhpOffice\PhpSpreadsheet\Reader\Exception $e) {
             die('Error al cargar el archivo: ' . $e->getMessage());
         }

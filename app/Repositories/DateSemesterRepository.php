@@ -97,6 +97,10 @@ class DateSemesterRepository
         return DateModel::where('year', $year)->where('semester', $semester)->value('id');
     }
 
+    public function getDate($year, $semester){
+        return DateModel::where('year', $year)->where('semester', $semester)->get();
+    }
+
     public function getDatesByRange($startYear, $startSemester, $endYear, $endSemester){
 
         $dates = DateModel::where(function ($query) use ($startYear, $startSemester, $endYear, $endSemester) {

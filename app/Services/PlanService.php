@@ -36,7 +36,6 @@ class PlanService
                 or $this->userRepository->isAdministrator($userAuth))) {
             throw new \App\Exceptions\User\UserNotAuthorizedException();
         }
-        $this->standardService->narrativeIsEnabled($request->standard_id);
 
         if (!$this->standardRepository->getStandardActiveById($request->standard_id)) {
             throw new \App\Exceptions\Standard\StandardNotFoundException();
@@ -73,7 +72,6 @@ class PlanService
                 or $this->userRepository->isAdministrator($userAuth))) {
             throw new \App\Exceptions\User\UserNotAuthorizedException();
         }
-        $this->standardService->narrativeIsEnabled($request->standard_id);
 
         if (!$this->standardRepository->getStandardActiveById($request->standard_id)) {
             throw new \App\Exceptions\Standard\StandardNotFoundException();

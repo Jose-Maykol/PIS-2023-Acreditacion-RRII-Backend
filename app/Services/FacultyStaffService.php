@@ -92,11 +92,8 @@ class FacultyStaffService
             $startSemester  = $endSemester;
             $endSemester = $tempSemester;
         }
-        if($startYear == $endYear && $startSemester == $endSemester){
-            $dates = $this->dateSemesterRepository->getDate($startYear, $startSemester);
-        }else{
-            $dates = $this->dateSemesterRepository->getDatesByRange($startYear, $startSemester, $endYear, $endSemester);
-        }
+
+        $dates = $this->dateSemesterRepository->getDatesByRange($startYear, $startSemester, $endYear, $endSemester);
         try {
             $cant_fil = $dates->count() - 1;
             if($dates->count()>1){

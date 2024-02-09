@@ -181,6 +181,7 @@ class EvidenceService
 
         $newName = $request->new_filename;
 
+        
         if (!$this->fileRepository->existsFileId($file_id)) {
             throw new \App\Exceptions\Evidence\FileNotFoundException();
         }
@@ -192,6 +193,10 @@ class EvidenceService
         $currentPath = 'evidencias/' . $year . '/' . $semester . '/' . 'estandar_' . $standard->nro_standard . '/tipo_evidencia_' . $evidence_type->description;
         $oldPath = $file->path;
         
+        if ($this->userRepository->checkIfUserIsManagerStandard($file->standard_id, auth()->user())) {
+            throw new \App\Exceptions\User\UserNotFoundException("Usuario no autorizado.");
+        }
+
         $generalPath = '/';
         if ($file->folder_id) {
             $parentfolder = $this->folderRepository->getFolder($file->folder_id);
@@ -277,6 +282,10 @@ class EvidenceService
         $standard = $this->standardRepository->getStandardActiveById($standardId);
         $evidence_type = $this->evidenceRepository->getTypeEvidence($typeEvidenceId);
 
+        if ($this->userRepository->checkIfUserIsManagerStandard($standard->id, auth()->user())) {
+            throw new \App\Exceptions\User\UserNotFoundException("Usuario no autorizado.");
+        }
+
         $generalPath = '/';
         if ($file->folder_id) {
             $parentfolder = $this->folderRepository->getFolder($file->folder_id);
@@ -312,7 +321,9 @@ class EvidenceService
 
         $standard = $this->standardRepository->getStandardActiveById($standardId);
         $evidence_type = $this->evidenceRepository->getTypeEvidence($typeEvidenceId);
-
+        if ($this->userRepository->checkIfUserIsManagerStandard($standard->id, auth()->user())) {
+            throw new \App\Exceptions\User\UserNotFoundException("Usuario no autorizado.");
+        }
         $currentPath = 'evidencias/' . $year . '/' . $semester . '/' . 'estandar_' . $standard->nro_standard . '/tipo_evidencia_' . $evidence_type->description;
 
         $result = $this->fileRepository->deleteFile($file->id, $dateId, $standardId, $typeEvidenceId, $currentPath);
@@ -353,6 +364,9 @@ class EvidenceService
         $standard = $this->standardRepository->getStandardActiveById($standardId);
         $evidence_type = $this->evidenceRepository->getTypeEvidence($typeEvidenceId);
 
+        if ($this->userRepository->checkIfUserIsManagerStandard($standard->id, auth()->user())) {
+            throw new \App\Exceptions\User\UserNotFoundException("Usuario no autorizado.");
+        }
         $pathRoot = 'evidencias/' . $year . '/' . $semester . '/' . 'estandar_' . $standard->nro_standard . '/tipo_evidencia_' . $evidence_type->description;
         $relativePath = $generalPath == '/' ? $generalPath . $file->getClientOriginalName() : $generalPath . '/' . $file->getClientOriginalName();
         $generalPath = $generalPath == '/' ? '' : $generalPath;

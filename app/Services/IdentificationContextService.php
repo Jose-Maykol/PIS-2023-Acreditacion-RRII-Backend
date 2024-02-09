@@ -188,7 +188,7 @@ class IdentificationContextService
             $template->setValue("telefono-autoridad-institucion", $key->highest_authority_institution_telephone);
 
             //Programa de estudios
-            $template->setValue("resolucion-programa", $key->licensing_resolution);
+            $template->setValue("resolucion-programa", $key->resolution_authorizing_offering_program);
             $template->setValue("nivel-academico", $key->academic_level);
             $template->setValue("cui", $key->cui);
             $template->setValue("denominacion-grado", $key->grade_denomination);

@@ -221,7 +221,7 @@ class StandardService
             ]
         ;
     }
-    private function codeFormat($standard_id, $evidence_type_id, $nro_code){
+    public function codeFormat($standard_id, $evidence_type_id, $nro_code){
         $code = "E";
         if($evidence_type_id == EvidenceTypeModel::getPlanificationId()){
             $code = $code . "P.";

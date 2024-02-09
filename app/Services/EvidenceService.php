@@ -453,9 +453,9 @@ class EvidenceService
                         foreach ($evidencias as $m => $evidence) {
                             $template->setValue('n#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), ($m + 1));
                             $template->setValue('codigo#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), $evidence->code);
-                            $template->setValue('nombre#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), getName($evidence));
+                            $template->setValue('nombre#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), $this->getName($evidence));
                             $template->setValue('tipo#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), EvidenceTypeModel::evidenceId($evidence->evidence_type_id));
-                            $template->setValue('tamaño#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), getSize($evidence));
+                            $template->setValue('tamaño#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), $this->getSize($evidence));
                             $template->setValue('fecha#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), $evidence->created_at->toDateString());
                         }
                     } else {
@@ -480,17 +480,17 @@ class EvidenceService
 
     public function getName($evidence){
         if($evidence->folder_id){
-            return $evidence->file()->name;
+            return $evidence->folder->name;
         }else{
-            return $evidence->folder()->name;
+            return $evidence->file->name;
         }        
     }
 
     public function getSize($evidence){
         if($evidence->folder_id){
-            return $evidence->file()->size;
+            return $evidence->folder->files->count();
         }else{
-            return $evidence->folder()->files();
+            return $evidence->file->size;
         }        
     }
 }

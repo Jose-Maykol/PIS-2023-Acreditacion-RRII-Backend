@@ -14,7 +14,9 @@ class DateModel extends Model
     protected $fillable = [
         'year',
         'semester',
-        'registration_status_id'
+        'registration_status_id',
+        'is_closed',
+        'closing_date'
     ];
     public static function dateId($year, $semester){
         return self::where('year', $year)->where('semester', $semester)->value('id');

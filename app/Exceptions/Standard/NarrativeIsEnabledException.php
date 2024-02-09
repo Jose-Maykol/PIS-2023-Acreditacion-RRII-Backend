@@ -1,15 +1,14 @@
 <?php
 
-namespace App\Exceptions\Plan;
+namespace App\Exceptions\Standard;
 
-use App\Exceptions\CustomNotFoundException;
 use Exception;
 use Throwable;
 
-class PlansNotFoundByDateException extends Exception
+class NarrativeIsEnabledException extends Exception
 {
-    protected $message = "No se encontró ningún plan de mejora en este periodo.";
-    protected $code = 404;
+    protected $message = "La narrativa se encuentra habilidata, no puede puede realizar esta acción.";
+    protected $code = 403;
 
     public function __construct($message = null, $code = null, Throwable $previous = null)
     {
@@ -23,7 +22,7 @@ class PlansNotFoundByDateException extends Exception
 
         parent::__construct($this->message, $this->code, $previous);
     }
-
+    
     public function render($request)
     {
         return response()->json([

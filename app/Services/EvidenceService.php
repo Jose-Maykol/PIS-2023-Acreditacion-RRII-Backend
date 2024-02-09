@@ -28,9 +28,10 @@ class EvidenceService
     protected $fileRepository;
     protected $planRepository;
     protected $dateRepository;
-
-    public function __construct(PlanRepository $planRepository, FileRepository $fileRepository, EvidenceRepository $evidenceRepository, StandardRepository $standardRepository, UserRepository $userRepository, FolderRepository $folderRepository, DateSemesterRepository $dateRepository)
+    protected $standardService;
+    public function __construct(StandardService $standardService, PlanRepository $planRepository, FileRepository $fileRepository, EvidenceRepository $evidenceRepository, StandardRepository $standardRepository, UserRepository $userRepository, FolderRepository $folderRepository, DateSemesterRepository $dateRepository)
     {
+        $this->standardService = $standardService;
         $this->folderRepository = $folderRepository;
         $this->planRepository = $planRepository;
         $this->evidenceRepository = $evidenceRepository;
@@ -75,6 +76,7 @@ class EvidenceService
         }
 
         return [
+            "isManager" => $this->userRepository->checkIfUserIsManagerStandard($standard_id, auth()->user()),
             "evidences" => $evidences,
             "folders" => $folders,
         ];
@@ -189,6 +191,18 @@ class EvidenceService
 
         $currentPath = 'evidencias/' . $year . '/' . $semester . '/' . 'estandar_' . $standard->nro_standard . '/tipo_evidencia_' . $evidence_type->description;
         $oldPath = $file->path;
+        
+        $generalPath = '/';
+        if ($file->folder_id) {
+            $parentfolder = $this->folderRepository->getFolder($file->folder_id);
+            $generalPath = $parentfolder->path;
+        }
+        $relativePath = $generalPath == '/' ? $generalPath . $newName : $generalPath . '/' . $newName;
+        $generalPath = $generalPath == '/' ? '' : $generalPath;
+
+        if ($this->fileRepository->existsFile($relativePath . '.pdf', $file->standard_id, $file->evidence_type_id, $file->date_id)) {
+            throw new \App\Exceptions\Evidence\EvidenceAlreadyExistsException("Ya existe un archivo con este nombre: " . $newName);
+        }
 
         $newPath = $this->getNewFilePath($file, $newName);
 
@@ -255,13 +269,26 @@ class EvidenceService
         if ($parentFolder && $parentFolder->standard_id != $file->standard_id) {
             throw new \App\Exceptions\Evidence\FolderNotFoundException("No se puede mover el archivo a una carpeta de otro estándar");
         }
-
+        $this->standardService->narrativeIsEnabled($file->standard_id);
 
         $standardId = $file->standard_id;
         $typeEvidenceId = $file->evidence_type_id;
 
         $standard = $this->standardRepository->getStandardActiveById($standardId);
         $evidence_type = $this->evidenceRepository->getTypeEvidence($typeEvidenceId);
+
+        $generalPath = '/';
+        if ($file->folder_id) {
+            $parentfolder = $this->folderRepository->getFolder($file->folder_id);
+            $generalPath = $parentfolder->path;
+        }
+        $relativePath = $generalPath == '/' ? $generalPath . $file->file : $generalPath . '/' . $file->file;
+        $generalPath = $generalPath == '/' ? '' : $generalPath;
+
+        if ($this->fileRepository->existsFileInFolder($relativePath . '.pdf', $file->standard_id, $file->evidence_type_id, $file->date_id, $file->folder_id)) {
+            throw new \App\Exceptions\Evidence\EvidenceAlreadyExistsException("Ya existe un archivo con el mismo nombre en la carpeta destino." );
+        }
+
 
         $currentPath = 'evidencias/' . $year . '/' . $semester . '/' . 'estandar_' . $standard->nro_standard . '/tipo_evidencia_' . $evidence_type->description;
         $evidenceFile = $this->evidenceRepository->moveFile($file, $newParentFolder, $currentPath);
@@ -279,7 +306,7 @@ class EvidenceService
             throw new \App\Exceptions\Evidence\FileNotFoundException();
         }
         $file = $this->fileRepository->getFile($file_id);
-
+        $this->standardService->narrativeIsEnabled($file->standard_id);
         $standardId = $file->standard_id;
         $typeEvidenceId = $file->evidence_type_id;
 

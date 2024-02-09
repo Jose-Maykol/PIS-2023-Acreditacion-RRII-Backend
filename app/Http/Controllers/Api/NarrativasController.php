@@ -130,7 +130,7 @@ class NarrativasController extends Controller
         */
         
         if (StandardModel::where("id", $standard_id)->exists()) {
-            $standard = StandardModel::where("id", $standard_id)->select("id", "narrative")->first();
+            $standard = StandardModel::where("id", $standard_id)->select("id", "narrative", "narrative_is_active")->first();
             $standard->isManager = auth()->user()->isAssignStandard($standard_id);
             $standard->isAdministrator = auth()->user()->isAdmin();
             if ($this->standardRepository->isBeingEdited($standard_id)) {

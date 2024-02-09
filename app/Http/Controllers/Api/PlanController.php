@@ -422,7 +422,7 @@ class PlanController extends Controller
             }
         } else {
             return response([
-                "message" => "!No se encontro el plan de mejora",
+                "message" => "No se encontro el plan de mejora",
             ], 404);
         }
     }

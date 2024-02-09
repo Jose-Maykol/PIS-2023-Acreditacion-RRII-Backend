@@ -22,6 +22,15 @@ class FileRepository
             ->where('evidence_type_id', $typeEvidenceId)
             ->exists();
     }
+    public function existsFileInFolder($relativePath, $standardId, $typeEvidenceId, $dateId, $folder_id)
+    {
+        return FileModel::where('folder_id', $folder_id)
+            ->where('path', $relativePath)
+            ->where('date_id', $dateId)
+            ->where('standard_id', $standardId)
+            ->where('evidence_type_id', $typeEvidenceId)
+            ->exists();
+    }
     public function existsFileId($file_id)
     {
         return FileModel::where('id', $file_id)

@@ -252,16 +252,18 @@ class StandardService
 
     public function blockNarrative(Request $request){
         $standard_id = $request->route('standard_id');
-        $user = auth()->user();
+        $user_auth = auth()->user();
 
         if (!$this->standardRepository->getStandardActiveById($standard_id)) {
             throw new \App\Exceptions\Standard\StandardNotFoundException();
         }
-        if (!$this->userRepository->checkIfUserIsManagerStandard($standard_id, $user)) {
+        if (!$this->userRepository->checkIfUserIsManagerStandard($standard_id, $user_auth)) {
             throw new \App\Exceptions\User\UserNotAuthorizedException();
         }
+        
         if ($this->standardRepository->isBeingEdited($standard_id)) {
             $user = $this->standardRepository->getUserBlockNarrative($standard_id);
+
             if ($user->providers()->first() !== null) {
                 $user->avatar = $user->providers()->first()->avatar;
             } else {
@@ -270,11 +272,13 @@ class StandardService
             $block_user = [
                 'user_name' => $user->name . ' ' . $user->lastname,
                 'user_email' => $user->email,
-                'user_avatar' => $user->avatar
+                'user_avatar' => $user->avatar,
+                'is_block' => $this->standardRepository->isBeingEdited($standard_id),
+                'is_same_user' => ($user->id == $user_auth->id) ? true : false
             ];
             return $block_user;
         }
-        $user_standard = $this->standardRepository->blockNarrative($standard_id, $user->id);
+        $user_standard = $this->standardRepository->blockNarrative($standard_id, $user_auth->id);
         return $this->standardRepository->getStandardActiveById($standard_id);
     }
     public function unlockNarrative(Request $request){

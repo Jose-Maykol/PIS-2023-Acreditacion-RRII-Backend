@@ -1,13 +1,10 @@
 FROM php:8.1-fpm
 
-# Argumentos definidos en docker-compose.yml
-#ARG user
-#ARG uid
-
 # Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
     git \
     curl \
+    libzip-dev \
     libpq-dev \
     libssl-dev \
     libonig-dev \
@@ -16,32 +13,31 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     zip \
     unzip
+
 # Limpiar cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Instalar extensiones PHP 
-RUN docker-php-ext-install pdo_pgsql pgsql
+RUN docker-php-ext-install pdo_pgsql pgsql gd zip
 
 # Instalar composer
 COPY --from=composer:2.5.8 /usr/bin/composer /usr/bin/composer
 
-# Crear usuario para correr comandos Composer y Artisan
-#RUN useradd -G www-data,root -u $uid -d /home/$user $user
-#RUN mkdir -p /home/$user/.composer && \
- #   chown -R $user:$user /home/$user
-
 # Directorio de trabajo
+WORKDIR /var/www/backend
 
-
-COPY . /var/www/backend
-WORKDIR /var/www/backend/
-
-RUN composer install --no-ansi --no-dev --no-interaction --no-progress --optimize-autoloader
-RUN php artisan key:generate
-#RUN php artisan migrate
+COPY . /var/www/backend/
+# Establecer acceso a las carpetas de archivos
 RUN chown -R www-data:www-data storage/ bootstrap/cache/
+
+
+# Instalar dependencias
+RUN composer install --no-ansi --no-dev --no-interaction --no-progress --optimize-autoloader
+
+# Exponer el puerto 9000 del contenedor
 EXPOSE 9000
 
-#USER $user
+# Ejecutar el servicio fpm
+CMD ["php-fpm"]
 
 

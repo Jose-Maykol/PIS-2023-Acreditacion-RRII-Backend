@@ -215,6 +215,7 @@ class StandardService
         }
 
         return [
+                "isManager" => $this->userRepository->checkIfUserIsManagerStandard($standard_id, auth()->user()),
                 "evidences" => $evidences,
                 "folders" => $folders,
             ]

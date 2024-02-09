@@ -94,6 +94,7 @@ class PlanRepository
                 'plans.advance',
                 'plans.user_id',
                 'standards.nro_standard as nro_standard',
+                'standards.id as standard_id',
                 'standards.name as standard_name',
                 'users.name as user_name',
                 'plan_status.description as plan_status'

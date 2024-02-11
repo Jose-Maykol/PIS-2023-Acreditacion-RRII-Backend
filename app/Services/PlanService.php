@@ -6,6 +6,7 @@ use App\Models\DateModel;
 use App\Models\PlanModel;
 use App\Models\RegistrationStatusModel;
 use App\Models\StandardModel;
+use App\Repositories\DateSemesterRepository;
 use App\Repositories\PlanRepository;
 use App\Repositories\StandardRepository;
 use App\Repositories\UserRepository;
@@ -20,8 +21,10 @@ class PlanService
     protected $userRepository;
     protected $standardRepository;
     protected $standardService;
-    public function __construct(StandardService $standardService, PlanRepository $planRepository, StandardRepository $standardRepository, UserRepository $userRepository)
+    protected $dateRepository;
+    public function __construct(DateSemesterRepository $dateRepository, StandardService $standardService, PlanRepository $planRepository, StandardRepository $standardRepository, UserRepository $userRepository)
     {
+        $this->dateRepository = $dateRepository;
         $this->standardService = $standardService;
         $this->planRepository = $planRepository;
         $this->standardRepository = $standardRepository;
@@ -127,6 +130,7 @@ class PlanService
         }
 
         return [
+            "isSemesterClosed" => $this->dateRepository->isSemesterClosed($year, $semester),
             'plans' => $plans,
             'isManager' => $this->userRepository->checkIfUserIsManagerStandard($request->standard_id, $userAuth)
         ];
@@ -171,7 +175,10 @@ class PlanService
             $plan->isCreator = ($plan->user_id == $userAuth->id) ? true : false;
             unset($plan->user_id);
         }
-        return $plans;
+        return [
+            'plans' => $plans,
+            "isSemesterClosed" => $this->dateRepository->isSemesterClosed($year, $semester)
+        ];
     }
 
     public function exportPlanResume($year, $semester){

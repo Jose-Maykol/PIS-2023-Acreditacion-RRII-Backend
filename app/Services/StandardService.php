@@ -8,6 +8,7 @@ use App\Models\EvidenceTypeModel;
 use App\Models\FileModel;
 use App\Models\FolderModel;
 use App\Models\StandardStatusModel;
+use App\Repositories\DateSemesterRepository;
 use App\Repositories\EvidenceRepository;
 use App\Repositories\FolderRepository;
 use App\Repositories\StandardRepository;
@@ -23,8 +24,10 @@ class StandardService
     protected $userRepository;
     protected $folderRepository;
     protected $evidenceRepository;
-    public function __construct(EvidenceRepository $evidenceRepository, StandardRepository $standardRepository, UserRepository $userRepository, FolderRepository $folderRepository)
+    protected $dateRepository;
+    public function __construct(DateSemesterRepository $dateRepository, EvidenceRepository $evidenceRepository, StandardRepository $standardRepository, UserRepository $userRepository, FolderRepository $folderRepository)
     {
+        $this->dateRepository = $dateRepository;
         $this->folderRepository = $folderRepository;
         $this->evidenceRepository = $evidenceRepository;
         $this->standardRepository = $standardRepository;
@@ -38,8 +41,11 @@ class StandardService
         if (!$this->userRepository->isAdministrator($userAuth)) {
             throw new \App\Exceptions\User\UserNotAuthorizedException();
         }
-
-        return $this->standardRepository->listStandardsAssignment($year, $semester);
+        $standards = $this->standardRepository->listStandardsAssignment($year, $semester);
+        return [
+            'standards' => $standards,
+            "isSemesterClosed" => $this->dateRepository->isSemesterClosed($year, $semester)
+        ];
     }
 
     public function listStandardHeaders($year, $semester)

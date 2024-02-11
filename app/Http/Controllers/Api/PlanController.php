@@ -266,12 +266,13 @@ class PlanController extends Controller
                 "status" => 1,
                 "message" => "Planes de mejora del usuario",
                 "data" => [
-                    "improvement_plans" => $result->items(),
-                    "total" => $result->total(),
-                    "per_page" => $result->perPage(),
-                    "current_page" => $result->currentPage(),
-                    "last_page" => $result->lastPage(),
-                    "has_more_pages" => $result->hasMorePages(),
+                    'isSemesterClosed' => $result['isSemesterClosed'],
+                    "improvement_plans" => $result['plans']->items(),
+                    "total" => $result['plans']->total(),
+                    "per_page" => $result['plans']->perPage(),
+                    "current_page" => $result['plans']->currentPage(),
+                    "last_page" => $result['plans']->lastPage(),
+                    "has_more_pages" => $result['plans']->hasMorePages(),
                 ]
             ], 200);
         }

@@ -122,4 +122,10 @@ class DateSemesterRepository
 
         return $dates;
     }
+
+    public function isSemesterClosed($year, $semester){
+        return DateModel::where('year', $year)
+        ->where('semester', $semester)
+        ->where('is_closed', true)->exists();
+    }
 }

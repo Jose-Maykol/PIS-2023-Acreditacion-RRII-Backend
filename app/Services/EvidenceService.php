@@ -76,6 +76,7 @@ class EvidenceService
         }
 
         return [
+            "isSemesterClosed" => $this->dateRepository->isSemesterClosed($year, $semester),
             "isManager" => $this->userRepository->checkIfUserIsManagerStandard($standard_id, auth()->user()),
             "evidences" => $evidences,
             "folders" => $folders,

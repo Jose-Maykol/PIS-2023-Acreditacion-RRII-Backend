@@ -365,8 +365,8 @@ class EvidenceService
         $standard = $this->standardRepository->getStandardActiveById($standardId);
         $evidence_type = $this->evidenceRepository->getTypeEvidence($typeEvidenceId);
 
-        if ($this->userRepository->checkIfUserIsManagerStandard($standard->id, auth()->user())) {
-            throw new \App\Exceptions\User\UserNotFoundException("Usuario no autorizado.");
+        if (!$this->userRepository->checkIfUserIsManagerStandard($standard->id, auth()->user())) {
+            throw new \Illuminate\Auth\Access\AuthorizationException("El usuario no está asignado al estándar");
         }
         $pathRoot = 'evidencias/' . $year . '/' . $semester . '/' . 'estandar_' . $standard->nro_standard . '/tipo_evidencia_' . $evidence_type->description;
         $relativePath = $generalPath == '/' ? $generalPath . $file->getClientOriginalName() : $generalPath . '/' . $file->getClientOriginalName();

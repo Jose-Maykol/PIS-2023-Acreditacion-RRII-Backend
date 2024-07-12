@@ -37,14 +37,12 @@ class GoogleDriveService
         $folderId = $folder->id;
       }
 
-      //$this->shareFolder($service, $folderId, 'jpaniura@unsa.edu.pe');
-
       $parentId = $folderId;
     }
     return $parentId;
   }
 
-  public function shareFolder($service, $folderId, $emailAddress)
+  /*   public function shareFolder($service, $folderId, $emailAddress)
   {
     $permission = new Drive\Permission([
       'type' => 'user',
@@ -59,7 +57,7 @@ class GoogleDriveService
     } catch (\Exception $e) {
       throw new \Exception("Error al compartir la carpeta: " . $e->getMessage());
     }
-  }
+  } */
 
   protected function getFolderId($service, $folderName, $parentId)
   {

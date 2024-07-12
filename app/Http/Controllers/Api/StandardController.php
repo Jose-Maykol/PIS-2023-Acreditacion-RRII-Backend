@@ -25,10 +25,7 @@ use Exception;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Validator;
 
-
-
 //require 'vendor/autoload.php';
-
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class StandardController extends Controller
@@ -36,10 +33,10 @@ class StandardController extends Controller
     protected $standardService;
     protected $evidenceService;
     protected $standardRepository;
+
     public function __construct(StandardRepository $standardRepository, StandardService $standardService, EvidenceService $evidenceService)
     {
         $this->standardRepository = $standardRepository;
-
         $this->standardService = $standardService;
         $this->evidenceService = $evidenceService;
     }
@@ -350,7 +347,6 @@ class StandardController extends Controller
                 ]
             ], $e->getCode());
         }
-        
     }
 
     public function blockNarrative(Request $request)
@@ -375,7 +371,6 @@ class StandardController extends Controller
                 ]
             ], $e->getCode());
         }
-        
     }
 
     public function unlockNarrative(Request $request)
@@ -392,7 +387,6 @@ class StandardController extends Controller
                 "message" => "No se pudo desbloquear la narrativa.",
             ], $e->getCode());
         }
-        
     }
     public function updateNarrative($year, $semester, $standard_id, Request $request)
     {
@@ -426,10 +420,10 @@ class StandardController extends Controller
         }
     }
 
-    public function enableNarrative(Request $request)
+    public function enableNarrative($year, $semester, Request $request)
     {
         try {
-            $result = $this->standardService->enableNarrative($request);
+            $result = $this->standardService->enableNarrative($year, $semester, $request);
             return response()->json([
                 "status" => 1,
                 "data" => $result,
@@ -437,10 +431,9 @@ class StandardController extends Controller
         } catch (Exception $e) {
             return response()->json([
                 "status" => 0,
-                "message" => "No se pudo habilitar la narrativa.",
+                "message" => $e->getMessage(),
             ], $e->getCode());
         }
-        
     }
 
     public function searchEvidence($year, $semester, $standard_id)
@@ -551,5 +544,4 @@ class StandardController extends Controller
             ], $e->getCode());
         }
     }
-
 }

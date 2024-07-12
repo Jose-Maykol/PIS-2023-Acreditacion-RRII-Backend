@@ -3,19 +3,15 @@
 namespace App\Services;
 
 use App\Models\DateModel;
-use App\Models\EvidenceModel;
 use App\Models\EvidenceTypeModel;
-use App\Models\FileModel;
-use App\Models\FolderModel;
-use App\Models\StandardStatusModel;
 use App\Repositories\DateSemesterRepository;
 use App\Repositories\EvidenceRepository;
 use App\Repositories\FolderRepository;
 use App\Repositories\StandardRepository;
 use App\Repositories\UserRepository;
+use App\Services\GoogleDriveService;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class StandardService
 {
@@ -25,13 +21,22 @@ class StandardService
     protected $folderRepository;
     protected $evidenceRepository;
     protected $dateRepository;
-    public function __construct(DateSemesterRepository $dateRepository, EvidenceRepository $evidenceRepository, StandardRepository $standardRepository, UserRepository $userRepository, FolderRepository $folderRepository)
-    {
+    protected $googleDriveService;
+
+    public function __construct(
+        DateSemesterRepository $dateRepository,
+        EvidenceRepository $evidenceRepository,
+        StandardRepository $standardRepository,
+        UserRepository $userRepository,
+        FolderRepository $folderRepository,
+        GoogleDriveService $googleDriveService
+    ) {
         $this->dateRepository = $dateRepository;
         $this->folderRepository = $folderRepository;
         $this->evidenceRepository = $evidenceRepository;
         $this->standardRepository = $standardRepository;
         $this->userRepository = $userRepository;
+        $this->googleDriveService = new $googleDriveService;
     }
 
     public function listStandardsAssignment($year, $semester)
@@ -100,8 +105,8 @@ class StandardService
             throw new \App\Exceptions\Standard\StandardNotFoundException();
         }
 
-        if (!($this->userRepository->isAdministrator($userAuth) 
-                or $this->userRepository->checkIfUserIsManagerStandard($standard_id, $userAuth))) {
+        if (!($this->userRepository->isAdministrator($userAuth)
+            or $this->userRepository->checkIfUserIsManagerStandard($standard_id, $userAuth))) {
             throw new \App\Exceptions\User\UserNotAuthorizedException();
         }
 
@@ -171,7 +176,8 @@ class StandardService
         return $standardStatus;
     }
 
-    public function getStandardEvidences(Request $request){
+    public function getStandardEvidences(Request $request)
+    {
         $year = $request->route('year');
         $semester = $request->route('semester');
 
@@ -221,18 +227,18 @@ class StandardService
         }
 
         return [
-                "isManager" => $this->userRepository->checkIfUserIsManagerStandard($standard_id, auth()->user()),
-                "evidences" => $evidences,
-                "folders" => $folders,
-            ]
-        ;
+            "isManager" => $this->userRepository->checkIfUserIsManagerStandard($standard_id, auth()->user()),
+            "evidences" => $evidences,
+            "folders" => $folders,
+        ];
     }
-    public function codeFormat($standard_id, $evidence_type_id, $nro_code){
+    public function codeFormat($standard_id, $evidence_type_id, $nro_code)
+    {
         $code = "E";
-        if($evidence_type_id == EvidenceTypeModel::getPlanificationId()){
+        if ($evidence_type_id == EvidenceTypeModel::getPlanificationId()) {
             $code = $code . "P.";
         }
-        if($evidence_type_id == EvidenceTypeModel::getResultId()){
+        if ($evidence_type_id == EvidenceTypeModel::getResultId()) {
             $code = $code . "R.";
         }
         /*
@@ -241,14 +247,15 @@ class StandardService
         }*/
         $standard = $this->standardRepository->getStandardActiveById($standard_id);
 
-        if($nro_code < 10){
-            $nro_code = "0". $nro_code;
+        if ($nro_code < 10) {
+            $nro_code = "0" . $nro_code;
         }
         $code = $code . "E" . $standard->nro_standard . "." . $nro_code;
         return $code;
     }
 
-    public function activateNarrative(Request $request){
+    public function activateNarrative(Request $request)
+    {
         $standard_id = $request->standard_id;
         if (!$this->standardRepository->getStandardActiveById($standard_id)) {
             throw new \App\Exceptions\Standard\StandardNotFoundException();
@@ -257,7 +264,8 @@ class StandardService
         return $standard;
     }
 
-    public function blockNarrative(Request $request){
+    public function blockNarrative(Request $request)
+    {
         $standard_id = $request->route('standard_id');
         $user_auth = auth()->user();
 
@@ -267,7 +275,7 @@ class StandardService
         if (!$this->userRepository->checkIfUserIsManagerStandard($standard_id, $user_auth)) {
             throw new \App\Exceptions\User\UserNotAuthorizedException();
         }
-        
+
         if ($this->standardRepository->isBeingEdited($standard_id)) {
             $user = $this->standardRepository->getUserBlockNarrative($standard_id);
 
@@ -288,7 +296,9 @@ class StandardService
         $user_standard = $this->standardRepository->blockNarrative($standard_id, $user_auth->id);
         return $this->standardRepository->getStandardActiveById($standard_id);
     }
-    public function unlockNarrative(Request $request){
+
+    public function unlockNarrative(Request $request)
+    {
         $standard_id = $request->route('standard_id');
         $user = auth()->user();
         if (!$this->standardRepository->getStandardActiveById($standard_id)) {
@@ -301,7 +311,8 @@ class StandardService
         return $user_standard;
     }
 
-    public function enableNarrative(Request $request){
+    public function enableNarrative($year, $semester, Request $request)
+    {
         $standard_id = $request->route('standard_id');
         $user = auth()->user();
         if (!$this->standardRepository->getStandardActiveById($standard_id)) {
@@ -310,17 +321,25 @@ class StandardService
         if (!$this->userRepository->checkIfUserIsManagerStandard($standard_id, $user)) {
             throw new \App\Exceptions\User\UserNotAuthorizedException();
         }
+        if ($this->standardRepository->getDocumentId($standard_id)) {
+            throw new \App\Exceptions\Standard\NarrativeIsAlreadyExistException();
+        }
+        $path = 'narrativas/' . $year . '/' . $semester;
+        $folder_id = $this->googleDriveService->createFolder($path);
+        // TODO: Compartir con todos los usuarios asignados al estandar
+        $currentStandard = $this->standardRepository->getStandardById($standard_id);
+        $nro_standard = $currentStandard->nro_standard;
+        $doc_id = $this->googleDriveService->createGoogleDoc("Estándar " . $nro_standard . " - Narrativa", $folder_id);
+        $this->standardRepository->saveDocumentId($standard_id, $doc_id);
         $standard = $this->standardRepository->enableNarrative($standard_id);
         return $standard;
     }
 
-    public function narrativeIsEnabled($standard_id){
-        if ($this->standardRepository->narrativeIsEnabled($standard_id)){
+    public function narrativeIsEnabled($standard_id)
+    {
+        if ($this->standardRepository->narrativeIsEnabled($standard_id)) {
             throw new \App\Exceptions\Standard\NarrativeIsEnabledException();
         }
         return null;
     }
-
-    
-
 }

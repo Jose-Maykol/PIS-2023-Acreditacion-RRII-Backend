@@ -10,7 +10,6 @@ Route::middleware("auth:sanctum")->prefix('standards')->group(function () {
 
 
     //Route::put('pruebas/{standard_id}', [StandardController::class, 'pruebas']);
-
     //rutas estandar
     //Route::get('status', [StandardController::class, 'standardStatus']);
     Route::middleware('semesterisopen')->group(function () {
@@ -32,9 +31,6 @@ Route::middleware("auth:sanctum")->prefix('standards')->group(function () {
 
     Route::get('narratives/export', [NarrativasController::class, 'reportAllNarratives']);
 
-
-
-
     Route::get('partial', [StandardController::class, 'listPartialStandard']);
     Route::get('users', [StandardController::class, 'listStandardsAssignment']);
     Route::get('standard-values', [StandardController::class, 'listEstandarValores']);
@@ -51,13 +47,11 @@ Route::middleware("auth:sanctum")->prefix('standards')->group(function () {
             Route::delete('', [NarrativasController::class, 'delete'])->where('narrative_id', '[0-9]+');
             Route::post('block', [StandardController::class, 'blockNarrative'])->where('narrative_id', '[0-9]+');
             Route::post('unlock', [StandardController::class, 'unlockNarrative'])->where('narrative_id', '[0-9]+');
-            Route::post('enable', [StandardController::class, 'enableNarrative'])->where('narrative_id', '[0-9]+');    
+            Route::post('enable', [StandardController::class, 'enableNarrative'])->where('narrative_id', '[0-9]+');
         });
         //Route::post('', [NarrativasController::class, 'create']);
         Route::get('', [NarrativasController::class, 'get'])->where('narrative_id', '[0-9]+');
         //Route::put('', [NarrativasController::class, 'update']);
-
-
         //Route::get('', [NarrativasController::class, 'listNarratives']);
         //Route::get('last/{narrative_id}', [NarrativasController::class, 'lastNarrative'])->where('narrative_id', '[0-9]+');
 

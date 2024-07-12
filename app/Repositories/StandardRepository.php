@@ -126,44 +126,60 @@ class StandardRepository
             ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
             ->first();
     }
-    public function activateNarrative($standard_id){
+    public function activateNarrative($standard_id)
+    {
         $standard = $this->getStandardById($standard_id);
         $standard->narrative_is_active = true;
         $standard->save();
         return $standard;
     }
 
-    public function isBeingEdited($standard_id){
+    public function isBeingEdited($standard_id)
+    {
         return UserStandardModel::where('standard_id', $standard_id)->where('is_being_edited', true)->exists();
     }
-    public function blockNarrative($standard_id, $user_id){
+    public function blockNarrative($standard_id, $user_id)
+    {
         $user_standard = UserStandardModel::where('standard_id', $standard_id)->where('user_id', $user_id)->first();
         $user_standard->is_being_edited = true;
         $user_standard->save();
         return $user_standard;
     }
-    public function unblockNarrative($standard_id, $user_id){
+    public function unblockNarrative($standard_id, $user_id)
+    {
         $user_standard = UserStandardModel::where('standard_id', $standard_id)->where('user_id', $user_id)->first();
         $user_standard->is_being_edited = false;
         $user_standard->save();
         return $user_standard;
     }
-    public function getUserBlockNarrative($standard_id){
+    public function getUserBlockNarrative($standard_id)
+    {
         $user_standard = UserStandardModel::where('standard_id', $standard_id)->where('is_being_edited', true)->first();
         $user = User::find($user_standard->user_id);
 
         return $user;
     }
 
-    public function enableNarrative($standard_id){
+    public function enableNarrative($standard_id)
+    {
         $standard = StandardModel::find($standard_id);
         $standard->narrative_is_active = true;
         $standard->save();
         return $standard;
     }
 
-    public function narrativeIsEnabled($standard_id){
+    public function narrativeIsEnabled($standard_id)
+    {
         $standard = StandardModel::find($standard_id);
         return $standard->narrative_is_active;
+    }
+
+    public static function getDocumentId($standard_id)
+    {
+        return StandardModel::where('id', $standard_id)->value('document_id');
+    }
+    public static function saveDocumentId($standard_id, $document_id)
+    {
+        return StandardModel::where('id', $standard_id)->update(['document_id' => $document_id]);
     }
 }

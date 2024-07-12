@@ -17,7 +17,7 @@ class StandardModel extends Model
     use HasFactory;
     public $timestamps = true;
 
-    protected $table ='standards';
+    protected $table = 'standards';
     protected $fillable = [
         'name',
         'description',
@@ -26,38 +26,47 @@ class StandardModel extends Model
         'related_standards',
         'narrative',
         'nro_standard',
-		'date_id',
+        'date_id',
         'standard_status_id',
         'registration_status_id',
+        'document_id',
         'narrative_is_active'
     ];
 
-    public function users(): BelongsToMany    {
+    public function users(): BelongsToMany
+    {
         return $this->belongsToMany(User::class, 'users_standards', 'standard_id', 'user_id')
-        ->using(UserStandardModel::class);
+            ->using(UserStandardModel::class);
     }
-    public function standard_status() {
-        return $this->belongsTo(StandardStatusModel::class, 'standard_status_id');    }
+    public function standard_status()
+    {
+        return $this->belongsTo(StandardStatusModel::class, 'standard_status_id');
+    }
     /*
     public static function user($standard_id){
         return StandardModel::find($standard_id)->users();
     }*/
-    
-    public function plans(){
-        return $this->hasMany(PlanModel::class,'standard_id');
+
+    public function plans()
+    {
+        return $this->hasMany(PlanModel::class, 'standard_id');
     }
-    public static function exists($standard_id){
+    public static function exists($standard_id)
+    {
         return self::where('id', $standard_id)->exists();
     }
-    public static function isActive($standard_id){
+    public static function isActive($standard_id)
+    {
         return self::where('id', $standard_id)
-                    ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
-                    ->exists();
+            ->where('registration_status_id', RegistrationStatusModel::registrationActiveId())
+            ->exists();
     }
-    public static function existsAndActive($standard_id){
+    public static function existsAndActive($standard_id)
+    {
         return self::exists($standard_id) and self::isActive($standard_id);
     }
-    public static function create34Standards($year, $semester){
+    public static function create34Standards($year, $semester)
+    {
         //Standard #1
         DB::table('standards')->insert([
             'name' => "Propósitos Articulados",

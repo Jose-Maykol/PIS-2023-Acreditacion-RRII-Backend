@@ -9,8 +9,7 @@ use App\Http\Controllers\Api\ResponsablesValoresController;
 use App\Http\Controllers\Api\EstadosValoresController;
 use App\Http\Controllers\Api\PlanController;
 
-Route::prefix('values')->group(function(){
-
+Route::prefix('values')->group(function () {
 
     Route::get('responsibles', [ResponsablesValoresController::class, 'listResponsablesValores']);
     //fuentes Valores
@@ -20,11 +19,7 @@ Route::prefix('values')->group(function(){
     //Estandares  valores
     Route::get('standards', [StandardController::class, 'listEstandarValores']);
 
-    Route::get('per',[PlanController::class, 'permissions']);
-    
-    
-    
-    
+    Route::get('per', [PlanController::class, 'permissions']);
 });
 
 //Responsables Valores

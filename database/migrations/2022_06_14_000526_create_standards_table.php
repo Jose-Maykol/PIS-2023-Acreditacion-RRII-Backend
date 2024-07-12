@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('dimension', 100);
             $table->string('related_standards', 550);
             $table->unsignedTinyInteger('nro_standard',);
+            $table->string('document_id', 100)->nullable();
             $table->mediumText('narrative')->nullable();
             $table->boolean('narrative_is_active')->default(false);
             $table->timestamps();

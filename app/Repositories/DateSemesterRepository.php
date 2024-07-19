@@ -11,6 +11,7 @@ use App\Models\FacultyStaffModel;
 use App\Models\IdentificationContextModel;
 use App\Models\RegistrationStatusModel;
 use App\Models\StandardModel;
+use Carbon\Carbon;
 
 class DateSemesterRepository
 {
@@ -127,5 +128,22 @@ class DateSemesterRepository
         return DateModel::where('year', $year)
         ->where('semester', $semester)
         ->where('is_closed', true)->exists();
+    }
+
+    public function checkClosingDate($id_date_semester){
+        $date_semester = DateModel::find($id_date_semester);
+        if(!$date_semester->closing_date){
+            return $date_semester;
+        }
+        
+        $current_date = Carbon::now('America/Lima');
+        $close_date = Carbon::createFromFormat('Y-m-d', $date_semester->closing_date, 'America/Lima')->startOfDay();
+        if($current_date->gte($close_date)){
+            $date_semester->is_closed = true;
+        } else {
+            $date_semester->is_closed = false;
+        }
+        $date_semester->save();
+        return $date_semester;
     }
 }

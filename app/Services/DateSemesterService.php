@@ -68,12 +68,14 @@ class DateSemesterService
 
     public function infoDateSemester($year, $semester){
         $id_date_semester = $this->dateSemesterRepository->dateId($year, $semester);
-        $date_semester = $this->dateSemesterRepository->readDateSemester($id_date_semester);
+        // $date_semester = $this->dateSemesterRepository->readDateSemester($id_date_semester);
+        $date_semester = $this->dateSemesterRepository->checkClosingDate($id_date_semester); 
         return $date_semester;
     }
     public function closeDateSemester($year, $semester, $closing_date){
         $id_date_semester = $this->dateSemesterRepository->dateId($year, $semester);
         $date_semester = $this->dateSemesterRepository->closeDateSemester($id_date_semester, $closing_date);
+        $date_semester = $this->dateSemesterRepository->checkClosingDate($id_date_semester);
         return $date_semester;
     }
     

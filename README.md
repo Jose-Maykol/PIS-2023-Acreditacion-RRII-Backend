@@ -2,8 +2,8 @@
 
 
 ### Configuracion e installacion
-1. Instalar php version 8.0.0 o superior, pagina oficial de descarga [Link]('https://www.php.net/downloads')
-2. Instalar composer click [aqui]('https://getcomposer.org/doc/00-intro.md')
+1. Instalar php version 8.0.0 o superior, pagina oficial de descarga <a href="https://www.php.net/downloads" target="_blank">Click Aqui</a>
+2. Instalar composer <a href="https://getcomposer.org/doc/00-intro.md" target="_blank">Click Aqui</a>
 3. Clonar el proyecto del repositorio
 ```
 git clone github_link_repository

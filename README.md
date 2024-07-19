@@ -12,6 +12,10 @@ git clone github_link_repository
 ```
 composer install
 ```
+- en caso de un error de compatibilidad con los paquetes ejecutar
+```
+composer install --ignore-platform-req=ext-gd
+```
 5. copiar y renombrar el template de `.env.template` a `.env`
 6. Cambiar valores de las variables de entorno
 7. Levantar la base de datos

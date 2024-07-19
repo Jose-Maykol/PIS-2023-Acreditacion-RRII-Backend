@@ -1,31 +1,16 @@
-version: "3.7"
-services:
-  nginx:
-    image: nginx:alpine
-    container_name: rr-ii-nginx
-    restart: unless-stopped
-    ports:
-      - 8000:80
-    volumes:
-      - ./:/var/www/backend
-      - ./docker-compose/nginx:/etc/nginx/conf.d
-    networks:
-      - rr-ii
-  app:
-    build:
-      #args:
-        #user: prod
-        #uid: 1000
-      context: ./
-      dockerfile: Dockerfile
-    container_name: rrii-backend-app
-    restart: unless-stopped
-    working_dir: /var/www/backend
-    volumes:
-      - ./:/var/www/backend
-    networks:
-      - rr-ii
+version: '3'
 
-networks:
-  rr-ii:
-    driver: bridge
+services:
+
+  db:
+    image: postgres:14.3
+    restart: always
+    ports:
+      - '${DB_PORT}:5432'
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_DATABASE}
+    container_name: rrii_db
+    volumes:
+      - ./pgData:/var/lib/postgresql/data

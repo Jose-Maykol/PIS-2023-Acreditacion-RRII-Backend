@@ -194,7 +194,7 @@ class EvidenceService
         $currentPath = 'evidencias/' . $year . '/' . $semester . '/' . 'estandar_' . $standard->nro_standard . '/tipo_evidencia_' . $evidence_type->description;
         $oldPath = $file->path;
         
-        if ($this->userRepository->checkIfUserIsManagerStandard($file->standard_id, auth()->user())) {
+        if (!$this->userRepository->checkIfUserIsManagerStandard($file->standard_id, auth()->user())) {
             throw new \App\Exceptions\User\UserNotFoundException("Usuario no autorizado.");
         }
 
@@ -322,7 +322,7 @@ class EvidenceService
 
         $standard = $this->standardRepository->getStandardActiveById($standardId);
         $evidence_type = $this->evidenceRepository->getTypeEvidence($typeEvidenceId);
-        if ($this->userRepository->checkIfUserIsManagerStandard($standard->id, auth()->user())) {
+        if (!$this->userRepository->checkIfUserIsManagerStandard($standard->id, auth()->user())) {
             throw new \App\Exceptions\User\UserNotFoundException("Usuario no autorizado.");
         }
         $currentPath = 'evidencias/' . $year . '/' . $semester . '/' . 'estandar_' . $standard->nro_standard . '/tipo_evidencia_' . $evidence_type->description;

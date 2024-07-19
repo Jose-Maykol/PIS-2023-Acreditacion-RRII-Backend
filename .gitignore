@@ -17,3 +17,5 @@ yarn-error.log
 /storage/app/evidencias
 /docker-compose
 /database/database.sqlite
+pgData
+.vercel

@@ -387,77 +387,7 @@ class EvidenciasController extends Controller
 
     public function reportAllEvidences(Request $request)
     {
-        $tempfiledocx = tempnam(sys_get_temp_dir(), 'PHPWord');
-        $template = new \PhpOffice\PhpWord\TemplateProcessor('plantilla-evidencias.docx');
-        //Rango de periodos
-        $startYear = $request->input('startYear');
-        $startSemester = $request->input('startSemester');
-        $endYear = $request->input('endYear');
-        $endSemester = $request->input('endSemester');
-        $dates = DateModel::where(function ($query) use ($startYear, $startSemester, $endYear, $endSemester) {
-            $query->where(function ($query) use ($startYear, $startSemester) {
-                $query->where('year', '>', $startYear)
-                    ->orWhere(function ($query) use ($startYear, $startSemester) {
-                        $query->where('year', $startYear)
-                            ->where('semester', '>=', $startSemester);
-                    });
-            })
-                ->where(function ($query) use ($endYear, $endSemester) {
-                    $query->where('year', '<', $endYear)
-                        ->orWhere(function ($query) use ($endYear, $endSemester) {
-                            $query->where('year', $endYear)
-                                ->where('semester', '<=', $endSemester);
-                        });
-                });
-        })->get();
-        $standards = StandardModel::where("date_id", 1)->orderBy('nro_standard')->get();
-        if ($standards->count() > 0) {
-            $template->cloneBlock('block_periodo', $dates->count(), true, true);
-            $template->cloneBlock('block_estandar', $standards->count(), true, true);
-
-            foreach ($standards as $key => $standard) {
-                // Dimensión
-                $template->setValue('dimension#' . ($key + 1), $standard->dimension);
-                // Factor
-                $template->setValue('factor#' . ($key + 1), $standard->factor);
-                // Estandar
-                $template->setValue('n-e#' . ($key + 1), $standard->nro_standard);
-                $template->setValue('estandar#' . ($key + 1), $standard->name);
-
-
-                //Periodos
-                foreach ($dates as $j => $date) {
-                    $template->setValue('year#' . ($j + 1) . '#' . ($key + 1), $date->year);
-                    $template->setValue('semester#' . ($j + 1) . '#' . ($key + 1), $date->semester);
-                    $evidencesCount = Evidence::where("standard_id", $standard->id)->where("date_id", $date->id)->count();
-                    if ($evidencesCount > 0) {
-                        $template->cloneRow('n#' . ($j + 1) . '#' . ($key + 1), $evidencesCount);
-                        $evidencias = Evidence::where("standard_id", $standard->id)->where("date_id", $date->id)->get();
-                        foreach ($evidencias as $m => $evidence) {
-                            $template->setValue('n#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), ($m + 1));
-                            $template->setValue('codigo#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), "No data");
-                            $template->setValue('nombre#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), $evidence->name);
-                            $template->setValue('tipo#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), EvidenciasTipo::evidenceId($evidence->evidence_type_id));
-                            $template->setValue('tamaño#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), $evidence->size);
-                            $template->setValue('fecha#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), $evidence->created_at);
-                        }
-                    } else {
-                        $template->cloneRow('n#' . ($j + 1) . '#' . ($key + 1), -1);
-                        $template->replaceBlock("block_tabla#" . ($j + 1) . "#" . ($key + 1), "No hay evidencias");
-                    }
-                }
-            }
-
-            $template->saveAs($tempfiledocx);
-            $headers = [
-                'Content-Type' => 'application/msword',
-                'Content-Disposition' => 'attachment;filename="evidencias.docx"',
-            ];
-            return response()->download($tempfiledocx, 'reporte-evidencias.docx', $headers);
-        } else {
-            return response([
-                "message" => "!No cuenta con ningún estándar todavía en este periodo",
-            ], 404);
-        }
+        $result = $this->evidenceService->reportAllEvidences($request);
+        return response;
     }
 }

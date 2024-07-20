@@ -464,7 +464,12 @@ class EvidenceService
                     $evidencesCount = EvidenceModel::where("standard_id", $standard->id)->where("date_id", $date->id)->count();
                     if ($evidencesCount > 0) {
                         $template->cloneRow('n#' . ($j + 1) . '#' . ($key + 1), $evidencesCount);
-                        $evidencias = EvidenceModel::where("standard_id", $standard->id)->where("date_id", $date->id)->get();
+                        $evidencias = EvidenceModel::where("standard_id", $standard->id)
+                        ->where("date_id", $date->id)
+                        ->orderBy('standard_id', 'asc')
+                        ->orderBy('evidence_type_id', 'asc')
+                        ->orderBy('code', 'asc')
+                        ->get();
                         foreach ($evidencias as $m => $evidence) {
                             $template->setValue('n#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), ($m + 1));
                             $template->setValue('codigo#' . ($j + 1) . "#" . ($key + 1) . "#" . ($m + 1), $this->standardService->codeFormat($evidence->standard_id,$evidence->evidence_type_id, $evidence->code));
@@ -502,10 +507,35 @@ class EvidenceService
     }
 
     public function getSize($evidence){
+        $sizeInBytes = 0;
+
         if($evidence->folder_id){
-            return $evidence->folder->files->count();
+            $totalSize = 0;
+            $files = $evidence->folder->files;
+            foreach ($files as $file) {
+                $totalSize += $file->size; 
+            }
+            $sizeInBytes = $totalSize;
         }elseif ($evidence->file_id){
-            return $evidence->file->size;
-        }        
+            $sizeInBytes = $evidence->file->size;
+        }
+        
+        return $this->formatSizeUnits($sizeInBytes);
+    }
+
+    private function formatSizeUnits($bytes) {
+        if ($bytes >= 1073741824) {
+            $bytes = number_format($bytes / 1073741824, 2) . ' GB';
+        } elseif ($bytes >= 1048576) {
+            $bytes = number_format($bytes / 1048576, 2) . ' MB';
+        } elseif ($bytes >= 1024) {
+            $bytes = number_format($bytes / 1024, 2) . ' KB';
+        } elseif ($bytes > 1) {
+            $bytes = $bytes . ' bytes';
+        } else {
+            $bytes = '0 bytes';
+        }
+
+        return $bytes;
     }
 }

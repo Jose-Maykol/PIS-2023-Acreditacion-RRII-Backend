@@ -39,7 +39,7 @@ class EvidenceRequest extends CustomFormRequest
             'standard_id' => 'present|required|integer',
             'type_evidence_id' => 'present|required|integer',
             'plan_id' => 'nullable|integer',
-            'file' => 'present|required|file',
+            'file' => 'present|required|file|max:20480',
             'path' => 'string',
             'folder_id' => 'nullable|integer'
         ];

@@ -8,6 +8,11 @@ use App\Repositories\DateSemesterRepository;
 
 use Illuminate\Http\Request;
 
+use PhpOffice\PhpWord\TemplateProcessor;
+use PhpOffice\PhpWord\PhpWord;
+use PhpOffice\PhpWord\Shared\Html;
+use PhpOffice\PhpWord\Element\TextRun;
+
 class NarrativeService
 {
 
@@ -22,7 +27,7 @@ class NarrativeService
     public function reportAllNarratives(Request $request)
     {
         $tempfiledocx = tempnam(sys_get_temp_dir(), 'PHPWord');
-        $template = new \PhpOffice\PhpWord\TemplateProcessor('plantilla-narrativa-v3.docx');
+        $template = new TemplateProcessor('plantilla-narrativa-v3.docx');
         
         //Rango de periodos
         $startYear = $request->input('startYear');
@@ -67,7 +72,34 @@ class NarrativeService
                     $template->setValue('semester#' . ($j + 1) . '#'.($key + 1) , $date->semester);
                     $estandar = StandardModel::where("nro_standard", $standard->nro_standard)->where("date_id", $date->id)->first();
                     if($estandar != null && $estandar->narrative != null){
-                        $template->setValue('narrativa#' . ($j + 1) . '#'.($key + 1) , $estandar->narrative);
+                            // Parsear el HTML y convertirlo a un TextRun
+                            $html = $estandar->narrative;
+
+                            $phpWord = new PhpWord();
+                            $section = $phpWord->addSection();
+                            Html::addHtml($section, $html, false, false);
+
+                            // Verificar los elementos de la sección
+                            $elements = $section->getElements();
+                            
+                            // Crear un bloque complejo con los elementos leídos de la sección temporal
+                            $textRun = new TextRun();
+                            foreach ($elements as $element) {
+                                if ($element instanceof \PhpOffice\PhpWord\Element\Text) {
+                                    $textRun->addText($element->getText(), $element->getFontStyle(), $element->getParagraphStyle());
+                                } elseif ($element instanceof \PhpOffice\PhpWord\Element\TextRun) {
+                                    foreach ($element->getElements() as $subElement) {
+                                        $textRun->addText($subElement->getText(), $subElement->getFontStyle(), $subElement->getParagraphStyle());
+                                    }
+                                } elseif ($element instanceof \PhpOffice\PhpWord\Element\TextBreak) {
+                                    $textRun->addTextBreak();
+                                } elseif ($element instanceof \PhpOffice\PhpWord\Element\Link) {
+                                    $textRun->addLink($element->getSource(), $element->getText(), $element->getFontStyle(), $element->getParagraphStyle());
+                                }
+                            }
+                        
+                            // Insertar el TextRun en el template
+                            $template->setComplexBlock('narrativa#' . ($j + 1) . '#'.($key + 1), $textRun);
                     }
                     else if($estandar == null){
                         $template->setValue('narrativa#' . ($j + 1) . '#'.($key + 1) , "Este periodo no tiene ningún estándar");

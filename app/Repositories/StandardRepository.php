@@ -178,8 +178,14 @@ class StandardRepository
     {
         return StandardModel::where('id', $standard_id)->value('document_id');
     }
+
     public static function saveDocumentId($standard_id, $document_id)
     {
         return StandardModel::where('id', $standard_id)->update(['document_id' => $document_id]);
+    }
+
+    public static function getUsersStandard($standard_id)
+    {
+        return UserStandardModel::where('standard_id', $standard_id)->get();
     }
 }

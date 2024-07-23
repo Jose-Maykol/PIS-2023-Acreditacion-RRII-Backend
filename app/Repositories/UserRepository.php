@@ -17,6 +17,9 @@ class UserRepository
 
     public function getUserById($user_id)
     {
+        return User::select('users.id', 'users.name', 'users.lastname', 'users.email')
+            ->where('users.id', $user_id)
+            ->first();
     }
 
 

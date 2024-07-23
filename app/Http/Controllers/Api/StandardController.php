@@ -93,11 +93,12 @@ class StandardController extends Controller
         }
 
         foreach ($request->all() as $standardData) {
+
+            $standard = new StandardModel();
+
             if ($standardData['description'] == null) {
                 $standard->description = "";
             }
-
-            $standard = new StandardModel();
 
             $standard->name = $standardData['name'];
             $standard->factor = $standardData['factor'];
@@ -388,6 +389,7 @@ class StandardController extends Controller
             ], $e->getCode());
         }
     }
+
     public function updateNarrative($year, $semester, $standard_id, Request $request)
     {
         /*
@@ -428,6 +430,22 @@ class StandardController extends Controller
                 "status" => 1,
                 "data" => $result,
             ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                "status" => 0,
+                "message" => $e->getMessage(),
+            ], $e->getCode());
+        }
+    }
+
+    public function insertLinkNarrative($year, $semester, Request $request)
+    {
+        try {
+            $result = $this->standardService->linkEvidenceToNarrative($year, $semester, $request);
+            return response()->json([
+                "status" => 1,
+                "message" => $result,
+            ], 201);
         } catch (Exception $e) {
             return response()->json([
                 "status" => 0,

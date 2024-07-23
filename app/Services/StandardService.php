@@ -79,6 +79,14 @@ class StandardService
         if (!$this->standardRepository->getStandardActiveById($standard_id)) {
             throw new \App\Exceptions\Standard\StandardNotFoundException();
         }
+        if ($this->standardRepository->getDocumentId($standard_id) != null) {
+            foreach ($request->users as $user) {
+                $user = $this->userRepository->getUserById($user);
+                $userEmail = $user->email;
+                $documentId = $this->standardRepository->getDocumentId($standard_id);
+                $this->googleDriveService->shareGoogleDoc($documentId, $userEmail);
+            }
+        }
         return $this->standardRepository->changeStandardAssignment($standard_id, $request->users);
     }
 
@@ -326,13 +334,34 @@ class StandardService
         }
         $path = 'narrativas/' . $year . '/' . $semester;
         $folder_id = $this->googleDriveService->createFolder($path);
-        // TODO: Compartir con todos los usuarios asignados al estandar
         $currentStandard = $this->standardRepository->getStandardById($standard_id);
         $nro_standard = $currentStandard->nro_standard;
         $doc_id = $this->googleDriveService->createGoogleDoc("Estándar " . $nro_standard . " - Narrativa", $folder_id);
+        $users = $this->standardRepository->getUsersStandard($standard_id);
+        foreach ($users as $user) {
+            $user = $this->userRepository->getUserById($user->user_id);
+            $this->googleDriveService->shareGoogleDoc($doc_id, $user->email);
+        }
         $this->standardRepository->saveDocumentId($standard_id, $doc_id);
         $standard = $this->standardRepository->enableNarrative($standard_id);
         return $standard;
+    }
+
+    public function linkEvidenceToNarrative($year, $semester, Request $request)
+    {
+        $standard_id = $request->route('standard_id');
+        $user = auth()->user();
+        if (!$this->standardRepository->getStandardActiveById($standard_id)) {
+            throw new \App\Exceptions\Standard\StandardNotFoundException();
+        }
+        if (!$this->userRepository->checkIfUserIsManagerStandard($standard_id, $user)) {
+            throw new \App\Exceptions\User\UserNotAuthorizedException();
+        }
+        $doc_id = $this->standardRepository->getDocumentId($standard_id);
+        $evidence_code = $request->evidence_code;
+        $url_evidence = $request->url_evidence;
+        $this->googleDriveService->insertLinkToDocument($doc_id, $evidence_code, $url_evidence);
+        return "Link insertado";
     }
 
     public function narrativeIsEnabled($standard_id)

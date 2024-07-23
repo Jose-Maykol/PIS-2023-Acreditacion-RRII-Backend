@@ -48,6 +48,7 @@ Route::middleware("auth:sanctum")->prefix('standards')->group(function () {
             Route::post('block', [StandardController::class, 'blockNarrative'])->where('narrative_id', '[0-9]+');
             Route::post('unlock', [StandardController::class, 'unlockNarrative'])->where('narrative_id', '[0-9]+');
             Route::post('enable', [StandardController::class, 'enableNarrative'])->where('narrative_id', '[0-9]+');
+            Route::post('insert', [StandardController::class, 'insertLinkNarrative'])->where('narrative_id', '[0-9]+');
         });
         //Route::post('', [NarrativasController::class, 'create']);
         Route::get('', [NarrativasController::class, 'get'])->where('narrative_id', '[0-9]+');

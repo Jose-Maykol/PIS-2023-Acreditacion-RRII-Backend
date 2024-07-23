@@ -128,9 +128,9 @@ class NarrativasController extends Controller
             ruta(get): /api/standards/1/narratives/1
             datos: {json con los datos qué nos mandan}
         */
-        
+
         if (StandardModel::where("id", $standard_id)->exists()) {
-            $standard = StandardModel::where("id", $standard_id)->select("id", "narrative", "narrative_is_active")->first();
+            $standard = StandardModel::where("id", $standard_id)->select("id", "narrative", "narrative_is_active", "document_id")->first();
             $standard->isManager = auth()->user()->isAssignStandard($standard_id);
             $standard->isAdministrator = auth()->user()->isAdmin();
             if ($this->standardRepository->isBeingEdited($standard_id)) {
@@ -146,8 +146,7 @@ class NarrativasController extends Controller
                     'user_email' => $user->email,
                     'user_avatar' => $user->avatar
                 ];
-            }
-            else {
+            } else {
                 $standard->isBlock = false;
             }
             return response()->json([
@@ -160,7 +159,7 @@ class NarrativasController extends Controller
             ], 404);
         }
     }
-/*
+    /*
     public function listNarratives()
     {
         
@@ -197,5 +196,5 @@ class NarrativasController extends Controller
     {
         $result = $this->narrativeService->reportAllNarratives($request);
         return $result;
-    } 
+    }
 }

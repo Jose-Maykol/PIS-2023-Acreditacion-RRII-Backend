@@ -114,7 +114,27 @@ class GoogleDriveService
     }
   }
 
-  public function writeToDoc($docId, $text, $link)
+  public function shareParentFolder($emailAddress)
+  {
+    $folderId = env('GOOGLE_DRIVE_FOLDER_ID');
+    $service = new Drive($this->client);
+    $permission = new Drive\Permission([
+      'type' => 'user',
+      'role' => 'reader',
+      'emailAddress' => $emailAddress,
+    ]);
+
+    try {
+      $service->permissions->create($folderId, $permission, [
+        'fields' => 'id',
+      ]);
+    } catch (\Exception $e) {
+      // Manejo de errores
+      throw new \Exception("Error al compartir la carpeta: " . $e->getMessage());
+    }
+  }
+
+  public function insertLinkToDocument($docId, $text, $link)
   {
     $docsService = new Docs($this->client);
 

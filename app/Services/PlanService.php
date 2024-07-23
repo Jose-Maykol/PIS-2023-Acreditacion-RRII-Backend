@@ -147,7 +147,7 @@ class PlanService
                 or $this->userRepository->isAdministrator($userAuth))) {
             throw new \App\Exceptions\User\UserNotAuthorizedException();
         }
-        $this->standardService->narrativeIsEnabled($standard_id);
+        // $this->standardService->narrativeIsEnabled($standard_id);
 
 
         $plan = $this->planRepository->deletePlan($plan_id);

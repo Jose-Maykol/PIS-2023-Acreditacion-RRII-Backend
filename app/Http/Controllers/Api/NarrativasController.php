@@ -133,22 +133,6 @@ class NarrativasController extends Controller
             $standard = StandardModel::where("id", $standard_id)->select("id", "narrative", "narrative_is_active", "document_id")->first();
             $standard->isManager = auth()->user()->isAssignStandard($standard_id);
             $standard->isAdministrator = auth()->user()->isAdmin();
-            if ($this->standardRepository->isBeingEdited($standard_id)) {
-                $standard->isBlock = true;
-                $user = $this->standardRepository->getUserBlockNarrative($standard_id);
-                if ($user->providers()->first() !== null) {
-                    $user->avatar = $user->providers()->first()->avatar;
-                } else {
-                    $user->avatar = null;
-                }
-                $standard->block_user = [
-                    'user_name' => $user->lastname . ' ' . $user->name,
-                    'user_email' => $user->email,
-                    'user_avatar' => $user->avatar
-                ];
-            } else {
-                $standard->isBlock = false;
-            }
             return response()->json([
                 "status" => 1,
                 "data" => $standard,

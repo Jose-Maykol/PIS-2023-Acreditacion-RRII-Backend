@@ -10,11 +10,10 @@ class UserStandardModel extends RelationsPivot
     use HasFactory;
     public $timestamps = false;
 
-    protected $table ='users_standards';
+    protected $table = 'users_standards';
     protected $fillable = [
         'user_id',
         'standard_id',
-        'is_being_edited'
     ];
 
     public function user()

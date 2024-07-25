@@ -45,8 +45,6 @@ Route::middleware("auth:sanctum")->prefix('standards')->group(function () {
         Route::middleware('semesterisopen')->group(function () {
             Route::put('', [StandardController::class, 'updateNarrative']);
             Route::delete('', [NarrativasController::class, 'delete'])->where('narrative_id', '[0-9]+');
-            Route::post('block', [StandardController::class, 'blockNarrative'])->where('narrative_id', '[0-9]+');
-            Route::post('unlock', [StandardController::class, 'unlockNarrative'])->where('narrative_id', '[0-9]+');
             Route::post('enable', [StandardController::class, 'enableNarrative'])->where('narrative_id', '[0-9]+');
             Route::post('insert', [StandardController::class, 'insertLinkNarrative'])->where('narrative_id', '[0-9]+');
         });

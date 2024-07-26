@@ -5,6 +5,8 @@ namespace App\Services;
 use Google\Client;
 use Google\Service\Docs;
 use Google\Service\Drive;
+use GuzzleHttp\Promise\Promise;
+use Illuminate\Support\Facades\Log;
 
 class GoogleDriveService
 {
@@ -41,23 +43,6 @@ class GoogleDriveService
     }
     return $parentId;
   }
-
-  /*   public function shareFolder($service, $folderId, $emailAddress)
-  {
-    $permission = new Drive\Permission([
-      'type' => 'user',
-      'role' => 'writer',
-      'emailAddress' => $emailAddress,
-    ]);
-
-    try {
-      $service->permissions->create($folderId, $permission, [
-        'fields' => 'id',
-      ]);
-    } catch (\Exception $e) {
-      throw new \Exception("Error al compartir la carpeta: " . $e->getMessage());
-    }
-  } */
 
   protected function getFolderId($service, $folderName, $parentId)
   {
@@ -167,6 +152,39 @@ class GoogleDriveService
       $docsService->documents->batchUpdate($docId, new Docs\BatchUpdateDocumentRequest(['requests' => $requests]));
     } catch (\Exception $e) {
       throw new \Exception("Error al escribir en el documento: " . $e->getMessage());
+    }
+  }
+
+  public function downloadAsWord($documentId)
+  {
+    $drive = new Drive($this->client);
+
+    try {
+      $response = $drive->files->export($documentId, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', array(
+        'alt' => 'media'
+      ));
+
+      $content = $response->getBody()->getContents();
+
+      if (empty($content)) {
+        Log::error("El contenido descargado de Google Drive está vacío para el documento ID: $documentId");
+        return null;
+      }
+
+      $tempFile = tempnam(sys_get_temp_dir(), 'word_') . '.docx';
+      file_put_contents($tempFile, $content);
+
+      if (!file_exists($tempFile) || filesize($tempFile) == 0) {
+        Log::error("No se pudo crear el archivo temporal o está vacío para el documento ID: $documentId");
+        return null;
+      }
+
+      Log::info("Archivo descargado exitosamente: $tempFile para el documento ID: $documentId");
+
+      return $tempFile;
+    } catch (\Exception $e) {
+      Log::error("Error al descargar documento de Google Drive: " . $e->getMessage());
+      return null;
     }
   }
 }

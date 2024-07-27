@@ -10,6 +10,10 @@ use Illuminate\Http\Request;
 use App\Services\GoogleDriveService;
 use GuzzleHttp\Promise\Utils;
 use Illuminate\Support\Facades\Log;
+use PhpOffice\PhpWord\Element\Image;
+use PhpOffice\PhpWord\Element\Table;
+use PhpOffice\PhpWord\Element\Text;
+use PhpOffice\PhpWord\Element\TextRun;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Shared\Html;
@@ -75,19 +79,88 @@ class NarrativeService
                     $estandar = StandardModel::where("nro_standard", $standard->nro_standard)->where("date_id", $date->id)->first();
 
                     if ($estandar != null && $estandar->document_id != null) {
-                        Log::info("Procesando documento para estándar: {$standard->nro_standard}, fecha: {$date->year}-{$date->semester}");
+                        Log::info("Iniciando procesamiento del documento para estándar: {$standard->nro_standard}, fecha: {$date->year}-{$date->semester}");
                         $tempFile = $this->googleDriveService->downloadAsWord($estandar->document_id);
                         $documentContent = IOFactory::load($tempFile);
 
                         $sections = $documentContent->getSections();
+                        Log::info("Número de secciones en el documento: " . count($sections));
 
-                        foreach ($sections as $section) {
-                            foreach ($section->getElements() as $element) {
-                                $template->setComplexValue('narrativa#' . ($j + 1) . '#' . ($key + 1), $element);
+                        $maxElements = 1000; // Ajusta este número según sea necesario
+
+                        foreach ($sections as $sectionIndex => $section) {
+                            Log::info("Procesando sección " . ($sectionIndex + 1));
+
+                            $elements = $section->getElements();
+                            Log::info("Número de elementos en la sección " . ($sectionIndex + 1) . ": " . count($elements));
+
+                            foreach ($elements as $elementIndex => $element) {
+
+                                Log::info("Procesando elemento " . ($elementIndex + 1) . " de tipo: " . get_class($element));
+
+                                if ($element instanceof \PhpOffice\PhpWord\Element\Image) {
+                                    Log::info("Procesando imagen");
+                                    $imagePath = $element->getSource();
+                                    $template->setImageValue('narrativa#' . ($j + 1) . '#' . ($key + 1), $imagePath);
+                                } elseif ($element instanceof \PhpOffice\PhpWord\Element\Table) {
+                                    Log::info("Procesando tabla");
+                                    $tableData = [];
+                                    foreach ($element->getRows() as $row) {
+                                        $rowData = [];
+                                        foreach ($row->getCells() as $cell) {
+                                            $cellContent = '';
+                                            foreach ($cell->getElements() as $cellElement) {
+                                                if ($cellElement instanceof Text) {
+                                                    $cellContent .= $cellElement->getText();
+                                                } elseif ($cellElement instanceof TextRun) {
+                                                    foreach ($cellElement->getElements() as $textRunElement) {
+                                                        if ($textRunElement instanceof Text) {
+                                                            $cellContent .= $textRunElement->getText();
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            $rowData[] = $cellContent;
+                                        }
+                                        $tableData[] = $rowData;
+                                    }
+
+                                    if (!empty($tableData)) {
+                                        $table = new Table(['unit' => \PhpOffice\PhpWord\SimpleType\TblWidth::TWIP, 'width' => 100 * 50]);
+                                        foreach ($tableData as $rowData) {
+                                            $tableRow = $table->addRow();
+                                            foreach ($rowData as $cellContent) {
+                                                $tableRow->addCell(1750)->addText($cellContent);
+                                                Log::info("Contenido de celda: $cellContent");
+                                            }
+                                        }
+
+                                        // Insertar la tabla en el documento
+                                        $template->setComplexBlock('tabla#' . ($j + 1) . '#' . ($key + 1), $table);
+
+                                        Log::info("Tabla creada e insertada en el template con " . count($tableData) . " filas y " . count($tableData[0]) . " columnas");
+                                    } else {
+                                        Log::warning("No se encontró contenido en la tabla original para crear una nueva tabla");
+                                    }
+                                } /* elseif ($element instanceof \PhpOffice\PhpWord\Element\TextRun) {
+                                    Log::info("Procesando TextRun");
+                                    $textContent = '';
+                                    foreach ($element->getElements() as $textElement) {
+                                        if ($textElement instanceof \PhpOffice\PhpWord\Element\Text) {
+                                            $textContent .= $textElement->getText();
+                                        }
+                                    }
+                                    $template->setValue('narrativa#' . ($j + 1) . '#' . ($key + 1), $textContent);
+                                } elseif ($element instanceof \PhpOffice\PhpWord\Element\Text) {
+                                    Log::info("Procesando Text");
+                                    $template->setValue('narrativa#' . ($j + 1) . '#' . ($key + 1), $element->getText());
+                                } */ else {
+                                    Log::info("Procesando otro tipo de elemento");
+                                    $template->setComplexBlock('narrativa#' . ($j + 1) . '#' . ($key + 1), $element);
+                                }
                             }
                         }
-
-                        unlink($tempFile);
+                        /* unlink($tempFile); */
                     } else if ($estandar == null) {
                         $template->setValue('narrativa#' . ($j + 1) . '#' . ($key + 1), "Este periodo no tiene ningún estándar");
                     } else if ($estandar->document_id == null) {
